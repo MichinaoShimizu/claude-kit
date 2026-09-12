@@ -65,6 +65,25 @@ test('detects orphan doc under docsDir', () => {
   rmSync(root, { recursive: true, force: true });
 });
 
+test('scans the whole repo, not just entryPoints/docsDir/skillsDir (detects orphan elsewhere)', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n',
+    'CONTRIBUTING.md': '# Contributing\n',
+  });
+  const result = run(root);
+  assert.ok(result.failures.some((f) => f.kind === 'orphan' && f.from === 'CONTRIBUTING.md'));
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('excludePaths keeps excluded directories out of the scan entirely', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n',
+    'node_modules/some-lib/README.md': '# Some lib\n[missing](missing.md)\n',
+  });
+  assert.deepEqual(run(root).failures, []);
+  rmSync(root, { recursive: true, force: true });
+});
+
 test('flags oversized doc and honors todo exemption', () => {
   const big = '# Big\n\n' + 'x'.repeat(40000) + '\n';
   const root = makeRepo({

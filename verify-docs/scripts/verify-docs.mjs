@@ -23,12 +23,20 @@
  *   - マークダウンリンクの飛び先が実在するか（外部 URL は見ない）
  *   - 断片（`#見出し`）が、その文書の見出しに実在するか
  *   - 本文にバッククォートで書いたリポジトリ内のパスが実在するか
- *   - docs ディレクトリの文書が、どこかから参照されているか（孤立していないか）
+ *   - entryPoints・スキルの SKILL.md 以外の文書が、どこかから参照されているか
+ *     （孤立していないか）
  *   - スキルの補助文書（references/ など）が、自分の SKILL.md から参照されているか
  *   - 各文書のバイト数が、決めた上限を超えていないか（TODO ファイルに書いた例外は除く）
  *   - 同じ段落（一定の長さ以上）が複数の文書にそのまま重複していないか
  *   - （既定オフ）句読点・敬体/常体だけが違う、ほぼ同じ段落が複数の文書に
  *     ないか（`checkNearDuplicates`。誤検知が増えやすいのでオプトイン）
+ *
+ * 検査対象の集め方:
+ *   `excludePaths` に列挙したディレクトリを除き、リポジトリ全体の `*.md` を対象と
+ *   する。`entryPoints`・`docsDir`・`skillsDir` は「その文書に何を期待するか」
+ *   （孤立チェックの免除・SKILL.md との紐付けなど）を決めるだけで、検査対象への
+ *   出し入れには使わない。**特定のディレクトリだけを見る方式（旧仕様）は、そこに
+ *   置き忘れた文書が黙って検査から漏れる事故を招くため採用しない。**
  *
  * 設定（すべて省略可。既定値は DEFAULTS を見る）:
  *   verify-docs.config.json をリポジトリ直下に置くと読む。
@@ -38,6 +46,7 @@
  *       "docsDir": "docs",
  *       "skillsDir": ".claude/skills",
  *       "pathRoots": ["src/", "docs/", "scripts/", ".claude/", ".github/"],
+ *       "excludePaths": ["node_modules/", ".git/", "vendor/", "dist/", "build/"],
  *       "maxDocBytes": 30000,
  *       "minDuplicateChars": 60,
  *       "checkDuplicates": true,
@@ -90,6 +99,7 @@ const DEFAULTS = {
   docsDir: 'docs',
   skillsDir: '.claude/skills',
   pathRoots: ['src/', 'docs/', 'scripts/', '.claude/', '.github/'],
+  excludePaths: ['node_modules/', '.git/', 'vendor/', 'dist/', 'build/'],
   maxDocBytes: 30000,
   minDuplicateChars: 60,
   checkDuplicates: true,
@@ -123,21 +133,30 @@ const fail = (kind, from, target, reason) => failures.push({ kind, from, target,
 
 /* ---------- 対象の文書を集める ---------- */
 
+/* entryPoints・docsDir・skillsDir に置き忘れると検査から漏れてしまうため（本ツール
+ * 自体がこれで CONTRIBUTING.md の重複を見逃した）、リポジトリ全体の *.md を対象に
+ * 走査する。`excludePaths` に列挙したディレクトリ配下のみ除外する（既定は
+ * node_modules・.git・vendor・dist・build）。 */
+
+const isExcluded = (relDir) =>
+  config.excludePaths.some((prefix) => `${relDir}/`.startsWith(prefix));
+
 function walk(dir, hits = []) {
   if (!existsSync(dir)) return hits;
   for (const name of readdirSync(dir)) {
     const full = join(dir, name);
-    if (statSync(full).isDirectory()) walk(full, hits);
-    else if (name.endsWith('.md')) hits.push(relative(ROOT, full));
+    const rel = relative(ROOT, full);
+    if (statSync(full).isDirectory()) {
+      if (isExcluded(rel)) continue;
+      walk(full, hits);
+    } else if (name.endsWith('.md')) {
+      hits.push(rel);
+    }
   }
   return hits;
 }
 
-const documents = [
-  ...config.entryPoints.filter((p) => existsSync(join(ROOT, p))),
-  ...walk(join(ROOT, config.docsDir)),
-  ...walk(join(ROOT, config.skillsDir)),
-].sort();
+const documents = [...new Set(walk(ROOT))].sort();
 
 /* ---------- --init-todo: 既存リポジトリへの導入 ---------- */
 

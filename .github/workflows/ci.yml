@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: verify-docs でリポジトリ直下（README.md・CLAUDE.md）を検査する
+      - name: verify-docs でリポジトリ直下の文書（README.md・CLAUDE.md・CONTRIBUTING.md など）を検査する
         run: node verify-docs/scripts/verify-docs.mjs
 
   package-self-check:
