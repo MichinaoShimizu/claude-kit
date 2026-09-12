@@ -182,6 +182,21 @@ test('near-duplicate check respects allow-duplicate marker', () => {
   rmSync(root, { recursive: true, force: true });
 });
 
+test('every DEFAULTS key is documented in config.md (prevents doc drift when a key is added)', () => {
+  const script = readFileSync(SCRIPT, 'utf8');
+  const defaultsBlock = script.match(/const DEFAULTS = \{([\s\S]*?)\n\};/)[1];
+  const keys = [...defaultsBlock.matchAll(/^\s*(\w+):/gm)].map((m) => m[1]);
+  assert.ok(keys.length > 0, 'failed to extract DEFAULTS keys from verify-docs.mjs');
+
+  const configMd = readFileSync(
+    join(import.meta.dirname, '../.claude/skills/verify-docs/references/config.md'),
+    'utf8',
+  );
+  for (const key of keys) {
+    assert.ok(configMd.includes(`\`${key}\``), `config.md is missing documentation for "${key}"`);
+  }
+});
+
 test('--init-todo writes todo file for oversized docs and refuses to overwrite', () => {
   const big = '# Big\n\n' + 'x'.repeat(40000) + '\n';
   const root = makeRepo({
