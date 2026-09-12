@@ -19,8 +19,8 @@
   "docsDir": "docs",
   "skillsDir": ".claude/skills",
   "pathRoots": ["src/", "docs/", "scripts/", ".claude/", ".github/"],
-  "excludePaths": ["node_modules/", ".git/", "vendor/", "dist/", "build/"],
-  "maxDocBytes": 30000,
+  "excludePaths": ["node_modules/", ".git/", "vendor/", "dist/", "build/", ".verify-docs/"],
+  "maxDocBytes": 20000,
   "minDuplicateChars": 60,
   "checkDuplicates": true,
   "checkNearDuplicates": false,
@@ -34,7 +34,7 @@
 | `docsDir`             | 話題ごとの詳細文書を配置するディレクトリ                             |
 | `skillsDir`           | スキル定義を配置するディレクトリ（`<skillsDir>/<name>/SKILL.md` を想定） |
 | `pathRoots`           | 本文中のバッククォート表記をパスとして検査する接頭辞                 |
-| `excludePaths`        | 検査対象から除外するディレクトリ（下記「検査対象の集め方」を参照）   |
+| `excludePaths`        | 検査対象から除外するディレクトリ（下記「検査対象の集め方」を参照）。既定に含まれる `.verify-docs/` は作業チェックリストの保管先（下記「作業チェックリストの保管先」を参照） |
 | `maxDocBytes`         | 1文書あたりの上限（バイト数）。超過時は分割するか TODO に記載する    |
 | `minDuplicateChars`   | 重複検査の対象とする段落の最小文字数。値が小さいほど誤検知が増加する |
 | `checkDuplicates`     | 完全一致の重複検査の有効・無効。既定は有効                           |
@@ -160,3 +160,12 @@ Python プロジェクト（`tests/` を使う構成）の例:
 マーカー直後の1段落のみが重複検査から除外される。**サイズ超過の TODO と
 異なり、ファイルには痕跡が残らない。** 段落そのものの近傍に理由を記載
 できるため、コメントとして「なぜ重複させているか」も併記することを推奨する。
+
+## 作業チェックリストの保管先（`.verify-docs/`）
+
+[本 SKILL.md](../SKILL.md)・[dedupe-docs スキル](../../dedupe-docs/SKILL.md)
+の検査手順が作るチェックリストは、リポジトリ直下の `.verify-docs/dist/`
+配下に物理ファイルとして保管する（必須。作り方・運用ルールの詳細は
+[checklist.md](checklist.md) を参照）。**`excludePaths` の既定値に
+`.verify-docs/` を含めているのはこのため**であり、チェックリストは
+検査対象（参照整合性・サイズ・重複）から常に除外される。
