@@ -16,9 +16,10 @@ CLAUDE.md・AGENTS.md はルーティングテーブルに徹する（話題と�
      矛盾した説明が残留する事故を防止する）
 2. **プレイブック**（`.claude/skills/verify-docs/SKILL.md`）—— 検出事項の
    是正手順（太った文書の分割方法、重複の解消方法、TODO の記述方法）。
-   言い回しが異なる言い換えによる重複（チェッカーでは検出できない）は、
-   同梱の [dedupe-docs スキル](.claude/skills/dedupe-docs/SKILL.md) を
-   参照する
+   言い回しが異なる言い換えによる重複（チェッカーでは検出できない）は
+   同梱の [dedupe-docs スキル](.claude/skills/dedupe-docs/SKILL.md)、
+   意味を変えない冗長な言い回しの削減は同梱の
+   [tighten-docs スキル](.claude/skills/tighten-docs/SKILL.md) を参照する
 
 エージェント・フックへの依存は無い。検査スクリプトを CI と push 前検証に
 組み込むことで機能する。遵守事項（是正対象は構造のみとし、内容は変更しない）
@@ -36,6 +37,7 @@ your-repo/
 ├── scripts/verify-docs.mjs               ← このディレクトリの scripts/ をコピー
 ├── .claude/skills/verify-docs/           ← このディレクトリの .claude/ をコピー（SKILL.md と references/）
 ├── .claude/skills/dedupe-docs/           ← 同上（言い換えによる重複の是正。任意だが同梱を推奨）
+├── .claude/skills/tighten-docs/          ← 同上（冗長な言い回しの削減。任意だが同梱を推奨）
 └── verify-docs.config.json               ← 必要な場合のみ作成する（無くても動作する）
 ```
 
