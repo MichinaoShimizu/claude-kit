@@ -7,3 +7,10 @@
 
 - [x] `node scripts/verify-docs.mjs`（ルート設定） — 2026-09-12 / 「文書構造: すべて通過」（文書3件、TODO例外0件）
 - [x] `verify-docs/ci-selfcheck.sh`（自己検査） — 2026-09-12 / テスト17件全pass
+
+## 総評
+
+- 検査対象: 3ファイル（ルート）＋自己検査対象一式（verify-docs.mjs出力）
+- 検出した違反: 0件
+- 効果: サイズ変更なし。チェックリスト出力先をTaskCreateとの二択から
+  `.verify-docs/dist/`への物理ファイル一本化に変更した直後の動作確認
