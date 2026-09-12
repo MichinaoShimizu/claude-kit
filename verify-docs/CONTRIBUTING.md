@@ -1,4 +1,4 @@
-# この一式を改修する際の作法
+# この一式の改修作法
 
 本ファイルは `verify-docs.mjs` 自体・`SKILL.md`・`references/config.md` を
 改修する側の作法を扱う。利用側の手順は [README.md](README.md) を参照する。

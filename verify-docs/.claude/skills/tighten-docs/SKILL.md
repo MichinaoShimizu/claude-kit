@@ -53,7 +53,7 @@ verify-docs の検査はサイズ超過という結果のみを見る。冗長�
 
 ### 3. サイズ変化記録
 
-[checklist.md「サイズを変更した場合の記録」](../verify-docs/references/checklist.md#サイズを変更した場合の記録)
+[checklist.md「サイズ変更時の記録」](../verify-docs/references/checklist.md#サイズ変更時の記録)
 の様式（圧縮前後サイズ・圧縮率）に従う。
 
 ### 4. 是正後再検査

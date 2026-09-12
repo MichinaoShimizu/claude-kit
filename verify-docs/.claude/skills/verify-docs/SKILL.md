@@ -35,7 +35,7 @@ description: >
 分離する（構造是正と内容是正を同じ変更に混ぜると、どちらで意味が変わったか
 追跡できなくなる）。
 
-## チェッカーとプレイブックを分離する
+## チェッカーとプレイブックの分離
 
 本スキル一式は2つに分かれる。同一の回で両方を兼務させない（審査対象と
 審査基準が同一の判断軸を持つと精度が落ちる）。
@@ -70,7 +70,7 @@ node scripts/verify-docs.mjs
 
 ## 手順
 
-### 1. 入口を軽量化する
+### 1. 入口軽量化
 
 CLAUDE.md・AGENTS.md（または README）を開き、「MUST」と「道案内（どの
 話題のときにどの文書を開くか）」のみが残っているかを確認する。この2つの
@@ -83,7 +83,7 @@ CLAUDE.md・AGENTS.md（または README）を開き、「MUST」と「道案内
 チェッカーはサイズという結果のみを検査する（削減の手順は
 [tighten-docs スキル](../tighten-docs/SKILL.md)を参照）。
 
-### 2. 肥大化した文書を特定する
+### 2. 肥大化文書の特定
 
 ```bash
 node scripts/verify-docs.mjs
@@ -102,7 +102,7 @@ node scripts/verify-docs.mjs
 確認し、断片リンクは `他ファイル.md#見出し` に修正する。分割は重複を
 生みやすいため、分割後に再度検査を実行する（次の「3.」）。
 
-### 3. 重複を特定する
+### 3. 重複特定
 
 `[重複]` が出力されたら、同一内容が複数文書にそのまま存在している。
 
@@ -121,7 +121,7 @@ node scripts/verify-docs.mjs
 異なる言い換えの重複は検知できない。この判断は
 [dedupe-docs スキル](../dedupe-docs/SKILL.md) を参照する。
 
-### 4. 分割できない場合は TODO に記載する
+### 4. 分割不可時の TODO 記載
 
 既存の大規模リポジトリへの後発導入では、その場では分割できない文書が
 出る。超過を黙認せず、`verify-docs.todo.json`（既定のファイル名）に理由を
@@ -129,13 +129,13 @@ node scripts/verify-docs.mjs
 [references/config.md「`verify-docs.todo.json`」](references/config.md#verify-docstodojson)
 を参照する。
 
-### 5. CI に組み込む
+### 5. CI 組み込み
 
 push・PR の前に必ず通過するよう構成する。組み込み方法は
 [README.md](../../../README.md)「CI への組み込み」を参照する。ローカルに
 配置するだけでは、直後に再度肥大化する。
 
-### 6. 維持する
+### 6. 維持
 
 一度是正しても、追記のたびに再度肥大化・重複が起きる。新規文書追加時・
 既存文書への追記時に毎回 `node scripts/verify-docs.mjs` を実行する
