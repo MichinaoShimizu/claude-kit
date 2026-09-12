@@ -115,6 +115,54 @@ test('allow-duplicate marker suppresses duplicate check', () => {
   rmSync(root, { recursive: true, force: true });
 });
 
+test('near-duplicate check is opt-in and off by default', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n\n[a](docs/a.md)\n[b](docs/b.md)\n',
+    'docs/a.md': '# A\n\nこのツールは文書の構造を検査します。参照切れとサイズ超過を見ます。\n',
+    'docs/b.md': '# B\n\nこのツールは文書の構造を検査する。参照切れとサイズ超過を見る。\n',
+  });
+  assert.ok(!run(root).failures.some((f) => f.kind === 'near-duplicate'));
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('near-duplicate check catches punctuation and register (敬体/常体) variants when enabled', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n\n[a](docs/a.md)\n[b](docs/b.md)\n',
+    'docs/a.md': '# A\n\nこのツールは文書の構造を検査します。参照切れとサイズ超過を見ます。\n',
+    'docs/b.md': '# B\n\nこのツールは文書の構造を検査する。参照切れとサイズ超過を見る。\n',
+    'verify-docs.config.json': JSON.stringify({ checkNearDuplicates: true, minDuplicateChars: 10 }),
+  });
+  assert.ok(run(root).failures.some((f) => f.kind === 'near-duplicate'));
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('near-duplicate check does not double-report exact duplicates', () => {
+  const shared =
+    'This paragraph is intentionally long enough to trigger duplicate detection logic here.';
+  const root = makeRepo({
+    'README.md': '# Repo\n\n[a](docs/a.md)\n[b](docs/b.md)\n',
+    'docs/a.md': `# A\n\n${shared}\n`,
+    'docs/b.md': `# B\n\n${shared}\n`,
+    'verify-docs.config.json': JSON.stringify({ checkNearDuplicates: true }),
+  });
+  const failures = run(root).failures;
+  assert.ok(failures.some((f) => f.kind === 'duplicate'));
+  assert.ok(!failures.some((f) => f.kind === 'near-duplicate'));
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('near-duplicate check respects allow-duplicate marker', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n\n[a](docs/a.md)\n[b](docs/b.md)\n',
+    'docs/a.md': '# A\n\nこのツールは文書の構造を検査します。参照切れとサイズ超過を見ます。\n',
+    'docs/b.md':
+      '# B\n\n<!-- verify-docs:allow-duplicate -->\n\nこのツールは文書の構造を検査する。参照切れとサイズ超過を見る。\n',
+    'verify-docs.config.json': JSON.stringify({ checkNearDuplicates: true, minDuplicateChars: 10 }),
+  });
+  assert.ok(!run(root).failures.some((f) => f.kind === 'near-duplicate'));
+  rmSync(root, { recursive: true, force: true });
+});
+
 test('--init-todo writes todo file for oversized docs and refuses to overwrite', () => {
   const big = '# Big\n\n' + 'x'.repeat(40000) + '\n';
   const root = makeRepo({
