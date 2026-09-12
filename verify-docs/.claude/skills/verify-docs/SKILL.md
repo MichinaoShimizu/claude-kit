@@ -78,7 +78,8 @@ node scripts/verify-docs.mjs
 チェックリストへ項目として反映する（想定外の違反であれば追記してよい）。
 1件是正するごとにチェックを入れ、日時・担当・判断理由を書き添える。全項目に
 チェックが入ったら `node scripts/verify-docs.mjs` を再実行し、新規の違反が
-発生していないか確認する。
+発生していないか確認する。完了時に書く総評の様式は
+[references/checklist-summary.md](references/checklist-summary.md) を参照する。
 
 ## 手順
 
