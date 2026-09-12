@@ -60,6 +60,8 @@ node scripts/verify-docs.mjs
   重ねて書いている（「詳細は X を参照」と言いながら X の内容を先に
   書いてしまっている）
 - 複数の詳細文書が、同じ前提・同じ手順を独立に説明している
+- Mermaid などのダイアグラムと地の文が、同じ関係・同じフローを別表現で
+  重ねて説明している
 
 ### 3. 確信度別の対応
 
@@ -72,7 +74,7 @@ node scripts/verify-docs.mjs
   異なる、片方が要約でもう片方が手順の詳細、など）→ その場で断定して
   統合せず、検出内容と根拠を人に報告して判断を仰ぐ
 - **意図して重複させるべき場合**（免責文言・定型の注意書きなど）→
-  [config.md「意図した重複の許可」](../verify-docs/references/config.md#意図した重複の許可)
+  [duplicate-handling.md「意図した重複の許可」](../verify-docs/references/duplicate-handling.md#意図した重複の許可)
   の `allow-duplicate` マーカーを使う。統合の対象からも外す
 
 本手順の判定はチェッカーと異なり再現性を持たない（同じ入力でも見落とし・

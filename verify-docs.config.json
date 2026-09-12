@@ -1,3 +1,4 @@
 {
-  "excludePaths": ["node_modules/", ".git/", "vendor/", "dist/", "build/", "verify-docs/", ".verify-docs/"]
+  "excludePaths": ["node_modules/", ".git/", "vendor/", "dist/", "build/", "verify-docs/", ".verify-docs/"],
+  "maxDocBytes": 7000
 }

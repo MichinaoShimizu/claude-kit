@@ -1,6 +1,9 @@
 # verify-docs-checklist
 
-## verify-docs — 2026-09-13T00:15:40+0900
+## verify-docs — 2026-09-13T01:30:00+0900
+
+既定上限を20000→7000バイトに変更後、TODO化した4文書のうち2件を分割で
+是正した回。
 
 ### リポジトリ直下（node scripts/verify-docs.mjs, 3件）
 
@@ -8,47 +11,83 @@
 - [x] CLAUDE.md — 2026-09-13 / 違反なし
 - [x] CONTRIBUTING.md — 2026-09-13 / 違反なし
 
-### verify-docs パッケージ単体（node scripts/verify-docs.mjs --root=verify-docs, 8件）
+### verify-docs パッケージ単体（ci-selfcheck.sh 経由, 11件）
 
-- [x] verify-docs/README.md — 2026-09-13 / 3スキルが独立実行であること・まとめて実行させるプロンプト例を追記。参照切れ・重複なし
+- [x] verify-docs/README.md — 2026-09-13 / TODO残置（7508B、既定上限変更に伴う超過。分割は次回検討）
 - [x] verify-docs/CONTRIBUTING.md — 2026-09-13 / 違反なし
-- [x] verify-docs/.claude/skills/verify-docs/SKILL.md — 2026-09-13 / 違反なし
-- [x] verify-docs/.claude/skills/verify-docs/references/config.md — 2026-09-13 / 違反なし
-- [x] verify-docs/.claude/skills/verify-docs/references/checklist.md — 2026-09-13 / 違反なし
+- [x] verify-docs/.claude/skills/verify-docs/SKILL.md — 2026-09-13 / TODO残置（9291B、手順1〜6は線形手順で分割候補が薄いため次回検討）
+- [x] verify-docs/.claude/skills/verify-docs/references/config.md — 2026-09-13 / 分割で是正 → `references/todo.md`・`references/duplicate-handling.md`を切り出し、さらに「作業チェックリストの保管先」をchecklist.mdへ統合し6,816Bに縮小。TODOから削除
+- [x] verify-docs/.claude/skills/verify-docs/references/todo.md（新規） — 2026-09-13 / config.mdから切り出し。1,607B
+- [x] verify-docs/.claude/skills/verify-docs/references/duplicate-handling.md（新規） — 2026-09-13 / config.mdから切り出し。1,764B
+- [x] verify-docs/.claude/skills/verify-docs/references/checklist.md — 2026-09-13 / config.mdの「作業チェックリストの保管先」の内容を吸収し5,600Bに増加も上限内
 - [x] verify-docs/.claude/skills/verify-docs/references/checklist-summary.md — 2026-09-13 / 違反なし
-- [x] verify-docs/.claude/skills/tighten-docs/SKILL.md — 2026-09-13 / 違反なし
+- [x] verify-docs/.claude/skills/tighten-docs/SKILL.md — 2026-09-13 / 分割で是正 → `references/patterns.md`へ23パターンの一覧を切り出し3,481Bに縮小。TODOから削除
+- [x] verify-docs/.claude/skills/tighten-docs/references/patterns.md（新規） — 2026-09-13 / SKILL.mdから切り出し。4,760B
 - [x] verify-docs/.claude/skills/dedupe-docs/SKILL.md — 2026-09-13 / 違反なし
 
 ### 総評
 
-- 検査したファイル数: リポジトリ直下 3件 + verify-docsパッケージ単体 8件（重複無しの別スコープ、合計11件）
-- 検出した違反・重複の件数: 0件（両スコープとも「文書構造: すべて通過」）
-- 作業にかかった時間: 2026-09-13 内、数分程度
-- 全体のサイズ変化: verify-docs/README.md にプロンプト例の段落を追加（バイト数増、圧縮は対象外のため計測省略）
+- 検査したファイル数: リポジトリ直下 3件 + verify-docsパッケージ単体 11件（重複無しの別スコープ、合計14件）
+- 検出した違反・重複の件数: 0件（両スコープとも「文書構造: すべて通過」）。TODOは4件→2件に削減
+- 作業にかかった時間: 2026-09-13 01:26 〜 01:30（所要4分程度）
+- 全体のサイズ変化: config.md 9,782B→6,816B（2,966B減、30.3%減）、tighten-docs/SKILL.md
+  7,874B→3,481B（4,393B減、55.8%減）。新規ファイル3件（todo.md 1,607B・
+  duplicate-handling.md 1,764B・patterns.md 4,760B）を追加、checklist.md
+  5,579B→5,600B（21B増）
+- 常時読み込み→オンデマンド化: tighten-docs/SKILL.mdの23パターン一覧
+  （約4,760B）をreferences/patterns.mdへ、config.mdのTODO形式・重複検査
+  細目（約3,371B）をreferences/todo.md・duplicate-handling.mdへ、それぞれ
+  常時読み込みからオンデマンドへ移動
+
+## dedupe-docs — 2026-09-13T01:15:56+0900
+
+- [x] README.md — 2026-09-13 / 重複なし
+- [x] CLAUDE.md — 2026-09-13 / 重複なし
+- [x] CONTRIBUTING.md — 2026-09-13 / 重複なし
+- [x] verify-docs/README.md — 2026-09-13 / SKILL.mdと「チェッカー/プレイブックの分離」の説明が概念的に重なる（下記参照）→ 人へ報告後、マージ指示を受け「## チェッカー・プレイブック」見出しを追加した上でSKILL.md側からポインタ化して統合
+- [x] verify-docs/CONTRIBUTING.md — 2026-09-13 / 重複なし
+- [x] verify-docs/.claude/skills/verify-docs/SKILL.md — 2026-09-13 / 上記README.mdの項目と概念重複 → 一覧の再掲を削除しREADME.mdへのポインタに置換。SKILL.md固有の「同一の回で両方を兼務させない」ルールは維持
+- [x] verify-docs/.claude/skills/verify-docs/references/config.md — 2026-09-13 / 重複なし
+- [x] verify-docs/.claude/skills/verify-docs/references/checklist.md — 2026-09-13 / 重複なし
+- [x] verify-docs/.claude/skills/verify-docs/references/checklist-summary.md — 2026-09-13 / 重複なし
+- [x] verify-docs/.claude/skills/tighten-docs/SKILL.md — 2026-09-13 / 重複なし（本セッションで追加したパターンは他文書に存在しないことをgrepで確認済み）
+- [x] verify-docs/.claude/skills/dedupe-docs/SKILL.md — 2026-09-13 / 重複なし
+
+### 総評
+
+- 検査したファイル数: 11件
+- 検出した違反・重複の件数: 1件（人へ報告後、マージ指示を受け統合済み）。詳細:
+  verify-docs/README.md「チェッカー・プレイブック」の説明と
+  verify-docs/.claude/skills/verify-docs/SKILL.md「チェッカーとプレイブックの分離」の説明が、
+  チェッカーの検査3点（参照切れ・孤立、サイズ超過、重複）とプレイブックの役割という同じ
+  概念を別の言葉で説明していた。README側にのみあった「読む量の予算」という導入判断の
+  観点・tighten-docsへのポインタは維持しつつ本来の説明として残し、SKILL.md側は
+  一覧の再掲を削除してREADME.mdへのポインタに置換。SKILL.md固有の「同一の回で両方を
+  兼務させない（判断軸の精度低下を防ぐ）」という実行時の理由は本文に維持した
+  （固有情報を落とさず統合）
+- 作業にかかった時間: 2026-09-13 01:15 〜 01:25（所要10分程度）
+- 全体のサイズ変化: README.md に見出し追加（+11B）、SKILL.mdの一覧をポインタに置換
+  （約280B減）。統合により正本が1箇所に
 - 常時読み込み→オンデマンド化: 該当なし
 
-## dedupe-docs
-
-（未実施）
-
-## tighten-docs — 2026-09-13T00:03:15+0900
+## tighten-docs — 2026-09-13T01:15:56+0900
 
 - [x] README.md — 2026-09-13 / 該当パターンなし
 - [x] CLAUDE.md — 2026-09-13 / 該当パターンなし
 - [x] CONTRIBUTING.md — 2026-09-13 / 該当パターンなし
 - [x] verify-docs/README.md — 2026-09-13 / 該当パターンなし
 - [x] verify-docs/CONTRIBUTING.md — 2026-09-13 / 該当パターンなし
-- [x] verify-docs/.claude/skills/verify-docs/SKILL.md — 2026-09-13 / 該当パターンなし（既存の圧縮履歴あり、checklist-summary.md 参照）
+- [x] verify-docs/.claude/skills/verify-docs/SKILL.md — 2026-09-13 / 該当パターンなし
 - [x] verify-docs/.claude/skills/verify-docs/references/config.md — 2026-09-13 / 該当パターンなし
-- [x] verify-docs/.claude/skills/verify-docs/references/checklist.md — 2026-09-13 / 「自分のセクションだけ書き換え、他は触らない」という同じ説明が3箇所に重複 → 2箇所を削除し1箇所に集約 / 5,704B → 5,579B（2.2%減）
-- [x] verify-docs/.claude/skills/verify-docs/references/checklist-summary.md — 2026-09-13 / 該当パターンなし（総評見出し変更後も該当なし）
-- [x] verify-docs/.claude/skills/tighten-docs/SKILL.md — 2026-09-13 / 該当パターンなし
-- [x] verify-docs/.claude/skills/dedupe-docs/SKILL.md — 2026-09-13 / 該当パターンなし（既存の圧縮履歴あり、checklist-summary.md 参照）
+- [x] verify-docs/.claude/skills/verify-docs/references/checklist.md — 2026-09-13 / 該当パターンなし
+- [x] verify-docs/.claude/skills/verify-docs/references/checklist-summary.md — 2026-09-13 / 該当パターンなし
+- [x] verify-docs/.claude/skills/tighten-docs/SKILL.md — 2026-09-13 / 該当パターンなし（本セッションで新規追加した23パターン自体が該当箇所を含まないことを確認）
+- [x] verify-docs/.claude/skills/dedupe-docs/SKILL.md — 2026-09-13 / 該当パターンなし
 
 ### 総評
 
-- 検査したファイル数: 11件（リポジトリ直下3件 + verify-docsパッケージ単体8件）
-- 検出した違反・重複の件数: 1件（checklist.md内の「自分のセクションだけ書き換え、他は触らない」の3重説明。他10件は該当パターンなし）
-- 作業にかかった時間: 2026-09-13 内、数分程度
-- 全体のサイズ変化: checklist.md 5,704B → 5,579B（125B減、2.2%減）。合計 54,637B → 54,512B
+- 検査したファイル数: 11件
+- 検出した違反・重複の件数: 0件（該当パターンなし）
+- 作業にかかった時間: 2026-09-13 01:15 〜 01:22（所要7分程度）
+- 全体のサイズ変化: サイズ変更なし（合計 54,600B台、本回で変更した文書なし）
 - 常時読み込み→オンデマンド化: 該当なし
