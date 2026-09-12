@@ -1,0 +1,16 @@
+name: verify-docs
+
+on:
+  pull_request:
+    paths:
+      - '**/*.md'
+      - 'docs-structure.config.json'
+      - 'docs-structure.todo.json'
+      - 'scripts/verify-doc-structure.mjs'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node scripts/verify-doc-structure.mjs

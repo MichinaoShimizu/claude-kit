@@ -1,0 +1,16 @@
+# このツール自身の開発 TODO
+
+`docs-structure.todo.json`（運用上の TODO。README の「TODO の管理方法」を見る）
+とは別物。こちらはツールの機能追加・未対応のケースを追う、ふつうの意味の TODO。
+
+- [ ] investment-analysis リポジトリ以外（Python プロジェクト・モノレポなど）で
+      実際に導入して、`pathRoots`・`docsDir` の既定値が汎用的かを確かめる
+- [ ] `--init-todo` が生成した TODO を、期限や優先度つきで書けるようにするか検討
+      （いまは `path` と `reason` だけ。増やしすぎると運用上の TODO 自体が
+      肥大化するので、慎重に判断する）
+- [ ] Markdown 以外（`.mdx`・`.rst`）を検査対象にするかどうかの検討
+- [ ] CLAUDE.md のような「索引の表」と実体（`.claude/skills/`・`.claude/agents/`
+      など）の突き合わせを、設定で有効化できるオプション検査として足すか検討
+      （investment-analysis の `verify-doc-links.mjs` にはあるが、見出し名が
+      リポジトリ固有になりがちなので、汎用ツールには初期実装から外してある）
+- [ ] `verify-doc-structure.mjs` 自体の単体テストを足す

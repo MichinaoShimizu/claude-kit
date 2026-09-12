@@ -1,0 +1,8 @@
+{
+  "entryPoints": ["README.md", "CLAUDE.md"],
+  "docsDir": "docs",
+  "skillsDir": ".claude/skills",
+  "pathRoots": ["src/", "docs/", "scripts/", ".claude/", ".github/"],
+  "maxDocBytes": 30000,
+  "todoFile": "docs-structure.todo.json"
+}
