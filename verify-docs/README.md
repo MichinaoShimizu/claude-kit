@@ -140,8 +140,9 @@ typecheck・test など）の1本として `node scripts/verify-docs.mjs` を足
 `SKILL.md`・`references/config.md` を直す側の話。
 
 - **直したら、自分自身に対して検査を通す（ドッグフーディング）。** この
-  リポジトリ（claude-kit）では `node verify-docs/scripts/verify-docs.mjs
-  --root=verify-docs` で自己検査できる。CI も同じコマンドを走らせる
+  リポジトリ（claude-kit）では [ci-selfcheck.sh](ci-selfcheck.sh) を実行すると
+  自己検査できる。CI もこのスクリプトを、リポジトリ直下から
+  `*/ci-selfcheck.sh` を自動で探す形で走らせる
   （[../.github/workflows/ci.yml](../.github/workflows/ci.yml)）
 - **挙動を変えたら、`SKILL.md`・`references/config.md`・このファイルの
   該当箇所も同じコミットで直す。** コードだけ直して説明が古いまま残ると、

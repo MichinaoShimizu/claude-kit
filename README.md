@@ -28,5 +28,10 @@ Claude Code などの生成AIエージェント向けに作った、リポジト
 各パッケージは、自分自身のディレクトリに対して自分自身の検査を適用する
 （ドッグフーディング）。加えて、リポジトリ直下（README.md・CLAUDE.md）にも
 verify-docs をかける。[.github/workflows/ci.yml](.github/workflows/ci.yml) が
-これらを走らせる。新しいパッケージを足したら、そのパッケージが自己検査できるなら
-ここにも1行足す。
+これらを走らせる。
+
+パッケージの自己検査は `ci.yml` を編集せずに足せる。パッケージのフォルダ直下に
+実行可能な `ci-selfcheck.sh` を置くと、CI がリポジトリ直下から
+`*/ci-selfcheck.sh` を自動で探して実行する（例:
+[verify-docs/ci-selfcheck.sh](verify-docs/ci-selfcheck.sh)）。自己検査を持たない
+パッケージはこのファイルを置かなくてよい。
