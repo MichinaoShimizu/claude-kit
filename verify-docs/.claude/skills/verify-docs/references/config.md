@@ -14,6 +14,7 @@
   "docsDir": "docs",
   "skillsDir": ".claude/skills",
   "pathRoots": ["src/", "docs/", "scripts/", ".claude/", ".github/"],
+  "excludePaths": ["node_modules/", ".git/", "vendor/", "dist/", "build/"],
   "maxDocBytes": 30000,
   "minDuplicateChars": 60,
   "checkDuplicates": true,
@@ -28,11 +29,32 @@
 | `docsDir`             | 話題ごとの詳細文書を配置するディレクトリ                             |
 | `skillsDir`           | スキル定義を配置するディレクトリ（`<skillsDir>/<name>/SKILL.md` を想定） |
 | `pathRoots`           | 本文中のバッククォート表記をパスとして検査する接頭辞                 |
+| `excludePaths`        | 検査対象から除外するディレクトリ（下記「検査対象の集め方」を参照）   |
 | `maxDocBytes`         | 1文書あたりの上限（バイト数）。超過時は分割するか TODO に記載する    |
 | `minDuplicateChars`   | 重複検査の対象とする段落の最小文字数。値が小さいほど誤検知が増加する |
 | `checkDuplicates`     | 完全一致の重複検査の有効・無効。既定は有効                           |
 | `checkNearDuplicates` | 準一致の重複検査の有効・無効。既定は無効（下記「準一致重複」を参照） |
 | `todoFile`            | 例外リストの配置先                                                   |
+
+### 検査対象の集め方
+
+**`entryPoints`・`docsDir`・`skillsDir` に置かれた文書だけを見る方式は
+採らない。** 特定の場所だけを見る方式（許可リスト）だと、そこに置き忘れた
+文書が検査から漏れたまま気づかれない（例: リポジトリ直下に新しく作った
+`CONTRIBUTING.md` が `entryPoints` にも `docsDir` にも無く、孤立チェック・
+重複チェックのどちらにも一切かからなかった事故）。
+
+そのため、`excludePaths` に列挙したディレクトリ（既定は `node_modules/`・
+`.git/`・`vendor/`・`dist/`・`build/`）を除き、**リポジトリ全体の `*.md` を
+検査対象とする（許可リストではなく除外リスト）。** `entryPoints`・
+`docsDir`・`skillsDir` は「検査対象に入れるかどうか」ではなく、「その文書に
+何を期待するか」（孤立チェックを免除する起点か、`SKILL.md` の目次に載る
+べき補助文書か）を決めるためだけに使う。
+
+モノレポで各パッケージを個別に `--root=packages/<name>` で検査する場合
+（「Python プロジェクト・モノレポでの導入」を参照）は、リポジトリ直下の
+検査からパッケージのディレクトリを二重に検査しないよう `excludePaths` で
+除外する。
 
 `maxDocBytes` の設定方針: 初期段階から厳格な値にしないこと。まず上限なしで
 検査を実行し、現存する文書のうち最大サイズで「このままで問題ない」と

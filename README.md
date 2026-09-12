@@ -30,8 +30,10 @@ Claude Code などの生成AIエージェント向けに構築した、リポジ
 ## 本リポジトリ自身の CI
 
 各パッケージは自身のディレクトリに対して自身の検査を適用する
-（ドッグフーディング）。加えて、リポジトリ直下（README.md・CLAUDE.md）にも
-verify-docs を適用する。実行主体は
+（ドッグフーディング）。加えて、リポジトリ直下にも verify-docs を適用する
+（各パッケージのディレクトリは、パッケージ自身の検査と重複しないよう
+[verify-docs.config.json](verify-docs.config.json) の `excludePaths` で
+除外する）。実行主体は
 [.github/workflows/ci.yml](.github/workflows/ci.yml) とする。
 
 パッケージの自己検査は `ci.yml` を編集せずに追加できる。パッケージの
