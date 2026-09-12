@@ -128,14 +128,10 @@ typecheck・test など）に `node scripts/verify-docs.mjs` を1本追加する
 本ツールにおける「TODO」は2種類存在するため、混同しないこと。
 
 - **`verify-docs.todo.json`（本ツールが読み込む、運用上の TODO）。**
-  「サイズ上限を超えていると認識しているが、現時点では分割しない」という
-  申告。記述方法は
-  [references/config.md](.claude/skills/verify-docs/references/config.md)
-  を参照する。**削減する方向にのみ運用する。** 増加する方向（新規に書いた
-  文書が超過したためここに追加する）は本来避けるべきであり、その必要が
-  生じた時点で「その文書の分割方針が不適切」と疑うこと。**重複はここには
-  記載できない**（重複を先送りすると矛盾した説明が残留し続けるため、
-  その場で解消するか `allow-duplicate` で意図を宣言するかの二択とする）
+  記述方法・運用ルール（削減する方向にのみ運用する、重複はここには
+  記載できない、等）は
+  [references/config.md「`verify-docs.todo.json`」](.claude/skills/verify-docs/references/config.md#verify-docstodojson)
+  を参照する（正本は config.md 側とし、本ファイルでは再掲しない）。
 - **本ツール自体の開発 TODO（[TODO.md](TODO.md)）。** 機能追加・
   未対応ケースを追跡する、通常の意味での TODO。運用上の TODO とは無関係
 
