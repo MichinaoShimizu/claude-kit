@@ -172,6 +172,10 @@ push・PR の前に必ず通過するよう構成する。組み込み方法は 
   例外として許容する）
 - 検査結果に複数件出力された違反は、チェックリストの全項目にチェックが
   入っている
+- 作業完了を報告する際は、チェックリストファイルのパス
+  （`.verify-docs/dist/checklist.md`）と、そこに記載した総評
+  （[references/checklist-summary.md](references/checklist-summary.md)
+  参照）を人に伝える
 
 ## 対象外とする範囲
 
