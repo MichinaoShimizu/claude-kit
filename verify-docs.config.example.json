@@ -4,5 +4,7 @@
   "skillsDir": ".claude/skills",
   "pathRoots": ["src/", "docs/", "scripts/", ".claude/", ".github/"],
   "maxDocBytes": 30000,
-  "todoFile": "docs-structure.todo.json"
+  "minDuplicateChars": 60,
+  "checkDuplicates": true,
+  "todoFile": "verify-docs.todo.json"
 }

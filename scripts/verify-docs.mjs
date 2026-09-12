@@ -1,29 +1,35 @@
 #!/usr/bin/env node
 /**
- * 文書構造を検査する —— 「必要な時にだけ必要な文書が読まれる」構造が崩れていないかを機械で見る。
+ * verify-docs —— 文書構造を検査する。
  *
  * 生成AIエージェントに読ませる CLAUDE.md / README.md / docs/ / .claude/skills/ のような
- * 階層的な文書群は、放っておくと2つの壊れ方をする。
+ * 階層的な文書群は、「必要な時にだけ必要な文書が読まれる」ように作っても、放っておくと
+ * 3 つの壊れ方をする。
  *
  *   1. 参照が黙って切れる —— ファイルを動かす・消すと、リンクが死ぬ。誰も見ていないと
  *      気づかないまま古いパスを指し続ける。
  *   2. 1 文書が際限なく太る —— 「この話題のときに開く」という区切りを作っても、
  *      その1文書の中身が増え続けると、開いた瞬間に読む量が膨らんでいく。
+ *   3. 同じ説明が複数の文書に重複する —— コピーしてから直すと、片方だけ更新されて
+ *      矛盾した2つの説明が残る。太った文書を分割するときにも起きやすい。
  *
- * このスクリプトは両方を検査する。
+ * このスクリプトは3つとも検査する。しくみ（このスクリプト）と、ふるまい
+ * （見つかったものをどう直すか）は分けてある。ふるまいの手順は
+ * `.claude/skills/verify-docs/SKILL.md`。
  *
- *   node scripts/verify-doc-structure.mjs
+ *   node scripts/verify-docs.mjs
  *
  * 見ているもの:
  *   - マークダウンリンクの飛び先が実在するか（外部 URL は見ない）
  *   - 断片（`#見出し`）が、その文書の見出しに実在するか
  *   - 本文にバッククォートで書いたリポジトリ内のパスが実在するか
- *   - docs/ の文書が、どこかから参照されているか（孤立していないか）
+ *   - docs ディレクトリの文書が、どこかから参照されているか（孤立していないか）
  *   - スキルの補助文書（references/ など）が、自分の SKILL.md から参照されているか
  *   - 各文書のバイト数が、決めた上限を超えていないか（TODO ファイルに書いた例外は除く）
+ *   - 同じ段落（一定の長さ以上）が複数の文書にそのまま重複していないか
  *
  * 設定（すべて省略可。既定値は DEFAULTS を見る）:
- *   docs-structure.config.json をリポジトリ直下に置くと読む。
+ *   verify-docs.config.json をリポジトリ直下に置くと読む。
  *
  *     {
  *       "entryPoints": ["README.md", "CLAUDE.md"],
@@ -31,10 +37,12 @@
  *       "skillsDir": ".claude/skills",
  *       "pathRoots": ["src/", "docs/", "scripts/", ".claude/", ".github/"],
  *       "maxDocBytes": 30000,
- *       "todoFile": "docs-structure.todo.json"
+ *       "minDuplicateChars": 60,
+ *       "checkDuplicates": true,
+ *       "todoFile": "verify-docs.todo.json"
  *     }
  *
- * TODO ファイル（既定 docs-structure.todo.json）:
+ * TODO ファイル（既定 verify-docs.todo.json）:
  *   既存リポジトリに後から入れると、すでに上限を超えている文書が見つかることがある。
  *   全部その場で分割できるとは限らないので、超過を **黙って見逃す代わりに、
  *   TODO ファイルに書いて明示的に「わかっていて残している」形にする。**
@@ -47,9 +55,14 @@
  *   ただし **すでに上限内に収まっている文書が TODO に残っていたら、それは検査を落とす**
  *   （直したのに消し忘れた借金は、借金のふりをして居座らせない）。
  *
+ * 意図した重複を許すとき:
+ *   免責文言・定型の注意書きなど、**わざと**複数の文書に同じ文を置きたいことがある。
+ *   その段落の直前の行に `<!-- verify-docs:allow-duplicate -->` を置くと、
+ *   その段落だけ重複検査から外れる。
+ *
  * options:
  *   --root=<dir>    検査するリポジトリの根（既定: カレント）
- *   --config=<file> 設定ファイルの場所（既定: <root>/docs-structure.config.json）
+ *   --config=<file> 設定ファイルの場所（既定: <root>/verify-docs.config.json）
  *   --json          結果を JSON で出す
  *   --init-todo     いま上限を超えている文書を全部 TODO ファイルに書き出して終わる
  *                   （検査は走らせない）。既存リポジトリに導入する最初の1回に使う。
@@ -75,11 +88,13 @@ const DEFAULTS = {
   skillsDir: '.claude/skills',
   pathRoots: ['src/', 'docs/', 'scripts/', '.claude/', '.github/'],
   maxDocBytes: 30000,
-  todoFile: 'docs-structure.todo.json',
+  minDuplicateChars: 60,
+  checkDuplicates: true,
+  todoFile: 'verify-docs.todo.json',
 };
 
 function loadConfig() {
-  const path = option('config', join(ROOT, 'docs-structure.config.json'));
+  const path = option('config', join(ROOT, 'verify-docs.config.json'));
   if (!existsSync(path)) return DEFAULTS;
   const user = JSON.parse(readFileSync(path, 'utf8'));
   return { ...DEFAULTS, ...user };
@@ -159,7 +174,7 @@ const slug = (heading) =>
     .trim()
     .replace(/\s+/g, '-');
 
-/** コードブロックの中は本文ではないので、見出しもリンクも拾わない。 */
+/** コードブロックの中は本文ではないので、見出しもリンクも拾わない。重複検査にも使う。 */
 function stripFences(text) {
   let inFence = false;
   return text
@@ -309,6 +324,49 @@ for (const path of todo.keys()) {
   }
 }
 
+/* ---------- 5. 文書間の重複 ---------- */
+
+/* コピーしてから片方だけ直すと、矛盾した2つの説明が残る。同じ段落（正規化した
+ * 空白を除いて完全一致）が複数の文書に出てきたら、1か所にまとめてリンクするよう促す。
+ * 短い共通の言い回しまで拾うと誤検知だらけになるので、`minDuplicateChars` 未満の
+ * 段落・見出し・表の行は見ない。 */
+
+if (config.checkDuplicates) {
+  const ALLOW_MARKER = '<!-- verify-docs:allow-duplicate -->';
+  const paragraphLocations = new Map();
+
+  for (const doc of documents) {
+    const blocks = bodies.get(doc).split(/\n\s*\n/);
+    for (let i = 0; i < blocks.length; i++) {
+      const raw = blocks[i].trim();
+      if (raw === '') continue;
+      if (raw.startsWith('#') || raw.startsWith('|')) continue;
+
+      const previous = blocks[i - 1]?.trim();
+      if (previous === ALLOW_MARKER) continue;
+
+      const normalized = raw.replace(/\s+/g, ' ').trim();
+      if (normalized.length < config.minDuplicateChars) continue;
+
+      if (!paragraphLocations.has(normalized)) paragraphLocations.set(normalized, new Set());
+      paragraphLocations.get(normalized).add(doc);
+    }
+  }
+
+  for (const [paragraph, docs] of paragraphLocations) {
+    if (docs.size < 2) continue;
+    const [first, ...rest] = [...docs].sort();
+    const snippet = paragraph.length > 50 ? `${paragraph.slice(0, 50)}…` : paragraph;
+    fail(
+      'duplicate',
+      first,
+      rest.join(', '),
+      `同じ説明が重複している（「${snippet}」）。1か所にまとめて他方からリンクする。` +
+        `意図した重複なら段落の前に ${ALLOW_MARKER} を置く`,
+    );
+  }
+}
+
 /* ---------- 報告 ---------- */
 
 const summary = {
@@ -326,6 +384,7 @@ if (AS_JSON) {
     path: 'パス参照',
     orphan: '孤立',
     size: 'サイズ超過',
+    duplicate: '重複',
     'stale-todo': 'TODO の掃除',
   };
   console.log(`文書 ${documents.length} 件（TODO 例外 ${todo.size} 件）を検査`);
