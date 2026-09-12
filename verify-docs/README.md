@@ -39,9 +39,11 @@ your-repo/
 ```
 
 設定項目の詳細は [references/config.md](.claude/skills/verify-docs/references/config.md)
-を参照する。既定値のまま運用を開始し、`entryPoints`・`docsDir`・`skillsDir`・
-`excludePaths` が対象リポジトリの構成と異なる箇所のみ
-`verify-docs.config.json` で上書きする。
+を参照する。既定値のまま運用を開始し、対象リポジトリの構成と異なる項目
+（`docsDir` の場所が違う、監視対象から外したいディレクトリがある、など）
+のみ `verify-docs.config.json` で上書きする。**個々の設定項目名は
+config.md の表のみに記載し、ここでは列挙しない**（設定項目を追加した際に
+一覧が2箇所に分散し、片方の更新漏れに気づけなくなることを防ぐ）。
 
 ## 運用
 
