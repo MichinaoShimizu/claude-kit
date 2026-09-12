@@ -63,7 +63,7 @@ description: >
 （またはこの回で確認する観点の一覧）を単一のチェックリストとして先に
 作る。**「単なる状態確認のつもりだから」「1回実行するだけだから」は
 省略の理由にならない。作り方・運用ルールは
-[dedupe-docs/references/checklist.md](../dedupe-docs/references/checklist.md)
+[references/checklist.md](references/checklist.md)
 を参照する（本ファイルでは再掲しない）。**検査してからリスト化するのでは
 なく、リスト化してから検査する。** これにより「確認したつもりで確認し
 忘れた項目」・「チェックリストを作らずに検査だけ実行してしまう」の両方を

@@ -1,8 +1,11 @@
 # 作業チェックリストの作り方
 
-[dedupe-docs スキル](../SKILL.md)・[verify-docs スキル](../../verify-docs/SKILL.md)
-の両方から参照される。意味的重複の探索・機械チェックの是正のいずれを
-始める前にも、本ファイルの手順でチェックリストを先に作る。
+[verify-docs スキル](../SKILL.md)・[dedupe-docs スキル](../../dedupe-docs/SKILL.md)
+の両方から参照される。verify-docs 側に置くのは、dedupe-docs が任意導入
+（[verify-docs/README.md「導入」](../../../../README.md#導入)参照）なのに対し、
+verify-docs 自体は検査実行前に必ずこの手順を要求するため（依存の向きを
+逆にしない）。意味的重複の探索・機械チェックの是正のいずれを始める前にも、
+本ファイルの手順でチェックリストを先に作る。
 
 ## 必ず物理ファイルとして作る
 
@@ -34,7 +37,7 @@ EOF
 ファイルの代わりにはできない**。**手段を問わず、置き場所は1つに保つ**
 （会話中の複数メッセージに分けて書く、同じ作業のリストを複数ファイルに
 分散させる、といったことはしない）。`.verify-docs/` は
-[config.md「作業チェックリストの保管先」](../../verify-docs/references/config.md#作業チェックリストの保管先verify-docs)
+[config.md「作業チェックリストの保管先」](config.md#作業チェックリストの保管先verify-docs)
 の通り検査対象から除外されるため、**作業ログとして削除せず残してよい**。
 
 ## リストの運用
@@ -112,7 +115,7 @@ EOF
 
 | 移動元（常時読み込み） | 移動先（オンデマンド） | 移動したサイズ |
 | --- | --- | ---: |
-| verify-docs/SKILL.md・dedupe-docs/SKILL.md | dedupe-docs/references/checklist.md | 3,881B |
+| verify-docs/SKILL.md・dedupe-docs/SKILL.md | verify-docs/references/checklist.md | 3,881B |
 
 ```markdown
 ## 総評

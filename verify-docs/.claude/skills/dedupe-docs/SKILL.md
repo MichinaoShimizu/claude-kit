@@ -50,7 +50,7 @@ node scripts/verify-docs.mjs
 **作業開始時に、対象文書の一覧を単一のチェックリストとして先に作る。**
 作り方・運用ルール（`.verify-docs/dist/` への物理ファイル作成コマンド、
 省略禁止の理由、記入例など）は
-[references/checklist.md](references/checklist.md) を参照する（本ファイルでは
+[verify-docs/references/checklist.md](../verify-docs/references/checklist.md) を参照する（本ファイルでは
 再掲しない）。全項目にチェックが入るまで「3. 確信度で対応を分ける」には
 進まない。
 
