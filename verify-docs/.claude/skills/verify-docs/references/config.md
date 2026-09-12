@@ -165,7 +165,7 @@ Python プロジェクト（`tests/` を使う構成）の例:
 
 [dedupe-docs スキル](../../dedupe-docs/SKILL.md)・本 SKILL.md の検査手順が
 作るチェックリストは、実行環境のタスク管理機能が使えない場合、リポジトリ
-直下の `.verify-docs/checklists/` 配下に保管する。**`excludePaths` の
+直下の `.verify-docs/dist/` 配下に保管する。**`excludePaths` の
 既定値に `.verify-docs/` を含めているのはこのため**であり、チェックリストは
 検査対象（参照整合性・サイズ・重複）から常に除外される。作業ログとして
 削除せず残してよい（履歴として蓄積する）。ファイル名は日時・作業内容が
