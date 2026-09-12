@@ -20,7 +20,7 @@
   "skillsDir": ".claude/skills",
   "pathRoots": ["src/", "docs/", "scripts/", ".claude/", ".github/"],
   "excludePaths": ["node_modules/", ".git/", "vendor/", "dist/", "build/", ".verify-docs/"],
-  "maxDocBytes": 30000,
+  "maxDocBytes": 20000,
   "minDuplicateChars": 60,
   "checkDuplicates": true,
   "checkNearDuplicates": false,

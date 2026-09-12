@@ -125,20 +125,16 @@ typecheck・test など）に `node scripts/verify-docs.mjs` を1本追加する
 
 ## TODO の管理方法
 
-本ツールにおける「TODO」は2種類存在するため、混同しないこと。
+**`verify-docs.todo.json`（本ツールが読み込む、運用上の TODO）。**
+記述方法・運用ルール（削減する方向にのみ運用する、重複はここには
+記載できない、等）は
+[references/config.md「`verify-docs.todo.json`」](.claude/skills/verify-docs/references/config.md#verify-docstodojson)
+を参照する（正本は config.md 側とし、本ファイルでは再掲しない）。
 
-- **`verify-docs.todo.json`（本ツールが読み込む、運用上の TODO）。**
-  記述方法・運用ルール（削減する方向にのみ運用する、重複はここには
-  記載できない、等）は
-  [references/config.md「`verify-docs.todo.json`」](.claude/skills/verify-docs/references/config.md#verify-docstodojson)
-  を参照する（正本は config.md 側とし、本ファイルでは再掲しない）。
-- **本ツール自体の開発 TODO（[TODO.md](TODO.md)）。** 機能追加・
-  未対応ケースを追跡する、通常の意味での TODO。運用上の TODO とは無関係
-
-前者を後者と同様に「後で是正する一覧」として際限なく積み増すと、本ツール
-導入の意義が失われる（肥大化検知の仕組み自体が、肥大化した負債リストを
-許容する仕組みに転じる）。**目安として、`verify-docs.todo.json` が導入直後
-より増加していれば、それは退行である。**
+これを「後で是正する一覧」として際限なく積み増すと、本ツール導入の意義が
+失われる（肥大化検知の仕組み自体が、肥大化した負債リストを許容する仕組みに
+転じる）。**目安として、`verify-docs.todo.json` が導入直後より増加していれば、
+それは退行である。**
 
 ## この一式を開発する
 
