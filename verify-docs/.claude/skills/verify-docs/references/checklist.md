@@ -29,7 +29,7 @@ verify-docs 自体は検査実行前に必ずこの手順を要求するため�
 mkdir -p .verify-docs/dist
 [ -f .verify-docs/dist/checklist.md ] && : > .verify-docs/dist/checklist.md
 cat > .verify-docs/dist/checklist.md <<EOF
-# verify-docs-checklist: $(date +%Y-%m-%dT%H:%M:%S%z)
+# verify-docs-checklist: $(TZ='Asia/Tokyo' date +%Y-%m-%dT%H:%M:%S%z)
 
 - [ ] 文書パス1
 - [ ] 文書パス2
@@ -41,7 +41,8 @@ EOF
 直後の `cat >` も上書きのため単独でも同じ効果を持つが、**「まず空にする」
 を独立したコマンドとして明示する**ことで、Write ツールなど別の手段で
 ファイルを編集する場合にも「新規内容で完全に置き換える（追記しない）」
-意図を徹底する。
+意図を徹底する。**タイトル行の日時は `TZ='Asia/Tokyo'` を指定して JST
+で記録する**（実行環境のタイムゾーン設定に依存させない）。
 
 タイトル行の日時は `date` コマンドがその場で埋める（開始時刻の記録を
 兼ねる）。チェックボックスの中身は実際の対象に置き換える。実行環境の
