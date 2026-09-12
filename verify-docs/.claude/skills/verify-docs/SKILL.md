@@ -9,23 +9,13 @@ description: >
   「CLAUDE.md が長すぎる」「毎回関係ない決め事まで読まれてトークンを食う」
   「ドキュメントが肥大化してきた」「同じ説明がREADMEとdocsに重複して書いてある」
   「この文書、分割したほうがいい？」「verify-docs を走らせて」が該当する。
-  ---
-  Use this when restructuring or maintaining a layered doc set (CLAUDE.md,
-  README, a docs directory, .claude/skills) so that agents and humans only
-  load what a given task actually needs. Checks three things: referential
-  integrity (broken links, orphaned files), a per-document byte budget (so
-  no single file grows without bound), and duplicated content across
-  documents (copy-then-edit-one-side leaves two contradicting explanations).
-  Trigger phrases: "CLAUDE.md is too long", "the agent reads irrelevant
-  context every session", "this doc has become bloated", "the same
-  explanation is duplicated in README and docs", "run verify-docs".
 ---
 
 # verify-docs —— 必要な時にだけ必要な文書を読ませる
 
 生成AIエージェントは、セッションの最初に CLAUDE.md・AGENTS.md・README を読み、
 作業の途中で関連する docs や `.claude/skills/*/SKILL.md` を読みに行く。
-**この「読みに行く」の設計が壊れると、関係ない決め事まで毎回トークンを食う。**
+**この設計が壊れると、関係ない決め事まで毎回トークンを食う。**
 
 壊れ方は3つ。
 
@@ -86,9 +76,9 @@ docs ディレクトリ（設定の `docsDir`）に切り出して、入口に�
 （表の1行でよい）だけ残す。**判断基準は「この段落を読まなくても、
 次に何をすべきかは分かるか」。** 分かるなら詳細は外に出してよい。
 
-この判断は機械にはできない。**「タイトに削れるか」も同じで、冗長な言い回しを
-削って詰められるかどうかは、書いた本人か原則審査の役目。** チェッカーが見ているのは
-サイズという結果だけで、削り方そのものは検査しない。
+**「タイトに削れるか」も同じで、冗長な言い回しを削って詰められるかどうかは、
+書いた本人か原則審査の役目。** チェッカーが見ているのはサイズという結果だけで、
+削り方そのものは検査しない。
 
 ### 2. 太った文書を見つける
 
