@@ -16,6 +16,9 @@ Claude Code などの生成AIエージェント向けに構築した、リポジ
 コピーする。導入手順・CI への組み込み方の詳細は各パッケージの README
 （例: [verify-docs/README.md](verify-docs/README.md)）を参照する。
 
+本リポジトリへの貢献手順（新規パッケージの追加方法など）は
+[CONTRIBUTING.md](CONTRIBUTING.md) を参照する。
+
 ## 1パッケージ = 1フォルダ
 
 各パッケージは自身のフォルダ内に必要な構成要素を全て保持する（スキル本体・
