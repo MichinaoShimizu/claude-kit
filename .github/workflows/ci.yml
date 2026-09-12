@@ -1,0 +1,12 @@
+name: ci
+
+on:
+  pull_request:
+
+jobs:
+  verify-docs-self-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: verify-docs が自分自身に対して通ることを確かめる（ドッグフーディング）
+        run: node verify-docs/scripts/verify-docs.mjs --root=verify-docs
