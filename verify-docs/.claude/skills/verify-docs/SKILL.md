@@ -113,7 +113,9 @@ node scripts/verify-docs.mjs
   配置して除外する。「意図した重複」を宣言する処置であり乱用しない
 - `[準一致重複]` は `checkNearDuplicates`（既定オフ）を有効化した場合のみ
   出力される。句読点・敬体/常体の差異のみの重複で、是正方法は `[重複]` と
-  同一（詳細: [references/config.md](references/config.md)「準一致重複」）
+  同一（詳細:
+  [references/duplicate-handling.md](references/duplicate-handling.md)
+  「準一致重複」）
 
 #### 意味的な重複（チェッカーでは検出できない）
 
@@ -126,8 +128,7 @@ node scripts/verify-docs.mjs
 既存の大規模リポジトリへの後発導入では、その場では分割できない文書が
 出る。超過を黙認せず、`verify-docs.todo.json`（既定のファイル名）に理由を
 付して記載する。記述形式・運用ルールは
-[references/config.md「`verify-docs.todo.json`」](references/config.md#verify-docstodojson)
-を参照する。
+[references/todo.md](references/todo.md) を参照する。
 
 ### 5. CI 組み込み
 

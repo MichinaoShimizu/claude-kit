@@ -1,15 +1,7 @@
 [
   {
-    "path": ".claude/skills/tighten-docs/SKILL.md",
-    "reason": "既定上限を20000→7000バイトに下げた際、既存パターン一覧（23件）が超過。分割は次回のtighten-docs/verify-docs是正回で検討"
-  },
-  {
     "path": ".claude/skills/verify-docs/SKILL.md",
-    "reason": "既定上限を20000→7000バイトに下げた際、既存の手順本体が超過。分割は次回のverify-docs是正回で検討"
-  },
-  {
-    "path": ".claude/skills/verify-docs/references/config.md",
-    "reason": "既定上限を20000→7000バイトに下げた際、既存の設定リファレンスが超過。分割は次回のverify-docs是正回で検討"
+    "reason": "既定上限を20000→7000バイトに下げた際、既存の手順本体が超過。手順1〜6は一連の線形手順で分割候補が薄く、次回是正回で再検討"
   },
   {
     "path": "README.md",

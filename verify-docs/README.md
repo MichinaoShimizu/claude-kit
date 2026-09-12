@@ -132,8 +132,8 @@ typecheck・test など）に `node scripts/verify-docs.mjs` を1本追加する
 **`verify-docs.todo.json`（本ツールが読み込む、運用上の TODO）。**
 記述方法・運用ルール（削減する方向にのみ運用する、重複はここには
 記載できない、等）は
-[references/config.md「`verify-docs.todo.json`」](.claude/skills/verify-docs/references/config.md#verify-docstodojson)
-を参照する（正本は config.md 側とし、本ファイルでは再掲しない）。
+[references/todo.md](.claude/skills/verify-docs/references/todo.md)
+を参照する（正本は todo.md 側とし、本ファイルでは再掲しない）。
 
 これを「後で是正する一覧」として際限なく積み増すと導入の意義が失われる
 （肥大化検知の仕組み自体が負債リストを許容する仕組みに転じる）。目安として、
