@@ -11,8 +11,7 @@
   「1パッケージ = 1フォルダ」）。
 - 新規パッケージ追加時は、[README.md](README.md) の一覧表に1行追加する。
 - パッケージが自己検査を持つ場合、パッケージのフォルダ直下に実行可能な
-  `ci-selfcheck.sh` を配置する（[.github/workflows/ci.yml](.github/workflows/ci.yml)
-  が自動探索して実行するため、`ci.yml` 自体の編集は不要）。
+  `ci-selfcheck.sh` を配置する（詳細は README.md「本リポジトリ自身の CI」）。
 - ドキュメントの分割・移動は、移動とポインタ化のみで行う。
   要約・言い換えによる内容変更は禁止する。
 
