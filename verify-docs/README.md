@@ -21,6 +21,13 @@ CLAUDE.md・AGENTS.md はルーティングテーブルに徹する（話題と�
    意味を変えない冗長な言い回しの削減は同梱の
    [tighten-docs スキル](.claude/skills/tighten-docs/SKILL.md) を参照する
 
+verify-docs・dedupe-docs・tighten-docsは独立したスキルであり、いずれかを
+実行しても他は自動実行されない（dedupe-docs・tighten-docsはverify-docsの
+導入を前提とするが、その逆に「verify-docs実行時に他2つも走る」という
+連携は無い）。3つまとめて実行したい場合は、エージェントに次のように頼む。
+
+> verify-docs・dedupe-docs・tighten-docsを順番に全部実行して
+
 エージェント・フックへの依存は無い。検査スクリプトを CI と push 前検証に
 組み込むことで機能する。遵守事項（是正対象は構造のみとし、内容は変更しない）
 の詳細は
