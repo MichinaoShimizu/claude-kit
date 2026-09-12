@@ -9,16 +9,6 @@ description: >
   「CLAUDE.md が長すぎる」「毎回関係ない決め事まで読まれてトークンを食う」
   「ドキュメントが肥大化してきた」「同じ説明がREADMEとdocsに重複して書いてある」
   「この文書、分割したほうがいい？」「verify-docs を走らせて」が該当する。
-  ---
-  Use this when restructuring or maintaining a layered doc set (CLAUDE.md,
-  README, a docs directory, .claude/skills) so that agents and humans only
-  load what a given task actually needs. Checks three things: referential
-  integrity (broken links, orphaned files), a per-document byte budget (so
-  no single file grows without bound), and duplicated content across
-  documents (copy-then-edit-one-side leaves two contradicting explanations).
-  Trigger phrases: "CLAUDE.md is too long", "the agent reads irrelevant
-  context every session", "this doc has become bloated", "the same
-  explanation is duplicated in README and docs", "run verify-docs".
 ---
 
 # verify-docs —— 必要な時にだけ必要な文書を読ませる
