@@ -1,8 +1,9 @@
 # 完了時の総評記載
 
 [checklist.md](checklist.md) の手順でチェックリストの全項目にチェックが
-入った時点で、チェックリストファイルの末尾に `## 総評` の見出しで以下を
-記載する（省略不可。項目が1件のみの場合も書く）。
+入った時点で、実行したスキル（verify-docs・dedupe-docs・tighten-docsの
+いずれか）のセクション末尾に `### 総評` の見出しで以下を記載する
+（省略不可。項目が1件のみの場合も書く）。
 
 - **検査したファイル数**（`node scripts/verify-docs.mjs` の出力にある
   「文書 N 件」の N、または意味的重複チェックの対象文書数）
@@ -40,7 +41,7 @@
 | verify-docs/SKILL.md・dedupe-docs/SKILL.md | verify-docs/references/checklist.md | 3,881B |
 
 ```markdown
-## 総評
+### 総評
 
 - 検査対象: 3ファイル（verify-docs.mjs出力）
 - 検出した違反: 0件
