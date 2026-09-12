@@ -31,24 +31,24 @@
 
 （未実施）
 
-## tighten-docs — 2026-09-12T23:52:31+0900
+## tighten-docs — 2026-09-13T00:03:15+0900
 
-- [x] README.md — 2026-09-12 / 該当パターンなし
-- [x] CLAUDE.md — 2026-09-12 / 該当パターンなし
-- [x] CONTRIBUTING.md — 2026-09-12 / 該当パターンなし
-- [x] verify-docs/README.md — 2026-09-12 / 該当パターンなし
-- [x] verify-docs/CONTRIBUTING.md — 2026-09-12 / 該当パターンなし
-- [x] verify-docs/.claude/skills/verify-docs/SKILL.md — 2026-09-12 / 該当パターンなし（既存の圧縮履歴あり、checklist-summary.md 参照）
-- [x] verify-docs/.claude/skills/verify-docs/references/config.md — 2026-09-12 / 該当パターンなし
-- [x] verify-docs/.claude/skills/verify-docs/references/checklist.md — 2026-09-12 / 該当パターンなし
-- [x] verify-docs/.claude/skills/verify-docs/references/checklist-summary.md — 2026-09-12 / 該当パターンなし
-- [x] verify-docs/.claude/skills/tighten-docs/SKILL.md — 2026-09-12 / 本回で典型パターン6件を追加済み（別コミット扱い、本文自体の冗長性は該当なし）
-- [x] verify-docs/.claude/skills/dedupe-docs/SKILL.md — 2026-09-12 / 該当パターンなし（既存の圧縮履歴あり、checklist-summary.md 参照）
+- [x] README.md — 2026-09-13 / 該当パターンなし
+- [x] CLAUDE.md — 2026-09-13 / 該当パターンなし
+- [x] CONTRIBUTING.md — 2026-09-13 / 該当パターンなし
+- [x] verify-docs/README.md — 2026-09-13 / 該当パターンなし
+- [x] verify-docs/CONTRIBUTING.md — 2026-09-13 / 該当パターンなし
+- [x] verify-docs/.claude/skills/verify-docs/SKILL.md — 2026-09-13 / 該当パターンなし（既存の圧縮履歴あり、checklist-summary.md 参照）
+- [x] verify-docs/.claude/skills/verify-docs/references/config.md — 2026-09-13 / 該当パターンなし
+- [x] verify-docs/.claude/skills/verify-docs/references/checklist.md — 2026-09-13 / 該当パターンなし（3セクション化の書き換え後も該当なし）
+- [x] verify-docs/.claude/skills/verify-docs/references/checklist-summary.md — 2026-09-13 / 該当パターンなし（総評見出し変更後も該当なし）
+- [x] verify-docs/.claude/skills/tighten-docs/SKILL.md — 2026-09-13 / 該当パターンなし
+- [x] verify-docs/.claude/skills/dedupe-docs/SKILL.md — 2026-09-13 / 該当パターンなし（既存の圧縮履歴あり、checklist-summary.md 参照）
 
 ### 総評
 
 - 検査したファイル数: 11件（リポジトリ直下3件 + verify-docsパッケージ単体8件）
-- 検出した違反・重複の件数: 0件（tighten-docs 典型パターン11種のいずれにも該当なし。全文書が過去のtighten-docsパスで既に圧縮済み）
-- 作業にかかった時間: 2026-09-12 内、数分程度
-- 全体のサイズ変化: サイズ変更なし（合計 54,018B）
+- 検出した違反・重複の件数: 0件（tighten-docs 典型パターン11種のいずれにも該当なし）
+- 作業にかかった時間: 2026-09-13 内、数分程度
+- 全体のサイズ変化: サイズ変更なし（合計 54,637B）
 - 常時読み込み→オンデマンド化: 該当なし
