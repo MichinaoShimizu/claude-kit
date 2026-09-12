@@ -1,18 +1,21 @@
-# verify-docs-checklist: 2026-09-12T13:03:06+0000
+# verify-docs-checklist: 2026-09-12T22:28:23+0900
 
-- [x] `node scripts/verify-docs.mjs`（ルート設定） — 2026-09-12 / 「文書構造: すべて通過」（文書3件、TODO例外0件）
-- [x] `verify-docs/ci-selfcheck.sh`（自己検査） — 2026-09-12 / テスト17件全pass
-- [x] 作業開始時のリセットコマンドを明記 — 2026-09-12 / mkdir/catコマンド例に
-      `[ -f checklist.md ] && : > checklist.md`（存在する場合のみ空にする）を追加し、
-      前回の内容を空にする操作を独立したステップとして明示。5,322B → 6,136B
+- [x] `node scripts/verify-docs.mjs`（ルート設定） — 「文書構造: すべて通過」（文書3件、TODO例外0件）
+- [x] `verify-docs/ci-selfcheck.sh`（自己検査） — テスト17件全pass
+- [x] tighten-docsスキルを新規作成 — verify-docs/.claude/skills/tighten-docs/SKILL.md(3,655B)。
+      冗長な言い回しの削減(意味を変えない圧縮)を専用に扱うスキルとして、dedupe-docsと同様に
+      verify-docsパッケージ内に配置。当初dedupe-docsの対象を拡張する案を検討したが、
+      意味的重複の解消(複数文書間)と冗長表現の削減(単一文書内)は性質が異なるため分離した
+- [x] README.md・verify-docs/README.mdにtighten-docsへのポインタを追加
+- [x] verify-docs/SKILL.md「1. 入口を軽量化する」にtighten-docsへのポインタを追加
 
 ## 総評
 
-- 検査対象: 3ファイル（ルート）＋自己検査対象一式（verify-docs.mjs出力）
+- 検査対象: 3ファイル（ルート）＋自己検査対象一式（verify-docs.mjs出力、tighten-docs/SKILL.md含む）
 - 検出した違反: 0件
-- 作業にかかった時間: 13:01 〜 13:04（所要約3分）
-- 全体のサイズ変化: references/checklist.md 5,322B → 6,136B（15.3%増、説明追記のため）
-- 常時読み込み→オンデマンド化: 該当なし（オンデマンド文書内の記述変更のみ）
+- 全体のサイズ変化: 新規ファイル追加のみ（tighten-docs/SKILL.md 3,655B）。既存文書への追記は
+  ポインタ1〜2行程度で軽微
+- 常時読み込み→オンデマンド化: 該当なし（新規スキルの追加であり移動ではない）
 
 ---
 

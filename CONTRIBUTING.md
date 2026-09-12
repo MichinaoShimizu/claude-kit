@@ -5,25 +5,21 @@
 
 ## 新規パッケージを追加する
 
-CLAUDE.md の MUST に列挙された3項目（1パッケージ = 1フォルダで構成する、
-[README.md](README.md) の一覧表に1行追加する、自己検査を持つ場合は
-`ci-selfcheck.sh` を配置する）に従う。各項目の詳細は
+CLAUDE.md の MUST 3項目（1パッケージ = 1フォルダ、README.md の一覧表に
+1行追加、自己検査があれば `ci-selfcheck.sh` を配置）に従う。詳細:
 [README.md「1パッケージ = 1フォルダ」](README.md#1パッケージ-1フォルダ)・
-[README.md「本リポジトリ自身の CI」](README.md#本リポジトリ自身の-ci)を
-参照する。
+[README.md「本リポジトリ自身の CI」](README.md#本リポジトリ自身の-ci)。
 
 ## 既存パッケージを改修する
 
-対象パッケージ内の README・CONTRIBUTING（存在する場合）に、そのパッケージ
-固有の改修手順が記載されている（例:
-[verify-docs/CONTRIBUTING.md](verify-docs/CONTRIBUTING.md)）。まずそちらを
-参照する。
+対象パッケージの README・CONTRIBUTING（あれば）にパッケージ固有の改修
+手順が書いてある（例: [verify-docs/CONTRIBUTING.md](verify-docs/CONTRIBUTING.md)）。
+まずそちらを参照する。
 
 ## ドキュメントの分割・移動
 
-CLAUDE.md の MUST のとおり、分割・移動は「移動」と「ポインタ化」のみで
-行う。要約・言い換えによる内容変更を伴う場合は、構造のみの是正コミットとは
-分けて別コミットにする。
+CLAUDE.md の MUST のとおり、分割・移動は移動とポインタ化のみ。要約・
+言い換えによる内容変更を伴う場合は構造是正とは別コミットにする。
 
 ## PR を出す前に
 
