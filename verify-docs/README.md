@@ -7,15 +7,15 @@ docs ディレクトリ・`.claude/skills/` のような階層的な文書群を
 徹する（話題と行き先の対応表だけを持ち、理由や手順は持たない）のが前提。
 
 これさえ入れれば文書管理が整然と維持されやすい状態を目指している。
-やることは2つだけで、**しくみ（自動で判定できること）とふるまい（判断が要ること）を
+やることは2つだけで、**チェッカー（自動で判定できること）とプレイブック（判断が要ること）を
 分けて管理する**。
 
-1. **しくみ**（`scripts/verify-docs.mjs`）—— 3つを検査する
+1. **チェッカー**（`scripts/verify-docs.mjs`）—— 3つを検査する
    - 参照切れ・孤立文書（参照整合性）
    - 文書のサイズ超過（読む量の予算）
    - 複数の文書に同じ説明がそのまま重複していないか（コピーして片方だけ直した
      結果、矛盾した説明が残る事故を防ぐ）
-2. **ふるまい**（`.claude/skills/verify-docs/SKILL.md`）—— 見つかったものを
+2. **プレイブック**（`.claude/skills/verify-docs/SKILL.md`）—— 見つかったものを
    どう直すかの手順（太った文書の分け方、重複の解消のしかた、TODO の書き方）
 
 エージェントも、フックも要らない。検査スクリプトを CI と push 前検証に
@@ -140,8 +140,9 @@ typecheck・test など）の1本として `node scripts/verify-docs.mjs` を足
 `SKILL.md`・`references/config.md` を直す側の話。
 
 - **直したら、自分自身に対して検査を通す（ドッグフーディング）。** この
-  リポジトリ（claude-kit）では `node verify-docs/scripts/verify-docs.mjs
-  --root=verify-docs` で自己検査できる。CI も同じコマンドを走らせる
+  リポジトリ（claude-kit）では [ci-selfcheck.sh](ci-selfcheck.sh) を実行すると
+  自己検査できる。CI もこのスクリプトを、リポジトリ直下から
+  `*/ci-selfcheck.sh` を自動で探す形で走らせる
   （[../.github/workflows/ci.yml](../.github/workflows/ci.yml)）
 - **挙動を変えたら、`SKILL.md`・`references/config.md`・このファイルの
   該当箇所も同じコミットで直す。** コードだけ直して説明が古いまま残ると、

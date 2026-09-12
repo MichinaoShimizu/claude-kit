@@ -4,9 +4,29 @@ on:
   pull_request:
 
 jobs:
-  verify-docs-self-check:
+  verify-docs-root-check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: verify-docs が自分自身に対して通ることを確かめる（ドッグフーディング）
-        run: node verify-docs/scripts/verify-docs.mjs --root=verify-docs
+      - name: verify-docs でリポジトリ直下（README.md・CLAUDE.md）を検査する
+        run: node verify-docs/scripts/verify-docs.mjs
+
+  package-self-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 各パッケージの ci-selfcheck.sh を自動で見つけて実行する（ドッグフーディング）
+        run: |
+          shopt -s nullglob
+          scripts=(*/ci-selfcheck.sh)
+          if [ "${#scripts[@]}" -eq 0 ]; then
+            echo "ci-selfcheck.sh を持つパッケージが無い"
+            exit 0
+          fi
+          status=0
+          for script in "${scripts[@]}"; do
+            echo "::group::$script"
+            bash "$script" || status=1
+            echo "::endgroup::"
+          done
+          exit "$status"
