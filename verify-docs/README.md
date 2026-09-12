@@ -163,3 +163,13 @@ typecheck・test など）の1本として `node scripts/verify-docs.mjs` を足
 - **文章を機械的にタイトに詰める提案。** 冗長さの判定は主観が入るので、
   このツールでは自動化しない。判断は書いた本人か、そのリポジトリの原則審査に
   委ねる（[SKILL.md](.claude/skills/verify-docs/SKILL.md) の「1. 入口を軽くする」）
+- **Markdown 以外（`.mdx`・`.rst` など）の検査。** 対象読者（生成AIエージェントが
+  読む CLAUDE.md・README・`.claude/skills/`）は Markdown に統一されている前提の
+  ツールなので、他形式への対応はスコープ外にする
+- **CLAUDE.md のような「索引の表」と実体（`.claude/skills/` 配下のスキルや
+  サブエージェント定義など）の突き合わせ。** 見出し名がリポジトリ固有になり
+  がちで、汎用チェックにしづらい。個別リポジトリで必要なら、専用スクリプト
+  （investment-analysis の `verify-doc-links.mjs` のような）で持つ
+- **`verify-docs.todo.json` に期限・優先度などのフィールドを持たせること。**
+  `path` と `reason` だけに絞ることで、運用上の TODO 自体が肥大化しないように
+  している（[TODO の管理方法](#todo-の管理方法)）

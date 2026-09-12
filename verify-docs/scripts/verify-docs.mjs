@@ -27,6 +27,8 @@
  *   - スキルの補助文書（references/ など）が、自分の SKILL.md から参照されているか
  *   - 各文書のバイト数が、決めた上限を超えていないか（TODO ファイルに書いた例外は除く）
  *   - 同じ段落（一定の長さ以上）が複数の文書にそのまま重複していないか
+ *   - （既定オフ）句読点・敬体/常体だけが違う、ほぼ同じ段落が複数の文書に
+ *     ないか（`checkNearDuplicates`。誤検知が増えやすいのでオプトイン）
  *
  * 設定（すべて省略可。既定値は DEFAULTS を見る）:
  *   verify-docs.config.json をリポジトリ直下に置くと読む。
@@ -39,6 +41,7 @@
  *       "maxDocBytes": 30000,
  *       "minDuplicateChars": 60,
  *       "checkDuplicates": true,
+ *       "checkNearDuplicates": false,
  *       "todoFile": "verify-docs.todo.json"
  *     }
  *
@@ -90,6 +93,7 @@ const DEFAULTS = {
   maxDocBytes: 30000,
   minDuplicateChars: 60,
   checkDuplicates: true,
+  checkNearDuplicates: false,
   todoFile: 'verify-docs.todo.json',
 };
 
@@ -331,10 +335,11 @@ for (const path of todo.keys()) {
  * 短い共通の言い回しまで拾うと誤検知だらけになるので、`minDuplicateChars` 未満の
  * 段落・見出し・表の行は見ない。 */
 
-if (config.checkDuplicates) {
-  const ALLOW_MARKER = '<!-- verify-docs:allow-duplicate -->';
-  const paragraphLocations = new Map();
+const ALLOW_MARKER = '<!-- verify-docs:allow-duplicate -->';
 
+/** 見出し・表・意図した重複（allow-duplicate）を除いた、比較対象の段落だけを集める。 */
+function collectParagraphs() {
+  const hits = [];
   for (const doc of documents) {
     const blocks = bodies.get(doc).split(/\n\s*\n/);
     for (let i = 0; i < blocks.length; i++) {
@@ -348,9 +353,19 @@ if (config.checkDuplicates) {
       const normalized = raw.replace(/\s+/g, ' ').trim();
       if (normalized.length < config.minDuplicateChars) continue;
 
-      if (!paragraphLocations.has(normalized)) paragraphLocations.set(normalized, new Set());
-      paragraphLocations.get(normalized).add(doc);
+      hits.push({ doc, normalized });
     }
+  }
+  return hits;
+}
+
+const paragraphs = config.checkDuplicates || config.checkNearDuplicates ? collectParagraphs() : [];
+
+if (config.checkDuplicates) {
+  const paragraphLocations = new Map();
+  for (const { doc, normalized } of paragraphs) {
+    if (!paragraphLocations.has(normalized)) paragraphLocations.set(normalized, new Set());
+    paragraphLocations.get(normalized).add(doc);
   }
 
   for (const [paragraph, docs] of paragraphLocations) {
@@ -363,6 +378,64 @@ if (config.checkDuplicates) {
       rest.join(', '),
       `同じ説明が重複している（「${snippet}」）。1か所にまとめて他方からリンクする。` +
         `意図した重複なら段落の前に ${ALLOW_MARKER} を置く`,
+    );
+  }
+}
+
+/* ---------- 5b. 準一致重複（句読点・敬体/常体レベルの表記ゆれ） ---------- */
+
+/* 完全一致より緩めると誤検知が増えるので、既定オフ（config.checkNearDuplicates）。
+ * 吸収するのは「句読点の全角/半角」と「代表的な敬体/常体の語尾」だけで、
+ * 意味的な類似判定（embedding など）はしない。完全一致で既に拾える組は
+ * 二重報告しない（texts.size >= 2 のときだけ「表記ゆれで一致した」とみなす）。 */
+
+const STYLE_ENDINGS = [
+  [/ではありません/g, 'ではない'],
+  [/ございます/g, 'ある'],
+  [/でした/g, 'だった'],
+  [/でしょう/g, 'だろう'],
+  [/ましょう/g, 'よう'],
+  [/ません/g, 'ない'],
+  [/します/g, 'する'],
+  [/です/g, 'だ'],
+  [/ます/g, 'る'],
+];
+
+function fuzzyNormalize(text) {
+  let s = text;
+  for (const [pattern, replacement] of STYLE_ENDINGS) s = s.replace(pattern, replacement);
+  return s
+    .replace(/[，,]/g, '、')
+    .replace(/[．.]/g, '。')
+    .replace(/[！!]/g, '!')
+    .replace(/[？?]/g, '?')
+    .replace(/\s+/g, '');
+}
+
+if (config.checkNearDuplicates) {
+  const fuzzyGroups = new Map();
+  for (const { doc, normalized } of paragraphs) {
+    const fuzzy = fuzzyNormalize(normalized);
+    if (fuzzy.length < config.minDuplicateChars) continue;
+
+    if (!fuzzyGroups.has(fuzzy)) fuzzyGroups.set(fuzzy, { texts: new Set(), docs: new Map() });
+    const group = fuzzyGroups.get(fuzzy);
+    group.texts.add(normalized);
+    if (!group.docs.has(doc)) group.docs.set(doc, normalized);
+  }
+
+  for (const [fuzzy, group] of fuzzyGroups) {
+    if (group.docs.size < 2) continue;
+    if (group.texts.size < 2) continue; // 完全一致（5.）で既に報告済み
+
+    const [first, ...rest] = [...group.docs.keys()].sort();
+    const snippet = fuzzy.length > 50 ? `${fuzzy.slice(0, 50)}…` : fuzzy;
+    fail(
+      'near-duplicate',
+      first,
+      rest.join(', '),
+      `句読点・敬体/常体だけが違う、ほぼ同じ説明が複数の文書にある（正規化後: 「${snippet}」）。` +
+        `1か所にまとめて他方からリンクするか、意図した表記差なら段落の前に ${ALLOW_MARKER} を置く`,
     );
   }
 }
@@ -385,6 +458,7 @@ if (AS_JSON) {
     orphan: '孤立',
     size: 'サイズ超過',
     duplicate: '重複',
+    'near-duplicate': '準一致重複',
     'stale-todo': 'TODO の掃除',
   };
   console.log(`文書 ${documents.length} 件（TODO 例外 ${todo.size} 件）を検査`);

@@ -9,3 +9,4 @@ repo_root="$(cd "$dir/.." && pwd)"
 rel_dir="$(realpath --relative-to="$repo_root" "$dir")"
 
 node "$dir/scripts/verify-docs.mjs" --root="$rel_dir"
+node --test "$dir/scripts/verify-docs.test.mjs"
