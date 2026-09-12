@@ -16,15 +16,17 @@ docs ディレクトリ・`.claude/skills/` のような階層的な文書群を
    - 複数の文書に同一説明がそのまま重複していないか（コピー後の片側修正で
      矛盾した説明が残留する事故を防止する）
 2. **プレイブック**（`.claude/skills/verify-docs/SKILL.md`）—— 検出事項の
-   是正手順（太った文書の分割方法、重複の解消方法、TODO の記述方法）
+   是正手順（太った文書の分割方法、重複の解消方法、TODO の記述方法）。
+   言い回しが異なる言い換えによる重複（チェッカーでは検出できない）は、
+   同梱の [dedupe-docs スキル](.claude/skills/dedupe-docs/SKILL.md) を
+   参照する
 
 エージェント・フックへの依存は無い。検査スクリプトを CI と push 前検証に
 組み込むことで機能する。
 
-**遵守事項: 是正対象は構造のみとし、内容は変更しない。** 太った文書の分割・
-重複の解消は「移動」と「ポインタ化」のみで行い、要約・言い換えによる
-意味変更を禁止する（数値・条件・免責文言はとくに一字一句変更しない）。
-詳細は [SKILL.md「守ること」](.claude/skills/verify-docs/SKILL.md#守ること)を参照。
+**遵守事項（是正対象は構造のみとし、内容は変更しない）の詳細は
+[SKILL.md「守ること」](.claude/skills/verify-docs/SKILL.md#守ること)を
+参照する。**
 
 ## 導入
 
@@ -35,6 +37,7 @@ docs ディレクトリ・`.claude/skills/` のような階層的な文書群を
 your-repo/
 ├── scripts/verify-docs.mjs               ← このディレクトリの scripts/ をコピー
 ├── .claude/skills/verify-docs/           ← このディレクトリの .claude/ をコピー（SKILL.md と references/）
+├── .claude/skills/dedupe-docs/           ← 同上（言い換えによる重複の是正。任意だが同梱を推奨）
 └── verify-docs.config.json               ← 必要な場合のみ作成する（無くても動作する）
 ```
 

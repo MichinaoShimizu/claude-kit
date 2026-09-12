@@ -4,10 +4,10 @@
 改修する側の作法を扱う。利用側の手順は [README.md](README.md) を参照する。
 
 - **改修後、自身に対して検査を通過させる（ドッグフーディング）。** 本
-  リポジトリ（claude-kit）では [ci-selfcheck.sh](ci-selfcheck.sh) の実行で
-  自己検査を行える。CI も本スクリプトを、リポジトリ直下から
-  `*/ci-selfcheck.sh` を自動探索する形で実行する
-  （[../.github/workflows/ci.yml](../.github/workflows/ci.yml)）
+  リポジトリ（claude-kit）では [ci-selfcheck.sh](ci-selfcheck.sh) を
+  実行すればよい。CI がこれをどう自動探索して実行するかは
+  [../README.md「本リポジトリ自身の CI」](../README.md#本リポジトリ自身の-ci)
+  を参照する
 - **挙動を変更した場合、`SKILL.md`・`references/config.md`・README.md の
   該当箇所を同一コミットで更新する。** コードのみ改修し説明が旧状態の
   まま残ると、本一式自体が「文書の重複・不整合」を発生させる（本ツールが
