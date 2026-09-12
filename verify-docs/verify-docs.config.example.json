@@ -1,5 +1,5 @@
 {
-  "entryPoints": ["README.md", "CLAUDE.md"],
+  "entryPoints": ["README.md", "CLAUDE.md", "AGENTS.md"],
   "docsDir": "docs",
   "skillsDir": ".claude/skills",
   "pathRoots": ["src/", "docs/", "scripts/", ".claude/", ".github/"],

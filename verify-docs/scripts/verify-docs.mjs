@@ -32,7 +32,7 @@
  *   verify-docs.config.json をリポジトリ直下に置くと読む。
  *
  *     {
- *       "entryPoints": ["README.md", "CLAUDE.md"],
+ *       "entryPoints": ["README.md", "CLAUDE.md", "AGENTS.md"],
  *       "docsDir": "docs",
  *       "skillsDir": ".claude/skills",
  *       "pathRoots": ["src/", "docs/", "scripts/", ".claude/", ".github/"],
@@ -83,7 +83,7 @@ const ROOT = resolve(process.cwd(), option('root', '.'));
 const AS_JSON = flag('json');
 
 const DEFAULTS = {
-  entryPoints: ['README.md', 'CLAUDE.md'],
+  entryPoints: ['README.md', 'CLAUDE.md', 'AGENTS.md'],
   docsDir: 'docs',
   skillsDir: '.claude/skills',
   pathRoots: ['src/', 'docs/', 'scripts/', '.claude/', '.github/'],
