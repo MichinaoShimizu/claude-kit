@@ -18,9 +18,10 @@
 - **tighten-docsスキル**（`.agents/skills/tighten-docs/SKILL.md`）
   - 意味を変えない冗長な言い回しの削減
 
-3つのスキルは独立しており、自動的には連続実行されない。まとめて使う場合は、
-エージェントに「verify-docs・dedupe-docs・tighten-docsを順番に全部実行して」
-と依頼する。
+3つのスキルは独立しており、自動的には連続実行されない。Claude Code・Codex・
+Kiroのいずれでも、次の共通依頼で連続実行する。
+
+> verify-docs・dedupe-docs・tighten-docsを順番に全部実行して
 
 ## 導入
 
