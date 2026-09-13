@@ -79,8 +79,11 @@ TODOの分割候補を特定するために使える。`bytes` と `paragraphCou
 node scripts/verify-docs.mjs --init-todo
 ```
 
-通常の検査は、JSON出力に違反位置（行・列・見出し階層）、重複箇所、サイズ超過時の
-大きな節を含める。チェックリストや総評を作るときは、この出力を根拠として使う。
+通常の検査は、標準出力に最大5件の末端節とTODOの対象節を、JSON出力に
+`summary.documents`（文書数・構造集計）、`summary.violations`（種別ごとの件数）、
+`summary.largestSections`、`summary.todo` を含める。違反には行・列・見出し階層、
+重複箇所、サイズ超過時の大きな節も含める。チェックリストや総評を作るときは、
+この出力を根拠として使う。
 
 ```bash
 node scripts/verify-docs.mjs --json

@@ -701,19 +701,59 @@ if (config.checkNearDuplicates) {
 
 /* ---------- 報告 ---------- */
 
+const documentMetrics = [...structures.entries()].map(([path, structure]) => ({
+  path,
+  bytes: structure.bytes,
+  headings: structure.headings.length,
+  paragraphs: structure.blocks.length,
+}));
+const leafSections = [...structures.entries()].flatMap(([path, structure]) => {
+  const headings = structure.headings;
+  return headings
+    .filter((heading) => !headings.some((other) =>
+      other.headingPath.length > heading.headingPath.length
+      && other.headingPath.slice(0, heading.headingPath.length).every((part, index) =>
+        part === heading.headingPath[index],
+      ),
+    ))
+    .map(({ headingPath, sourcepos, endLine, bytes, paragraphCount }) => ({
+      path,
+      headingPath,
+      startLine: sourcepos.start.line,
+      endLine,
+      bytes,
+      paragraphCount,
+    }));
+});
+const failuresByKind = Object.fromEntries(
+  [...new Set(failures.map(({ kind }) => kind))]
+    .sort()
+    .map((kind) => [kind, failures.filter((failure) => failure.kind === kind).length]),
+);
 const summary = {
-  documents: documents.length,
-  todoEntries: todo.size,
-  structure: {
-    bytes: [...structures.values()].reduce((sum, structure) => sum + structure.bytes, 0),
-    headings: [...structures.values()].reduce((sum, structure) => sum + structure.headings.length, 0),
-    paragraphs: [...structures.values()].reduce((sum, structure) => sum + structure.blocks.length, 0),
+  documents: {
+    count: documentMetrics.length,
+    bytes: documentMetrics.reduce((sum, document) => sum + document.bytes, 0),
+    headings: documentMetrics.reduce((sum, document) => sum + document.headings, 0),
+    paragraphs: documentMetrics.reduce((sum, document) => sum + document.paragraphs, 0),
   },
-  failures,
+  todo: {
+    count: todo.size,
+    entries: [...todo.values()],
+  },
+  violations: {
+    count: failures.length,
+    byKind: failuresByKind,
+  },
+  largestSections: leafSections
+    .sort((a, b) => b.bytes - a.bytes || a.path.localeCompare(b.path) || a.startLine - b.startLine)
+    .slice(0, 5),
 };
 
+const report = { summary, failures };
+
 if (AS_JSON) {
-  console.log(JSON.stringify(summary, null, 2));
+  console.log(JSON.stringify(report, null, 2));
 } else {
   const label = {
     link: 'リンク切れ',
@@ -726,11 +766,32 @@ if (AS_JSON) {
     'stale-todo': 'TODO の掃除',
   };
   console.log(
-    `文書 ${documents.length} 件（見出し ${summary.structure.headings} 件・` +
-    `段落 ${summary.structure.paragraphs} 件・${summary.structure.bytes} バイト、TODO 例外 ${todo.size} 件）を検査`,
+    `文書 ${summary.documents.count} 件（見出し ${summary.documents.headings} 件・` +
+    `段落 ${summary.documents.paragraphs} 件・${summary.documents.bytes} バイト、TODO ${summary.todo.count} 件）を検査`,
   );
+  if (summary.largestSections.length > 0) {
+    console.log('\n大きい節（末端節・上位5件）:');
+    for (const section of summary.largestSections) {
+      console.log(
+        `  - ${section.path}:${section.startLine}-${section.endLine} / ` +
+        `${section.headingPath.join(' > ')} — ${section.bytes} バイト、${section.paragraphCount} 段落`,
+      );
+    }
+  }
+  if (summary.todo.entries.length > 0) {
+    console.log('\nTODO:');
+    for (const entry of summary.todo.entries) {
+      const section = entry.section
+        ? ` / ${entry.section.headingPath.join(' > ')} (${entry.section.startLine}-${entry.section.endLine}行、${entry.section.bytes} バイト)`
+        : '';
+      console.log(`  - ${entry.path}${section} — ${entry.reason}`);
+    }
+  }
   if (failures.length > 0) {
-    console.error(`\n文書構造の検査に失敗（${failures.length}件）:`);
+    const kinds = Object.entries(summary.violations.byKind)
+      .map(([kind, count]) => `${label[kind]} ${count}件`)
+      .join('・');
+    console.error(`\n文書構造の検査に失敗（${failures.length}件: ${kinds}）:`);
     for (const f of failures) {
       const where = f.location
         ? ` (${f.location.path}:${f.location.start.line}:${f.location.start.column}` +

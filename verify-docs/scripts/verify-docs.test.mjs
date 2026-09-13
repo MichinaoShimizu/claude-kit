@@ -49,7 +49,11 @@ test('clean repo passes', () => {
     'README.md': '# Repo\n\n[docs](docs/guide.md)\n',
     'docs/guide.md': '# Guide\n\nSome content.\n',
   });
-  assert.deepEqual(run(root).failures, []);
+  const result = run(root);
+  assert.deepEqual(result.failures, []);
+  assert.deepEqual(result.summary.documents, { count: 2, bytes: 53, headings: 2, paragraphs: 2 });
+  assert.deepEqual(result.summary.violations, { count: 0, byKind: {} });
+  assert.equal(result.summary.largestSections[0].path, 'README.md');
   rmSync(root, { recursive: true, force: true });
 });
 
