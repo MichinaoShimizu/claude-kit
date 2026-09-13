@@ -120,6 +120,65 @@ const DEFAULTS = {
   todoFile: 'verify-docs.todo.json',
 };
 
+function readJson(path, label) {
+  try {
+    return JSON.parse(readFileSync(path, 'utf8'));
+  } catch (error) {
+    throw new Error(`${label} を読み込めない: ${error.message}`);
+  }
+}
+
+const CONFIG_TYPES = {
+  entryPoints: 'string[]',
+  docsDir: 'path',
+  skillsDir: 'path',
+  pathRoots: 'string[]',
+  agentConfigDirs: 'string[]',
+  excludePaths: 'string[]',
+  maxDocBytes: 'positive integer',
+  minDuplicateChars: 'positive integer',
+  checkDuplicates: 'boolean',
+  checkNearDuplicates: 'boolean',
+  todoFile: 'path',
+};
+
+function validateRelativePath(value, label) {
+  if (
+    typeof value !== 'string'
+    || value.trim() === ''
+    || value.startsWith('/')
+    || /^[A-Za-z]:[\\/]/.test(value)
+    || value.split(/[\\/]/).includes('..')
+  ) {
+    throw new Error(`${label} はリポジトリ内の相対パスにしてください`);
+  }
+}
+
+function validateConfig(config) {
+  if (!config || typeof config !== 'object' || Array.isArray(config)) {
+    throw new Error('verify-docs.config.json はJSONオブジェクトである必要があります');
+  }
+  for (const key of Object.keys(config)) {
+    if (!Object.hasOwn(CONFIG_TYPES, key)) throw new Error(`未対応の設定キー: ${key}`);
+    const type = CONFIG_TYPES[key];
+    const value = config[key];
+    if (type === 'path') validateRelativePath(value, key);
+    else if (type === 'string[]') {
+      if (!Array.isArray(value) || value.some((item) => typeof item !== 'string' || item.trim() === '')) {
+        throw new Error(`${key} は空でない文字列の配列にしてください`);
+      }
+      if (['entryPoints', 'pathRoots', 'agentConfigDirs', 'excludePaths'].includes(key)) {
+        value.forEach((item, index) => validateRelativePath(item, `${key}[${index}]`));
+      }
+    } else if (type === 'positive integer') {
+      if (!Number.isSafeInteger(value) || value <= 0) throw new Error(`${key} は正の整数にしてください`);
+    } else if (typeof value !== type) {
+      throw new Error(`${key} は ${type} にしてください`);
+    }
+  }
+  return config;
+}
+
 function loadConfig() {
   const path = option('config', join(ROOT, 'verify-docs.config.json'));
   const detectedSkillsDir = [DEFAULTS.skillsDir, '.claude/skills', '.kiro/skills'].find((dir) =>
@@ -129,20 +188,46 @@ function loadConfig() {
     ? { ...DEFAULTS, skillsDir: detectedSkillsDir }
     : DEFAULTS;
   if (!existsSync(path)) return defaults;
-  const user = JSON.parse(readFileSync(path, 'utf8'));
-  return { ...defaults, ...user };
+  const user = readJson(path, 'verify-docs.config.json');
+  if (!user || typeof user !== 'object' || Array.isArray(user)) {
+    throw new Error('verify-docs.config.json はJSONオブジェクトである必要があります');
+  }
+  return validateConfig({ ...defaults, ...user });
 }
 
-const config = loadConfig();
-
-function loadTodo() {
+function loadTodo(config) {
   const path = join(ROOT, config.todoFile);
   if (!existsSync(path)) return new Map();
-  const list = JSON.parse(readFileSync(path, 'utf8'));
-  return new Map(list.map((entry) => [entry.path, entry]));
+  const list = readJson(path, config.todoFile);
+  if (!Array.isArray(list)) throw new Error(`${config.todoFile} は配列である必要があります`);
+  const entries = new Map();
+  for (const [index, entry] of list.entries()) {
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
+      throw new Error(`${config.todoFile}[${index}] はオブジェクトである必要があります`);
+    }
+    const keys = Object.keys(entry);
+    if (keys.some((key) => !['path', 'reason'].includes(key))) {
+      throw new Error(`${config.todoFile}[${index}] は path と reason だけを指定できます`);
+    }
+    validateRelativePath(entry.path, `${config.todoFile}[${index}].path`);
+    if (typeof entry.reason !== 'string' || entry.reason.trim() === '') {
+      throw new Error(`${config.todoFile}[${index}].reason は空でない文字列にしてください`);
+    }
+    if (entries.has(entry.path)) throw new Error(`${config.todoFile} に重複した path があります: ${entry.path}`);
+    entries.set(entry.path, entry);
+  }
+  return entries;
 }
 
-const todo = loadTodo();
+let config;
+let todo;
+try {
+  config = loadConfig();
+  todo = loadTodo(config);
+} catch (error) {
+  console.error(`設定エラー: ${error.message}`);
+  process.exit(2);
+}
 
 /** 実体のない書き方。手順の説明で使うので、パスとしては見ない。 */
 const PLACEHOLDER = /[<>*…]|\.\.\./;
@@ -234,6 +319,64 @@ function stripFences(text) {
     .join('\n');
 }
 
+/** コメントとインラインコードを空白化し、通常のMarkdown本文だけを走査する。 */
+function stripNonMarkdown(text) {
+  const blank = (value) => value.replace(/[^\n]/g, ' ');
+  let result = text.replace(/<!--[\s\S]*?-->/g, blank);
+  return result.replace(/(`+)([\s\S]*?)\1/g, (match) => blank(match));
+}
+
+/** 基本的なインラインリンク先を抽出する。リンク先中の括弧とエスケープを扱う。 */
+function markdownLinkTargets(text) {
+  const targets = [];
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] !== '[') continue;
+    let closeLabel = i + 1;
+    while (closeLabel < text.length && text[closeLabel] !== ']' && text[closeLabel] !== '\n') {
+      if (text[closeLabel] === '\\') closeLabel++;
+      closeLabel++;
+    }
+    if (text[closeLabel] !== ']' || text[closeLabel + 1] !== '(') continue;
+
+    let cursor = closeLabel + 2;
+    while (/\s/.test(text[cursor] ?? '') && text[cursor] !== '\n') cursor++;
+    const angle = text[cursor] === '<';
+    if (angle) cursor++;
+    const start = cursor;
+    let depth = 0;
+    while (cursor < text.length) {
+      const char = text[cursor];
+      if (char === '\\') {
+        cursor += 2;
+        continue;
+      }
+      if (angle) {
+        if (char === '>') break;
+      } else {
+        if (char === '(') depth++;
+        else if (char === ')') {
+          if (depth === 0) break;
+          depth--;
+        } else if (/\s/.test(char)) break;
+      }
+      cursor++;
+    }
+    if (cursor === start || (angle && text[cursor] !== '>')) continue;
+    const target = text.slice(start, cursor).replace(/\\([()<>\\])/g, '$1');
+    if (angle) cursor++;
+    while (/\s/.test(text[cursor] ?? '') && text[cursor] !== '\n') cursor++;
+    // A destination may be followed by an optional title; accept it only if the
+    // outer closing parenthesis is present on the same line.
+    if (text[cursor] !== ')') {
+      const end = text.indexOf(')', cursor);
+      if (end === -1 || text.slice(cursor, end).includes('\n')) continue;
+    }
+    targets.push(target);
+    i = closeLabel;
+  }
+  return targets;
+}
+
 const bodies = new Map();
 const fragments = new Map();
 
@@ -261,7 +404,7 @@ function noteReference(target, from) {
 for (const doc of documents) {
   const from = dirname(join(ROOT, doc));
 
-  for (const [, target] of bodies.get(doc).matchAll(/\[[^\]]*\]\(([^)\s]+)\)/g)) {
+  for (const target of markdownLinkTargets(stripNonMarkdown(bodies.get(doc)))) {
     if (/^(https?:|mailto:|tel:)/.test(target)) continue;
 
     const [path, fragment] = target.split('#');

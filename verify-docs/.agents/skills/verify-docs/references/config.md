@@ -43,6 +43,8 @@
 | `checkNearDuplicates` | 準一致の重複検査の有効・無効。既定は無効（下記「準一致重複」を参照） |
 | `todoFile`            | 例外リストの配置先                                                   |
 
+入力値の制約は[設定ファイルの入力検証](config-validation.md)を参照。
+
 ### 検査対象の集め方
 
 `entryPoints`・`docsDir`・`skillsDir` に置かれた文書だけを見る方式（許可

@@ -51,7 +51,8 @@ description: >
 
 `scripts/verify-docs.mjs` を対象リポジトリに配置する（本スキル一式を
 まるごとコピーすれば含まれる）。設定は `verify-docs.config.json`
-（無ければ既定値。[references/config.md](references/config.md)を参照）。
+（無ければ既定値。[references/config.md](references/config.md)を参照。
+入力制約は[references/config-validation.md](references/config-validation.md)を参照）。
 複数エージェントで入口文書とスキルを共用する構成は
 [references/agent-compatibility.md](references/agent-compatibility.md) を参照する。
 

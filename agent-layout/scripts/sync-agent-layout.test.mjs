@@ -138,6 +138,46 @@ test('does not silently discard unsupported Claude fields', () => {
   rmSync(root, { recursive: true, force: true });
 });
 
+test('does not migrate skills when an agent source is invalid', () => {
+  const root = repo({
+    '.claude/skills/review/SKILL.md': '# Review\n',
+    '.claude/agents/reviewer.md': [
+      '---',
+      'name: reviewer',
+      'description: Reviews code',
+      'permissionMode: plan',
+      '---',
+      '',
+      'Review changes.',
+    ].join('\n'),
+  });
+  assert.throws(() => run(root, true));
+  assert.equal(existsSync(join(root, '.claude/skills/review/SKILL.md')), true);
+  assert.equal(existsSync(join(root, '.agents/skills')), false);
+  assert.equal(existsSync(join(root, '.kiro/skills')), false);
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('does not migrate skills when a generated target conflicts', () => {
+  const root = repo({
+    '.claude/skills/review/SKILL.md': '# Review\n',
+    '.agents/agents/writer.json': JSON.stringify({
+      version: 1,
+      name: 'writer',
+      description: 'Writes code',
+      instructions: 'Implement focused changes.\n',
+      capabilities: ['read'],
+    }),
+    '.claude/agents/writer.md': 'User-owned agent content.\n',
+  });
+  assert.throws(() => run(root, true));
+  assert.equal(existsSync(join(root, '.claude/skills/review/SKILL.md')), true);
+  assert.equal(existsSync(join(root, '.agents/skills')), false);
+  assert.equal(readFileSync(join(root, '.claude/agents/writer.md'), 'utf8'), 'User-owned agent content.\n');
+  assert.equal(existsSync(join(root, '.codex/agents/writer.toml')), false);
+  rmSync(root, { recursive: true, force: true });
+});
+
 test('repairs a broken skill alias', () => {
   const root = repo();
   mkdirSync(join(root, '.claude'), { recursive: true });
