@@ -5,12 +5,14 @@
 保つためのパッケージ。入口文書は話題と参照先だけを持つルーティングテーブル
 として扱う。
 
+Markdownは正規表現ではなく、同梱の CommonMark.js で AST（構文木）に解析する。
+構造解析・機械検査・JSON出力・TODO初期化の詳細は
+[構造解析と機械検査](docs/structure.md)を参照する。
+
 ## 構成
 
-- **チェッカー**（`scripts/verify-docs.mjs`）
-  - 参照切れと孤立文書
-  - 文書のサイズ超過
-  - AST抽出した段落本文の重複（強調などの書式差は無視）
+### 文書改善スキル
+
 - **verify-docsスキル**（`.agents/skills/verify-docs/SKILL.md`）
   - チェッカーが検出したリンク切れ・孤立文書・サイズ超過・同一段落の重複を直すための手順
   - 内容は書き換えず、適切な文書への移動と入口からのポインタ化で文書構造を整える
@@ -123,6 +125,7 @@ Kiroで個別に呼び出す場合は次の記法を使う。
 ## 詳細
 
 - [既存リポジトリへの導入、CI、TODOの運用](docs/adoption.md)
+- [CommonMark ASTによる構造解析と機械検査](docs/structure.md)
 - [エージェント間の互換構成](.agents/skills/verify-docs/references/agent-compatibility.md)
 - [設定項目](.agents/skills/verify-docs/references/config.md)
 - [TODOファイルの記述形式](.agents/skills/verify-docs/references/todo.md)
