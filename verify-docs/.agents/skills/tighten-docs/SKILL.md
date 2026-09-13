@@ -55,9 +55,10 @@ node scripts/extract-doc-blocks.mjs --root=. README.md docs/guide.md
 
 ### 2. 冗長表現削減
 
-典型パターンの一覧は
-[references/patterns.md](references/patterns.md) を参照する。該当パターンの
-有無を1件ずつ確認する。
+典型パターンの一覧で該当パターンの有無を1件ずつ確認する。
+[語句・文法](references/patterns-wording.md)、
+[重複・文体](references/patterns-duplication-and-style.md)、
+[Markdown表現](references/patterns-markdown.md) を参照する。
 
 ### 3. サイズ変化記録
 
