@@ -17,13 +17,32 @@ function repo(files = {}) {
   return root;
 }
 
-function run(root, write = false) {
-  return execFileSync('node', [SCRIPT, `--root=${root}`, ...(write ? ['--write'] : [])], { encoding: 'utf8' });
+function run(root, args = []) {
+  const options = args === true ? ['--write'] : args;
+  return execFileSync('node', [SCRIPT, `--root=${root}`, ...options], { encoding: 'utf8' });
 }
+
+test('initializes an empty repository with canonical skills, aliases, and CI', () => {
+  const root = repo();
+  run(root, ['--init']);
+  assert.ok(lstatSync(join(root, '.claude/skills')).isSymbolicLink());
+  assert.equal(readlinkSync(join(root, '.kiro/skills')), '../.agents/skills');
+  assert.match(readFileSync(join(root, '.github/workflows/agent-layout.yml'), 'utf8'), /node scripts\/sync-agent-layout\.mjs/);
+  assert.match(run(root), /同期済み/);
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('init refuses to overwrite an existing CI workflow', () => {
+  const root = repo({ '.github/workflows/agent-layout.yml': 'name: user-owned\n' });
+  assert.throws(() => run(root, ['--init']));
+  assert.equal(readFileSync(join(root, '.github/workflows/agent-layout.yml'), 'utf8'), 'name: user-owned\n');
+  assert.equal(existsSync(join(root, '.agents/skills')), false);
+  rmSync(root, { recursive: true, force: true });
+});
 
 test('moves Claude skills to the canonical directory and creates aliases', () => {
   const root = repo({ '.claude/skills/review/SKILL.md': '# Review\n' });
-  run(root, true);
+  run(root, ['--write']);
   assert.equal(readFileSync(join(root, '.agents/skills/review/SKILL.md'), 'utf8'), '# Review\n');
   assert.ok(lstatSync(join(root, '.claude/skills')).isSymbolicLink());
   assert.equal(readlinkSync(join(root, '.kiro/skills')), '../.agents/skills');
@@ -36,7 +55,7 @@ test('refuses conflicting skill files', () => {
     '.agents/skills/review/SKILL.md': '# Canonical\n',
     '.claude/skills/review/SKILL.md': '# Claude\n',
   });
-  assert.throws(() => run(root, true));
+  assert.throws(() => run(root, ['--write']));
   assert.equal(readFileSync(join(root, '.claude/skills/review/SKILL.md'), 'utf8'), '# Claude\n');
   rmSync(root, { recursive: true, force: true });
 });
@@ -46,7 +65,7 @@ test('refuses conflicts between Claude and Kiro skill directories', () => {
     '.claude/skills/review/SKILL.md': '# Claude\n',
     '.kiro/skills/review/SKILL.md': '# Kiro\n',
   });
-  assert.throws(() => run(root, true));
+  assert.throws(() => run(root, ['--write']));
   assert.equal(readFileSync(join(root, '.kiro/skills/review/SKILL.md'), 'utf8'), '# Kiro\n');
   rmSync(root, { recursive: true, force: true });
 });

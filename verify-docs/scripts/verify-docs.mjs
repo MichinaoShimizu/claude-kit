@@ -88,11 +88,13 @@
  *   --root=<dir>    検査するリポジトリの根（既定: カレント）
  *   --config=<file> 設定ファイルの場所（既定: <root>/verify-docs.config.json）
  *   --json          結果を JSON で出す
+ *   --changed-base=<ref> そのGit参照からの差分に関係する違反だけを報告する
  *   --init-todo     いま上限を超えている文書を全部 TODO ファイルに書き出して終わる
  *                   （検査は走らせない）。既存リポジトリに導入する最初の1回に使う。
  *                   すでにファイルがあれば上書きせず失敗する（手で消してから）
  */
 
+import { execFileSync } from 'node:child_process';
 import { existsSync, lstatSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -236,8 +238,13 @@ function loadTodo(config) {
   return entries;
 }
 
-export function verifyDocs(root, { configPath, initTodo = false } = {}) {
+export function verifyDocs(root, { configPath, initTodo = false, changedBase } = {}) {
   ROOT = resolve(root);
+  const changedPaths = changedBase === undefined ? null : new Set(
+    execFileSync('git', ['-C', ROOT, 'diff', '--name-only', '--diff-filter=ACMRD', `${changedBase}...HEAD`], {
+      encoding: 'utf8',
+    }).split('\n').filter(Boolean),
+  );
   configOption = configPath;
   const config = loadConfig();
   const todo = loadTodo(config);
@@ -708,10 +715,18 @@ const leafSections = [...structures.entries()].flatMap(([path, structure]) => {
     }];
   });
 });
+const changedScopeIncludesEverything = changedPaths?.has('verify-docs.config.json') || changedPaths?.has(config.todoFile);
+function failureTouchesChangedPath(failure) {
+  if (!changedPaths || changedScopeIncludesEverything) return true;
+  const paths = [failure.from, failure.target, failure.location?.path];
+  for (const occurrence of failure.occurrences ?? []) paths.push(occurrence.location?.path);
+  return paths.filter(Boolean).some((path) => changedPaths.has(path.split('#', 1)[0]));
+}
+const scopedFailures = failures.filter(failureTouchesChangedPath);
 const failuresByKind = Object.fromEntries(
-  [...new Set(failures.map(({ kind }) => kind))]
+  [...new Set(scopedFailures.map(({ kind }) => kind))]
     .sort()
-    .map((kind) => [kind, failures.filter((failure) => failure.kind === kind).length]),
+    .map((kind) => [kind, scopedFailures.filter((failure) => failure.kind === kind).length]),
 );
 const summary = {
   documents: {
@@ -725,7 +740,7 @@ const summary = {
     entries: [...todo.values()],
   },
   violations: {
-    count: failures.length,
+    count: scopedFailures.length,
     byKind: failuresByKind,
   },
   largestSections: leafSections
@@ -733,7 +748,11 @@ const summary = {
     .slice(0, 5),
 };
 
-const report = { summary, failures };
+const report = {
+  summary,
+  failures: scopedFailures,
+  ...(changedPaths ? { changed: { base: changedBase, paths: [...changedPaths].sort() } } : {}),
+};
 
 return report;
 }
@@ -804,7 +823,11 @@ function main() {
   const configPath = option('config', undefined);
 
   try {
-    const result = verifyDocs(root, { configPath, initTodo: flag('init-todo') });
+    const result = verifyDocs(root, {
+      configPath,
+      initTodo: flag('init-todo'),
+      changedBase: option('changed-base', undefined),
+    });
     if (result.initializedTodo) {
       const { path, count } = result.initializedTodo;
       console.log(

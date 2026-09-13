@@ -18,6 +18,14 @@ your-repo/
 node scripts/sync-agent-layout.mjs --write
 ```
 
+空のリポジトリに正本ディレクトリ、Claude Code・Kiro の互換リンク、同期を検査する
+GitHub Actions ワークフローを作る場合は、次を一度だけ実行する。既存ファイルは
+上書きしない。
+
+```bash
+node scripts/sync-agent-layout.mjs --init
+```
+
 `--write`を外すと変更せず同期状態だけを検査する。CIではこの形式を使う。
 
 ```bash

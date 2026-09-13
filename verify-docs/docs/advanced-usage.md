@@ -6,6 +6,16 @@
 node scripts/verify-docs.mjs
 ```
 
+## PR差分だけを検査する
+
+基準ブランチから変更したパスに関係する違反だけを失敗として返す。リンク解決などは
+リポジトリ全体を解析するため、変更していない文書へのリンク切れも、変更で起きた場合は
+検出する。
+
+```bash
+node scripts/verify-docs.mjs --changed-base=origin/main
+```
+
 ## AST情報をJSONで取得する
 
 dedupe-docs / tighten-docs で対象文書を調べるときは、CommonMarkの見出し階層と段落を

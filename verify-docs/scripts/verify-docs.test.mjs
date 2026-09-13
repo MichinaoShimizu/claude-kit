@@ -490,6 +490,26 @@ test('--init-todo writes todo file for oversized docs and refuses to overwrite',
   rmSync(root, { recursive: true, force: true });
 });
 
+test('changed-base reports only violations related to changed paths', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n\n[legacy](docs/legacy-missing.md)\n[current](docs/current.md)\n',
+    'docs/current.md': '# Current\n',
+  });
+  execFileSync('git', ['init', '-q', root]);
+  execFileSync('git', ['-C', root, 'add', '.']);
+  execFileSync('git', ['-C', root, '-c', 'commit.gpgsign=false', '-c', 'user.name=test', '-c', 'user.email=test@example.com', 'commit', '-qm', 'initial']);
+  writeFileSync(join(root, 'docs/current.md'), '# Current\n\n[missing](new-missing.md)\n');
+  execFileSync('git', ['-C', root, 'add', '.']);
+  execFileSync('git', ['-C', root, '-c', 'commit.gpgsign=false', '-c', 'user.name=test', '-c', 'user.email=test@example.com', 'commit', '-qm', 'change']);
+
+  const result = verifyDocs(root, { changedBase: 'HEAD~1' });
+  assert.deepEqual(result.changed.paths, ['docs/current.md']);
+  assert.equal(result.failures.length, 1);
+  assert.equal(result.failures[0].from, 'docs/current.md');
+  assert.equal(result.failures[0].kind, 'link');
+  rmSync(root, { recursive: true, force: true });
+});
+
 test('CLI prints JSON and preserves the failure exit code', () => {
   const root = makeRepo({ 'README.md': '# Repo\n\n[missing](docs/missing.md)\n' });
   try {
