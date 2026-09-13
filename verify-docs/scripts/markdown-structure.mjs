@@ -67,13 +67,17 @@ export function extractProseBlocks(
     if (node.type === 'heading') {
       const text = markdownText(node).replace(/\s+/g, ' ').trim();
       while (headings.length && headings.at(-1).level >= node.level) headings.pop();
-      headings.push({ level: node.level, text });
-      outline.push({
+      const activeHeading = { level: node.level, text };
+      headings.push(activeHeading);
+      const heading = {
         level: node.level,
         text,
         headingPath: headings.map(({ text: heading }) => heading),
         sourcepos: sourcePosition(node),
-      });
+        paragraphCount: 0,
+      };
+      activeHeading.outline = heading;
+      outline.push(heading);
       continue;
     }
 
@@ -96,6 +100,8 @@ export function extractProseBlocks(
     };
     if (includeSignatures) block.signature = markdownInlineSignature(node);
     blocks.push(block);
+    // Paragraph counts include descendants, and Markdown heading depth is at most six.
+    for (const heading of headings) heading.outline.paragraphCount++;
   }
 
   for (let index = 0; index < outline.length; index++) {
@@ -109,9 +115,6 @@ export function extractProseBlocks(
     heading.endLine = Number.isFinite(endLine)
       ? endLine - 1
       : source.split(/\r?\n/).length;
-    heading.paragraphCount = blocks.filter(({ sourcepos }) =>
-      sourcepos.start.line >= heading.sourcepos.start.line && sourcepos.start.line < endLine,
-    ).length;
   }
 
   return {
