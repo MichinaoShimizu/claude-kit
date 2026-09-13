@@ -1,4 +1,4 @@
-# `verify-docs.todo.json` の形式と運用
+# `.verify-docs/config/verify-docs.todo.json` の形式と運用
 
 [文書構造の是正手順「4. 分割不可時の TODO 記載」](remediation.md#4-分割不可時の-todo-記載)・
 [config.md](config.md)から参照される。TODO ファイルの記述形式・運用ルールを
@@ -7,7 +7,7 @@
 上限を超過しているが現時点では分割できない文書の申告リスト。検査から
 除外するのではなく、認めた上で毎回の実行結果に出力し続ける仕組み。
 手動記述も可能だが、既存リポジトリへの初回導入時は
-`node scripts/verify-docs.mjs --init-todo` でその時点の違反を一括で
+`node .verify-docs/scripts/verify-docs.mjs --init-todo` でその時点の違反を一括で
 書き出せる。
 
 ```json

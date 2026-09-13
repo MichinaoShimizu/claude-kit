@@ -55,7 +55,7 @@ description: >
 
 ## 前提条件
 
-`scripts/verify-docs.mjs` を対象リポジトリに配置する（本スキル一式を
+`.verify-docs/scripts/verify-docs.mjs` を対象リポジトリに配置する（本スキル一式を
 まるごとコピーすれば含まれる）。設定は `verify-docs.config.json`
 （無ければ既定値。[references/config.md](references/config.md)を参照。
 入力制約は[references/config-validation.md](references/config-validation.md)を参照）。
@@ -68,7 +68,7 @@ description: >
 [references/checklist.md](references/checklist.md) を参照する。
 
 ```bash
-node scripts/verify-docs.mjs
+node .verify-docs/scripts/verify-docs.mjs
 ```
 
 本スクリプトは破綻箇所を通知するのみで、是正は本スキルの役目。出力された
@@ -88,7 +88,7 @@ TODOの記述形式は[TODOファイルの記述形式](references/todo.md)を�
 
 以下を全て満たした時点で、その回の是正作業は完了とする。
 
-- `node scripts/verify-docs.mjs` の実行結果が「文書構造: すべて通過」
+- `node .verify-docs/scripts/verify-docs.mjs` の実行結果が「文書構造: すべて通過」
   である（`verify-docs.todo.json` に理由付きで明示的に残した超過は
   例外として許容する）
 - 検査結果に複数件出力された違反は、一時作業記録の全項目にチェックが

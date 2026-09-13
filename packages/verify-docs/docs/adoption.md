@@ -1,7 +1,7 @@
 # 導入と運用
 
 [README.md](../README.md)から参照される。既存リポジトリへの導入、CIへの
-組み込み、`verify-docs.todo.json`の運用を扱う。
+組み込み、`.verify-docs/config/verify-docs.todo.json`の運用を扱う。
 
 ## 既存のサイズ超過文書への導入
 
@@ -13,10 +13,10 @@
 ### 1. 現状の違反を一括で申告する
 
 ```bash
-node scripts/verify-docs.mjs --init-todo
+node .verify-docs/scripts/verify-docs.mjs --init-todo
 ```
 
-サイズ上限を超えている文書を全て抽出し`verify-docs.todo.json`に書き出す。
+サイズ上限を超えている文書を全て抽出し`.verify-docs/config/verify-docs.todo.json`に書き出す。
 これらのサイズ超過は例外扱いとなり、検査結果の一覧には出続ける。リンク切れ・孤立・重複など
 他の違反は例外にならないため、別途是正する。
 
@@ -57,25 +57,24 @@ on:
   pull_request:
     paths:
       - '**/*.md'
-      - 'verify-docs.config.json'
-      - 'verify-docs.todo.json'
-      - 'scripts/**'
+      - '.verify-docs/config/**'
+      - '.verify-docs/scripts/**'
 
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: node scripts/verify-docs.mjs
+      - run: node .verify-docs/scripts/verify-docs.mjs
 ```
 
 `paths` は対象リポジトリのCI構成に合わせる。文書だけの変更でも実行する。
 push前にも検証する場合は、既存のlint・typecheck・testなどに
-`node scripts/verify-docs.mjs`を追加する。
+`node .verify-docs/scripts/verify-docs.mjs`を追加する。
 
 ## TODOの管理
 
-`verify-docs.todo.json` は、上限を超過している文書を後で是正するための一覧である。
+`.verify-docs/config/verify-docs.todo.json` は、上限を超過している文書を後で是正するための一覧である。
 記述形式と運用ルールの正本は
 [references/todo.md](../.agents/skills/verify-docs/references/todo.md)を参照する。
 

@@ -24,7 +24,7 @@ verify-docs の検査はサイズ超過という結果のみを見る。冗長�
 
 ## 前提条件
 
-対象リポジトリに verify-docs 一式（`scripts/verify-docs.mjs` と
+対象リポジトリに verify-docs 一式（`.verify-docs/scripts/verify-docs.mjs` と
 `.agents/skills/verify-docs/`）が導入済みであること。検査対象・チェックリスト
 規約は流用する。verify-docs 自体の規約は
 [verify-docs/SKILL.md](../verify-docs/SKILL.md) を参照する。
@@ -52,7 +52,7 @@ verify-docs の検査はサイズ超過という結果のみを見る。冗長�
 本文・バイト数を一覧化し、確認する箇所を整理する。
 
 ```bash
-node scripts/extract-doc-blocks.mjs --root=. README.md docs/guide.md
+node .verify-docs/scripts/extract-doc-blocks.mjs --root=. README.md docs/guide.md
 ```
 
 対象が多い場合は、一時作業記録に列挙した対象文書のパスを複数指定する。段落の `bytes` はMarkdown
@@ -83,7 +83,7 @@ dedupe-docs に切り分ける。
 ### 4. 是正後再検査
 
 ```bash
-node scripts/verify-docs.mjs
+node .verify-docs/scripts/verify-docs.mjs
 ```
 
 書き換えに伴うリンク切れ・断片リンク切れが発生していないか確認する。
@@ -93,7 +93,7 @@ node scripts/verify-docs.mjs
 以下を全て満たした時点で完了とする。
 
 - 一時作業記録の全項目にチェックが入っている
-- `node scripts/verify-docs.mjs` が「文書構造: すべて通過」で終わっている
+- `node .verify-docs/scripts/verify-docs.mjs` が「文書構造: すべて通過」で終わっている
 - 自分の一時作業記録に `### 最終検査結果` を記載して `checklist.md` へ統合し、作業完了を報告する際は
   チェックリストファイルのパスと実行結果を人に伝える
 

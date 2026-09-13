@@ -65,16 +65,14 @@ if [[ ! -f "$source_root/scripts/verify-docs.mjs" ]]; then
   exit 1
 fi
 
-files=(
+runtime_files=(
+  config
   scripts/verify-docs.mjs
   scripts/markdown-structure.mjs
   scripts/extract-doc-blocks.mjs
   scripts/vendor
-  evals
-  .agents/skills/verify-docs
-  .agents/skills/dedupe-docs
-  .agents/skills/tighten-docs
 )
+skill_names=(verify-docs dedupe-docs tighten-docs)
 
 work_record_ignore='.verify-docs/dist/*.work.md'
 
@@ -109,21 +107,71 @@ ensure_work_record_ignore() {
 }
 
 conflicts=()
-for item in "${files[@]}"; do
+
+record_file_conflicts() {
+  local source_path="$1" target_path="$2" relative_path source_file target_file
+  while IFS= read -r -d '' source_file; do
+    relative_path="${source_file#"$source_path/"}"
+    target_file="$target_path/$relative_path"
+    if [[ -e "$target_file" ]] && ! cmp -s "$source_file" "$target_file"; then
+      conflicts+=("${target_file#"$target_root/"}")
+    fi
+  done < <(find "$source_path" -type f -print0)
+}
+
+copy_missing_files() {
+  local source_path="$1" target_path="$2" relative_path source_file target_file
+  while IFS= read -r -d '' source_file; do
+    relative_path="${source_file#"$source_path/"}"
+    target_file="$target_path/$relative_path"
+    if [[ ! -e "$target_file" ]]; then
+      mkdir -p "$(dirname "$target_file")"
+      cp "$source_file" "$target_file"
+    fi
+  done < <(find "$source_path" -type f -print0)
+}
+
+for item in "${runtime_files[@]}"; do
   if [[ -d "$source_root/$item" ]]; then
-    while IFS= read -r -d '' source_file; do
-      relative_path="${source_file#"$source_root/"}"
-      target_file="$target_root/$relative_path"
-      if [[ -e "$target_file" ]] && ! cmp -s "$source_file" "$target_file"; then
-        conflicts+=("$relative_path")
-      fi
-    done < <(find "$source_root/$item" -type f -print0)
+    record_file_conflicts "$source_root/$item" "$target_root/.verify-docs/$item"
   else
-    target_file="$target_root/$item"
+    target_file="$target_root/.verify-docs/$item"
     if [[ -e "$target_file" ]] && ! cmp -s "$source_root/$item" "$target_file"; then
-      conflicts+=("$item")
+      conflicts+=("${target_file#"$target_root/"}")
     fi
   fi
+done
+
+for skill_name in "${skill_names[@]}"; do
+  source_skill="$source_root/.agents/skills/$skill_name"
+  target_skill="$target_root/.agents/skills/$skill_name"
+  if [[ -e "$target_skill" ]] && ! diff -qr "$source_skill" "$target_skill" >/dev/null; then
+    conflicts+=(".agents/skills/$skill_name")
+  fi
+done
+
+for agent_dir in .claude .kiro; do
+  skills_dir="$target_root/$agent_dir/skills"
+  if [[ -L "$skills_dir" && "$(readlink "$skills_dir")" != "../.agents/skills" ]]; then
+    conflicts+=("$agent_dir/skills (unsupported existing symlink)")
+    continue
+  fi
+  if [[ -L "$skills_dir" ]]; then
+    continue
+  fi
+  for skill_name in "${skill_names[@]}"; do
+    source_skill="$source_root/.agents/skills/$skill_name"
+    target_skill="$skills_dir/$skill_name"
+    if [[ -L "$target_skill" && "$(readlink "$target_skill")" == "../../.agents/skills/$skill_name" ]]; then
+      continue
+    fi
+    if [[ -e "$target_skill" || -L "$target_skill" ]]; then
+      if [[ -d "$target_skill" ]] && diff -qr "$source_skill" "$target_skill" >/dev/null; then
+        continue
+      fi
+      conflicts+=("$agent_dir/skills/$skill_name")
+    fi
+  done
 done
 
 if ((${#conflicts[@]})); then
@@ -133,18 +181,11 @@ if ((${#conflicts[@]})); then
   exit 1
 fi
 
-for item in "${files[@]}"; do
+for item in "${runtime_files[@]}"; do
   if [[ -d "$source_root/$item" ]]; then
-    while IFS= read -r -d '' source_file; do
-      relative_path="${source_file#"$source_root/"}"
-      target_file="$target_root/$relative_path"
-      if [[ ! -e "$target_file" ]]; then
-        mkdir -p "$(dirname "$target_file")"
-        cp "$source_file" "$target_file"
-      fi
-    done < <(find "$source_root/$item" -type f -print0)
+    copy_missing_files "$source_root/$item" "$target_root/.verify-docs/$item"
   else
-    target_file="$target_root/$item"
+    target_file="$target_root/.verify-docs/$item"
     if [[ ! -e "$target_file" ]]; then
       mkdir -p "$(dirname "$target_file")"
       cp "$source_root/$item" "$target_file"
@@ -152,20 +193,25 @@ for item in "${files[@]}"; do
   fi
 done
 
+for skill_name in "${skill_names[@]}"; do
+  copy_missing_files "$source_root/.agents/skills/$skill_name" "$target_root/.agents/skills/$skill_name"
+done
+
 ensure_work_record_ignore
 
 for agent_dir in .claude .kiro; do
-  alias="$target_root/$agent_dir/skills"
-  if [[ -L "$alias" && "$(readlink "$alias")" == "../.agents/skills" ]]; then
+  skills_dir="$target_root/$agent_dir/skills"
+  if [[ -L "$skills_dir" && "$(readlink "$skills_dir")" == "../.agents/skills" ]]; then
     continue
   fi
-  if [[ -e "$alias" || -L "$alias" ]]; then
-    echo "Kept existing $agent_dir/skills; sync it with .agents/skills if needed." >&2
-    continue
-  fi
-  mkdir -p "$target_root/$agent_dir"
-  ln -s ../.agents/skills "$alias"
+  mkdir -p "$skills_dir"
+  for skill_name in "${skill_names[@]}"; do
+    alias="$skills_dir/$skill_name"
+    if [[ ! -e "$alias" && ! -L "$alias" ]]; then
+      ln -s "../../.agents/skills/$skill_name" "$alias"
+    fi
+  done
 done
 
 echo "Installed verify-docs into $target_root"
-echo "Run: node scripts/verify-docs.mjs"
+echo "Run: node .verify-docs/scripts/verify-docs.mjs"

@@ -52,7 +52,7 @@ test('dedupe-docs contract keeps one canonical explanation, a pointer, and an ex
       '',
       '### 最終検査結果',
       '',
-      '- node scripts/verify-docs.mjs: 文書構造: すべて通過',
+      '- node .verify-docs/scripts/verify-docs.mjs: 文書構造: すべて通過',
     ].join('\n')),
   });
   try {
@@ -97,7 +97,7 @@ test('tighten-docs contract reduces bytes while preserving required facts and an
       '',
       '### 最終検査結果',
       '',
-      '- node scripts/verify-docs.mjs: 文書構造: すべて通過',
+      '- node .verify-docs/scripts/verify-docs.mjs: 文書構造: すべて通過',
     ].join('\n')),
   });
   try {
@@ -126,7 +126,7 @@ test('skill instructions keep deterministic contracts separate from semantic jud
   const dedupe = readFileSync(skillPath('dedupe-docs'), 'utf8');
   const tighten = readFileSync(skillPath('tighten-docs'), 'utf8');
   for (const skill of [dedupe, tighten]) {
-    assert.match(skill, /node scripts\/verify-docs\.mjs/);
+    assert.match(skill, /node \.verify-docs\/scripts\/verify-docs\.mjs/);
     assert.match(skill, /### 最終検査結果/);
     assert.match(skill, /checklist/);
   }

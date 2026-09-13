@@ -36,10 +36,10 @@
 
 | 観点 | 検査・保証内容 | 検査根拠 | 結果 |
 | --- | --- | --- | --- |
-| 参照整合性 | Markdownリンク・画像リンク・断片リンク、設定した `pathRoots` に一致するバッククォート内のパスが解決できる | `node scripts/verify-docs.mjs` | リンク違反0件 |
-| 孤立文書 | 入口文書または他の検査対象文書から到達できる | `node scripts/verify-docs.mjs` | 孤立違反0件 |
-| 文書サイズ | `maxDocBytes` 以下、または TODO に理由を記録済みである | `node scripts/verify-docs.mjs` | サイズ違反0件 |
-| 機械的重複 | 完全一致と、有効時の準一致の段落重複を検出・是正済みである | `node scripts/verify-docs.mjs` | 重複違反0件 |
+| 参照整合性 | Markdownリンク・画像リンク・断片リンク、設定した `pathRoots` に一致するバッククォート内のパスが解決できる | `node .verify-docs/scripts/verify-docs.mjs` | リンク違反0件 |
+| 孤立文書 | 入口文書または他の検査対象文書から到達できる | `node .verify-docs/scripts/verify-docs.mjs` | 孤立違反0件 |
+| 文書サイズ | `maxDocBytes` 以下、または TODO に理由を記録済みである | `node .verify-docs/scripts/verify-docs.mjs` | サイズ違反0件 |
+| 機械的重複 | 完全一致と、有効時の準一致の段落重複を検出・是正済みである | `node .verify-docs/scripts/verify-docs.mjs` | 重複違反0件 |
 
 ### dedupe-docs
 
@@ -47,7 +47,7 @@
 | --- | --- | --- | --- |
 | 意味的重複 | 言い換えによる同一の主張・手順・判断基準を確認した | 原文と抽出結果の照合 | 重複なし |
 | 正本の配置 | 統合対象は詳細度と読者に合う文書を正本にした | 正本と統合元の原文 | 該当なし、または是正済み |
-| ポインタ | 統合元から正本への案内が解決でき、内容を重ねていない | `node scripts/verify-docs.mjs` | 該当なし、またはリンク違反0件 |
+| ポインタ | 統合元から正本への案内が解決でき、内容を重ねていない | `node .verify-docs/scripts/verify-docs.mjs` | 該当なし、またはリンク違反0件 |
 | 判断保留 | 統合の確信が持てない候補を人の判断へ残した | 一時作業記録 | なし、または保留内容 |
 
 ### tighten-docs

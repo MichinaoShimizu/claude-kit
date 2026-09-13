@@ -18,7 +18,7 @@ CLAUDE.md・AGENTS.md（または README）を開き、「MUST」と「道案内
 ## 2. 肥大化文書の特定
 
 ```bash
-node scripts/verify-docs.mjs
+node .verify-docs/scripts/verify-docs.mjs
 ```
 
 `[サイズ超過]` が出力された文書が対象。見出し単位で内容を仕分ける。
@@ -72,5 +72,5 @@ push・PR の前に必ず通過するよう構成する。組み込み方法は
 ## 6. 継続的な検査
 
 一度是正しても、追記のたびに再度肥大化・重複が起きる。新規文書追加時・
-既存文書への追記時に毎回 `node scripts/verify-docs.mjs` を実行する
+既存文書への追記時に毎回 `node .verify-docs/scripts/verify-docs.mjs` を実行する
 ことを push 前検証に組み込めば、崩れた時点で機械的に検知できる。

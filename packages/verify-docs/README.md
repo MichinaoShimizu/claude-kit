@@ -16,6 +16,10 @@ CommonMark ASTを基盤に、参照整合性・文書構造・サイズ・重複
 curl -fsSL https://raw.githubusercontent.com/MichinaoShimizu/claude-kit/main/packages/verify-docs/install.sh | bash
 ```
 
+## 配布元と配布先の配置
+
+[配布元と配布先の配置](docs/distribution-layout.md)を参照。
+
 ## 実行方法
 
 ### スキルの実行
@@ -63,7 +67,7 @@ Markdown文書やチェックリストを変更しない。
 
 ### 検査結果（JSON）
 
-`node scripts/verify-docs.mjs --json`のように実行すると、文書数・構造集計、違反種別ごとの件数、
+`node .verify-docs/scripts/verify-docs.mjs --json`のように実行すると、文書数・構造集計、違反種別ごとの件数、
 大きな節、TODO候補（[TODOファイルの記述形式](.agents/skills/verify-docs/references/todo.md)）に加え、
 違反箇所の行・列・見出し階層や重複箇所をJSON形式で標準出力に出力する。詳しい例は
 [CLIリファレンス「検査結果のJSON出力」](docs/advanced-usage.md#検査結果のjson出力)を参照。
@@ -83,8 +87,8 @@ Markdown文書やチェックリストを変更しない。
 ```mermaid
 flowchart TD
     Docs[Markdown文書群]
-    Config[verify-docs.config.json<br/>任意設定・既定値を上書き]
-    Todo[verify-docs.todo.json<br/>サイズ超過の継続管理]
+    Config[.verify-docs/config/verify-docs.config.json<br/>任意設定・既定値を上書き]
+    Todo[.verify-docs/config/verify-docs.todo.json<br/>サイズ超過の継続管理]
     AST[CommonMark AST]
     Checker[verify-docs チェッカー]
     CheckJSON[検査JSON<br/>違反・集計・大きい節・TODO候補]
@@ -120,8 +124,8 @@ flowchart TD
 
 ## 設定ファイル
 
-既定の設定で足りる場合、設定ファイルは不要。対象リポジトリで検査の動作を変えるときは、
-ルートに`verify-docs.config.json`を作り、変更する項目だけを指定する。
+導入時に`.verify-docs/config/verify-docs.config.json`が既定値で配置される。対象リポジトリで
+検査の動作を変えるときは、このファイルの項目を変更する。
 設定項目と入力制約は[設定ファイルの説明](.agents/skills/verify-docs/references/config.md)を参照。
 
 ## 関連文書

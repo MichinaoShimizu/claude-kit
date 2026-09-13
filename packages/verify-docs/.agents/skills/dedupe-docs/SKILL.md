@@ -20,7 +20,7 @@ description: >
 
 ## 前提条件
 
-対象リポジトリに verify-docs 一式（`scripts/verify-docs.mjs` と
+対象リポジトリに verify-docs 一式（`.verify-docs/scripts/verify-docs.mjs` と
 `.agents/skills/verify-docs/`）が導入済みであること。検査対象・設定・
 規約（`allow-duplicate` マーカーなど）は流用する。verify-docs 自体の規約は
 [verify-docs/SKILL.md](../verify-docs/SKILL.md) を参照する。
@@ -30,7 +30,7 @@ description: >
 ### 1. 機械的重複の解消
 
 ```bash
-node scripts/verify-docs.mjs
+node .verify-docs/scripts/verify-docs.mjs
 ```
 
 `[重複]`・`[準一致重複]` が出たら、まず
@@ -52,7 +52,7 @@ node scripts/verify-docs.mjs
 元位置・本文を一覧化する。
 
 ```bash
-node scripts/extract-doc-blocks.mjs --root=. README.md docs/guide.md
+node .verify-docs/scripts/extract-doc-blocks.mjs --root=. README.md docs/guide.md
 ```
 
 対象が多い場合は、一時作業記録に列挙した対象文書のパスを複数指定する。出力の `headingPath`・
@@ -90,7 +90,7 @@ node scripts/extract-doc-blocks.mjs --root=. README.md docs/guide.md
 ### 4. 是正後再検査
 
 ```bash
-node scripts/verify-docs.mjs
+node .verify-docs/scripts/verify-docs.mjs
 ```
 
 ポインタ化に伴うリンク切れ・断片リンク切れ・サイズ超過が発生していないか
@@ -104,7 +104,7 @@ node scripts/verify-docs.mjs
   文書が無い）
 - 確信できた重複は是正済み、確信が持てなかったものは検出内容・根拠と
   ともに人へ報告済みである
-- 「4. 是正後再検査」の `node scripts/verify-docs.mjs` が
+- 「4. 是正後再検査」の `node .verify-docs/scripts/verify-docs.mjs` が
   「文書構造: すべて通過」で終わっている
 - 自分の一時作業記録に `### 最終検査結果` を記載し、`checklist.md` へ統合している
 

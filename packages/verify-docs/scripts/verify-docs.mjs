@@ -17,7 +17,7 @@
  * （見つかったものをどう直すか）は分けてある。プレイブックの手順は
  * `.agents/skills/verify-docs/SKILL.md`。
  *
- *   node scripts/verify-docs.mjs
+ *   node .verify-docs/scripts/verify-docs.mjs
  *
  * 見ているもの:
  *   - マークダウンリンクの飛び先が実在するか（外部 URL は見ない）
@@ -50,7 +50,7 @@
  *   避けるための意図的な例外であり、見落としではない。
  *
  * 設定（すべて省略可。既定値は DEFAULTS を見る）:
- *   verify-docs.config.json をリポジトリ直下に置くと読む。
+ *   .verify-docs/config/verify-docs.config.json を読む。
  *
  *     {
  *       "entryPoints": ["README.md", "CLAUDE.md", "AGENTS.md"],
@@ -63,10 +63,10 @@
  *       "minDuplicateChars": 60,
  *       "checkDuplicates": true,
  *       "checkNearDuplicates": false,
- *       "todoFile": "verify-docs.todo.json"
+ *       "todoFile": ".verify-docs/config/verify-docs.todo.json"
  *     }
  *
- * TODO ファイル（既定 verify-docs.todo.json）:
+ * TODO ファイル（既定 .verify-docs/config/verify-docs.todo.json）:
  *   既存リポジトリに後から入れると、すでに上限を超えている文書が見つかることがある。
  *   全部その場で分割できるとは限らないので、超過を **黙って見逃す代わりに、
  *   TODO ファイルに書いて明示的に「わかっていて残している」形にする。**
@@ -86,16 +86,16 @@
  *
  * options:
  *   --root=<dir>    検査するリポジトリの根（既定: カレント）
- *   --config=<file> 設定ファイルの場所（既定: <root>/verify-docs.config.json）
+ *   --config=<file> 設定ファイルの場所（既定: <root>/.verify-docs/config/verify-docs.config.json）
  *   --json          結果を JSON で出す
  *   --changed-base=<ref> そのGit参照からの差分に関係する違反だけを報告する（移動元・削除済みパスも含む）
  *   --init-todo     いま上限を超えている文書を全部 TODO ファイルに書き出して終わる
  *                   （検査は走らせない）。既存リポジトリに導入する最初の1回に使う。
- *                   すでにファイルがあれば上書きせず失敗する（手で消してから）
+ *                   既定の空ファイルは書き込むが、内容があれば上書きせず失敗する
  */
 
 import { execFileSync } from 'node:child_process';
-import { existsSync, lstatSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { extractProseBlocks, markdownText, parseMarkdown, sourcePosition } from './markdown-structure.mjs';
@@ -114,7 +114,7 @@ const DEFAULTS = {
   minDuplicateChars: 60,
   checkDuplicates: true,
   checkNearDuplicates: false,
-  todoFile: 'verify-docs.todo.json',
+  todoFile: '.verify-docs/config/verify-docs.todo.json',
 };
 
 function readJson(path, label) {
@@ -177,19 +177,24 @@ function validateConfig(config) {
 }
 
 function loadConfig() {
-  const path = configOption ?? join(ROOT, 'verify-docs.config.json');
+  const defaultConfig = join(ROOT, '.verify-docs/config/verify-docs.config.json');
+  const legacyConfig = join(ROOT, 'verify-docs.config.json');
+  const path = configOption ?? (existsSync(defaultConfig) ? defaultConfig : legacyConfig);
   const detectedSkillsDir = [DEFAULTS.skillsDir, '.claude/skills', '.kiro/skills'].find((dir) =>
     existsSync(join(ROOT, dir)),
   );
   const defaults = detectedSkillsDir
     ? { ...DEFAULTS, skillsDir: detectedSkillsDir }
     : DEFAULTS;
-  if (!existsSync(path)) return defaults;
+  const compatibilityDefaults = path === legacyConfig
+    ? { ...defaults, todoFile: 'verify-docs.todo.json' }
+    : defaults;
+  if (!existsSync(path)) return compatibilityDefaults;
   const user = readJson(path, 'verify-docs.config.json');
   if (!user || typeof user !== 'object' || Array.isArray(user)) {
     throw new Error('verify-docs.config.json はJSONオブジェクトである必要があります');
   }
-  return validateConfig({ ...defaults, ...user });
+  return validateConfig({ ...compatibilityDefaults, ...user });
 }
 
 function loadTodo(config) {
@@ -333,9 +338,12 @@ function todoSection(source) {
 if (initTodo) {
   const todoPath = join(ROOT, config.todoFile);
   if (existsSync(todoPath)) {
-    const error = new Error(`${config.todoFile} はすでにある。上書きしない。手で消してからやり直す。`);
-    error.exitCode = 1;
-    throw error;
+    const existing = readJson(todoPath, config.todoFile);
+    if (!Array.isArray(existing) || existing.length > 0) {
+      const error = new Error(`${config.todoFile} には既存の項目がある。上書きしない。`);
+      error.exitCode = 1;
+      throw error;
+    }
   }
 
   const overSize = documents
@@ -353,6 +361,7 @@ if (initTodo) {
       };
     });
 
+  mkdirSync(dirname(todoPath), { recursive: true });
   writeFileSync(todoPath, JSON.stringify(overSize, null, 2) + '\n');
   return { initializedTodo: { path: config.todoFile, count: overSize.length } };
 }
@@ -735,7 +744,9 @@ const leafSections = [...structures.entries()].flatMap(([path, structure]) => {
     }];
   });
 });
-const changedScopeIncludesEverything = changedPaths?.has('verify-docs.config.json') || changedPaths?.has(config.todoFile);
+const changedScopeIncludesEverything = changedPaths?.has('.verify-docs/config/verify-docs.config.json')
+  || changedPaths?.has('verify-docs.config.json')
+  || changedPaths?.has(config.todoFile);
 function failureTouchesChangedPath(failure) {
   if (!changedPaths || changedScopeIncludesEverything) return true;
   const paths = [failure.from, failure.target, failure.location?.path];

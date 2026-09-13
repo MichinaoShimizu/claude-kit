@@ -5,9 +5,9 @@
 [references/todo.md](todo.md)、準一致重複・意図した重複の許可方法は
 [references/duplicate-handling.md](duplicate-handling.md) を参照する。
 
-## `verify-docs.config.json`
+## `.verify-docs/config/verify-docs.config.json`
 
-リポジトリ直下に配置する。存在しない場合は全項目が既定値で動作する。
+導入時に既定値で配置する。検査の動作を変えるときはこのファイルを変更する。
 設定項目名と意味は下表を正本とする。README.md・CONTRIBUTING.md など
 他の文書では個々のキー名を列挙せず本表を指すだけにとどめる（キー追加時の
 更新漏れを防ぐ。追加時は本表への追記漏れを `verify-docs.test.mjs` が
@@ -25,7 +25,7 @@
   "minDuplicateChars": 60,
   "checkDuplicates": true,
   "checkNearDuplicates": false,
-  "todoFile": "verify-docs.todo.json"
+  "todoFile": ".verify-docs/config/verify-docs.todo.json"
 }
 ```
 
@@ -59,9 +59,8 @@
 免除の起点か、`SKILL.md` の目次に載るべき補助文書か）を決めるためだけに
 使う。
 
-モノレポで各パッケージを個別に `--root=packages/<name>`（詳細は
-[verify-docs.mjs](../../../../scripts/verify-docs.mjs) の `--root` オプション
-説明を参照）で検査する場合は、リポジトリ直下の検査からパッケージの
+モノレポで各パッケージを個別に `--root=packages/<name>` で検査する場合は、
+リポジトリ直下の検査からパッケージの
 ディレクトリを `excludePaths` で除外し二重検査を避ける。
 
 孤立チェックだけは、この「走査対象」よりさらに狭い範囲にしか適用されない。
@@ -71,9 +70,7 @@
 免除される。README・SKILL.md から参照されない運用が前提の設定ファイルまで
 「孤立」として毎回検出し続けるのを避けるための意図的な例外であり、実装漏れ
 ではない。チェックリストを作る際は、孤立チェックの結果と照合する前提の
-項目からはこの種の文書を除いて考える（詳細な判定ロジックは
-[verify-docs.mjs](../../../../scripts/verify-docs.mjs)「検査対象の集め方」の
-コメントを正本とする）。
+項目からはこの種の文書を除いて考える。
 
 `maxDocBytes` の設定方針: 初期段階から厳格にしない。まず上限なしで検査し、
 現存する文書の最大サイズで「問題ない」と判断できるものより1〜2割大きい

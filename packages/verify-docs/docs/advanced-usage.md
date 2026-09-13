@@ -1,9 +1,11 @@
 # verify-docs CLIリファレンス
 
+以下のコマンドは配布先リポジトリのルートで実行する。
+
 ## 文書構造の検査
 
 ```bash
-node scripts/verify-docs.mjs
+node .verify-docs/scripts/verify-docs.mjs
 ```
 
 ## PR差分の検査
@@ -14,7 +16,7 @@ node scripts/verify-docs.mjs
 移動元を参照したままの文書も検出できる。
 
 ```bash
-node scripts/verify-docs.mjs --changed-base=origin/main
+node .verify-docs/scripts/verify-docs.mjs --changed-base=origin/main
 ```
 
 ## AST情報のJSON出力
@@ -23,7 +25,7 @@ dedupe-docs / tighten-docs で対象文書を調べるときは、CommonMarkの�
 JSON出力できる。意味的な重複や冗長性は判定しない。
 
 ```bash
-node scripts/extract-doc-blocks.mjs --root=. README.md docs/guide.md
+node .verify-docs/scripts/extract-doc-blocks.mjs --root=. README.md docs/guide.md
 ```
 
 見出し階層・段落・位置・バイト数を返す。出力項目の使い方は各スキルの手順を参照。
@@ -33,11 +35,11 @@ node scripts/extract-doc-blocks.mjs --root=. README.md docs/guide.md
 既存文書に違反があるリポジトリでは、最初に次を実行する。
 
 ```bash
-node scripts/verify-docs.mjs --init-todo
+node .verify-docs/scripts/verify-docs.mjs --init-todo
 ```
 
 ## 検査結果のJSON出力
 
 ```bash
-node scripts/verify-docs.mjs --json
+node .verify-docs/scripts/verify-docs.mjs --json
 ```

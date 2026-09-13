@@ -10,7 +10,7 @@ const ROOT = resolve(process.cwd(), rootOption?.slice('--root='.length) ?? '.');
 const paths = args.filter((arg) => !arg.startsWith('--'));
 
 if (args.includes('--help') || args.includes('-h')) {
-  console.log('Usage: node scripts/extract-doc-blocks.mjs [--root=<dir>] <file.md>...');
+  console.log('Usage: node .verify-docs/scripts/extract-doc-blocks.mjs [--root=<dir>] <file.md>...');
   console.log('Extract CommonMark headings and prose paragraphs as JSON with source lines and byte counts.');
   process.exit(0);
 }

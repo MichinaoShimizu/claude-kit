@@ -1,7 +1,8 @@
 # 構造解析と機械検査
 
 [README.md](../README.md)から参照される。CommonMark ASTを使った構造解析、
-チェッカー、JSON出力、既存リポジトリ導入時のTODO初期化を扱う。
+チェッカー、JSON出力、既存リポジトリ導入時のTODO初期化を扱う。以下のCLIパスは
+配布先リポジトリでの配置を示す。
 
 ## CommonMark AST解析
 
@@ -12,8 +13,8 @@ Markdownは正規表現ではなく、同梱の CommonMark.js で AST（構文�
 | 構成要素 | 提供すること |
 | --- | --- |
 | AST解析（`scripts/markdown-structure.mjs`） | 見出し階層、段落、リンク・画像の宛先、ソース位置を取り出す。 |
-| チェッカー（`scripts/verify-docs.mjs`） | 参照切れ、孤立文書、**ファイル単位**のサイズ超過、AST抽出した同一段落の重複を検出する。違反箇所の行・列・見出し階層、文書・違反種別の集計、分割検討用の大きい葉セクションも出力する。 |
-| 構造抽出CLI（`scripts/extract-doc-blocks.mjs`） | 文書の見出し・段落・位置・バイト数をJSONで出力する。dedupe-docsとtighten-docsが、対象を漏れなく確認するための共通入力になる。 |
+| チェッカー（`.verify-docs/scripts/verify-docs.mjs`） | 参照切れ、孤立文書、**ファイル単位**のサイズ超過、AST抽出した同一段落の重複を検出する。違反箇所の行・列・見出し階層、文書・違反種別の集計、分割検討用の大きい葉セクションも出力する。 |
+| 構造抽出CLI（`.verify-docs/scripts/extract-doc-blocks.mjs`） | 文書の見出し・段落・位置・バイト数をJSONで出力する。dedupe-docsとtighten-docsが、対象を漏れなく確認するための共通入力になる。 |
 
 ## スキルの契約テスト
 
@@ -27,10 +28,10 @@ Markdownは正規表現ではなく、同梱の CommonMark.js で AST（構文�
 
 ## 機械可読出力とTODO初期化
 
-`node scripts/verify-docs.mjs --json` は、文書数・構造集計・違反種別ごとの件数・
+`node .verify-docs/scripts/verify-docs.mjs --json` は、文書数・構造集計・違反種別ごとの件数・
 大きい葉セクション・TODOを機械可読な形式で出力する。スキル別の実行結果は、
 この出力を根拠として記録する。
 
-`node scripts/verify-docs.mjs --init-todo` は、既存のサイズ超過文書を理由と
-分割候補の節情報付きで`verify-docs.todo.json`へ記録する。すべてを導入初日に
+`node .verify-docs/scripts/verify-docs.mjs --init-todo` は、既存のサイズ超過文書を理由と
+分割候補の節情報付きで`.verify-docs/config/verify-docs.todo.json`へ記録する。すべてを導入初日に
 分割できない既存リポジトリでも、超過を明示して段階的に是正できる。
