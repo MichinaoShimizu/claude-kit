@@ -95,17 +95,11 @@
 
 import { existsSync, lstatSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { extractProseBlocks, markdownText, parseMarkdown, sourcePosition } from './markdown-structure.mjs';
 
-const args = process.argv.slice(2);
-const flag = (name) => args.includes(`--${name}`);
-const option = (name, fallback) => {
-  const hit = args.find((a) => a.startsWith(`--${name}=`));
-  return hit === undefined ? fallback : hit.slice(name.length + 3);
-};
-
-const ROOT = resolve(process.cwd(), option('root', '.'));
-const AS_JSON = flag('json');
+let ROOT;
+let configOption;
 
 const DEFAULTS = {
   entryPoints: ['README.md', 'CLAUDE.md', 'AGENTS.md'],
@@ -181,7 +175,7 @@ function validateConfig(config) {
 }
 
 function loadConfig() {
-  const path = option('config', join(ROOT, 'verify-docs.config.json'));
+  const path = configOption ?? join(ROOT, 'verify-docs.config.json');
   const detectedSkillsDir = [DEFAULTS.skillsDir, '.claude/skills', '.kiro/skills'].find((dir) =>
     existsSync(join(ROOT, dir)),
   );
@@ -242,15 +236,11 @@ function loadTodo(config) {
   return entries;
 }
 
-let config;
-let todo;
-try {
-  config = loadConfig();
-  todo = loadTodo(config);
-} catch (error) {
-  console.error(`設定エラー: ${error.message}`);
-  process.exit(2);
-}
+export function verifyDocs(root, { configPath, initTodo = false } = {}) {
+  ROOT = resolve(root);
+  configOption = configPath;
+  const config = loadConfig();
+  const todo = loadTodo(config);
 
 /** 実体のない書き方。手順の説明で使うので、パスとしては見ない。 */
 const PLACEHOLDER = /[<>*…]|\.\.\./;
@@ -313,11 +303,12 @@ function todoSection(source) {
 
 /* ---------- --init-todo: 既存リポジトリへの導入 ---------- */
 
-if (flag('init-todo')) {
+if (initTodo) {
   const todoPath = join(ROOT, config.todoFile);
   if (existsSync(todoPath)) {
-    console.error(`${config.todoFile} はすでにある。上書きしない。手で消してからやり直す。`);
-    process.exit(1);
+    const error = new Error(`${config.todoFile} はすでにある。上書きしない。手で消してからやり直す。`);
+    error.exitCode = 1;
+    throw error;
   }
 
   const overSize = documents
@@ -336,12 +327,7 @@ if (flag('init-todo')) {
     });
 
   writeFileSync(todoPath, JSON.stringify(overSize, null, 2) + '\n');
-  console.log(
-    `${config.todoFile} を作った（${overSize.length} 件）。\n` +
-      '理由を書き直し、以後は新しく足す・書き足す文書から上限を守ること。' +
-      'リストは減らす方向にだけ動かす。',
-  );
-  process.exit(0);
+  return { initializedTodo: { path: config.todoFile, count: overSize.length } };
 }
 
 /* ---------- 見出しから断片を作る（GitHub と同じ規則） ---------- */
@@ -749,9 +735,14 @@ const summary = {
 
 const report = { summary, failures };
 
-if (AS_JSON) {
+return report;
+}
+
+export function printReport(report, { json = false } = {}) {
+if (json) {
   console.log(JSON.stringify(report, null, 2));
 } else {
+  const { summary, failures } = report;
   const label = {
     link: 'リンク切れ',
     fragment: '断片',
@@ -800,5 +791,41 @@ if (AS_JSON) {
     console.log('\n文書構造: すべて通過');
   }
 }
+}
 
-process.exit(failures.length > 0 ? 1 : 0);
+function main() {
+  const args = process.argv.slice(2);
+  const flag = (name) => args.includes(`--${name}`);
+  const option = (name, fallback) => {
+    const hit = args.find((arg) => arg.startsWith(`--${name}=`));
+    return hit === undefined ? fallback : hit.slice(name.length + 3);
+  };
+  const root = resolve(process.cwd(), option('root', '.'));
+  const configPath = option('config', undefined);
+
+  try {
+    const result = verifyDocs(root, { configPath, initTodo: flag('init-todo') });
+    if (result.initializedTodo) {
+      const { path, count } = result.initializedTodo;
+      console.log(
+        `${path} を作った（${count} 件）。\n` +
+          '理由を書き直し、以後は新しく足す・書き足す文書から上限を守ること。' +
+          'リストは減らす方向にだけ動かす。',
+      );
+      return 0;
+    }
+    printReport(result, { json: flag('json') });
+    return result.failures.length > 0 ? 1 : 0;
+  } catch (error) {
+    if (error.exitCode !== undefined) {
+      console.error(error.message);
+      return error.exitCode;
+    }
+    console.error(`設定エラー: ${error.message}`);
+    return 2;
+  }
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  process.exitCode = main();
+}

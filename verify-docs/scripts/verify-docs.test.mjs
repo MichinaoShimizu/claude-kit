@@ -11,6 +11,7 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { verifyDocs } from './verify-docs.mjs';
 
 const SCRIPT = join(import.meta.dirname, 'verify-docs.mjs');
 
@@ -25,22 +26,15 @@ function makeRepo(files) {
 }
 
 function run(root, extraArgs = []) {
-  try {
-    const out = execFileSync('node', [SCRIPT, `--root=${root}`, '--json', ...extraArgs], {
-      encoding: 'utf8',
-    });
-    return JSON.parse(out);
-  } catch (err) {
-    return JSON.parse(err.stdout);
-  }
+  return verifyDocs(root, { configPath: extraArgs.find((arg) => arg.startsWith('--config='))?.slice(9) });
 }
 
 function runError(root) {
   try {
-    execFileSync('node', [SCRIPT, `--root=${root}`], { encoding: 'utf8' });
+    verifyDocs(root);
     assert.fail('expected verify-docs to fail');
   } catch (error) {
-    return `${error.stderr ?? ''}${error.stdout ?? ''}`;
+    return `設定エラー: ${error.message}`;
   }
 }
 
@@ -482,7 +476,7 @@ test('--init-todo writes todo file for oversized docs and refuses to overwrite',
     'README.md': '# Repo\n\n[big](docs/big.md)\n',
     'docs/big.md': big,
   });
-  execFileSync('node', [SCRIPT, `--root=${root}`, '--init-todo']);
+  verifyDocs(root, { initTodo: true });
   const written = JSON.parse(readFileSync(join(root, 'verify-docs.todo.json'), 'utf8'));
   assert.equal(written.length, 1);
   assert.equal(written[0].path, 'docs/big.md');
@@ -491,7 +485,20 @@ test('--init-todo writes todo file for oversized docs and refuses to overwrite',
   assert.ok(written[0].section.bytes > 40000);
 
   assert.throws(() =>
-    execFileSync('node', [SCRIPT, `--root=${root}`, '--init-todo'], { stdio: 'pipe' }),
+    verifyDocs(root, { initTodo: true }),
   );
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('CLI prints JSON and preserves the failure exit code', () => {
+  const root = makeRepo({ 'README.md': '# Repo\n\n[missing](docs/missing.md)\n' });
+  try {
+    execFileSync('node', [SCRIPT, `--root=${root}`, '--json'], { encoding: 'utf8', stdio: 'pipe' });
+    assert.fail('expected CLI to report the broken link');
+  } catch (error) {
+    assert.equal(error.status, 1);
+    const report = JSON.parse(error.stdout);
+    assert.equal(report.failures[0].kind, 'link');
+  }
   rmSync(root, { recursive: true, force: true });
 });
