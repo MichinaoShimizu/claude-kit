@@ -45,7 +45,7 @@ on:
       - '**/*.md'
       - 'verify-docs.config.json'
       - 'verify-docs.todo.json'
-      - 'scripts/verify-docs.mjs'
+      - 'scripts/**'
 
 jobs:
   check:

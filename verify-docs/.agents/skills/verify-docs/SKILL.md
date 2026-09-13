@@ -51,7 +51,8 @@ description: >
 
 `scripts/verify-docs.mjs` を対象リポジトリに配置する（本スキル一式を
 まるごとコピーすれば含まれる）。設定は `verify-docs.config.json`
-（無ければ既定値。[references/config.md](references/config.md)を参照）。
+（無ければ既定値。[references/config.md](references/config.md)を参照。
+入力制約は[references/config-validation.md](references/config-validation.md)を参照）。
 複数エージェントで入口文書とスキルを共用する構成は
 [references/agent-compatibility.md](references/agent-compatibility.md) を参照する。
 
@@ -106,7 +107,8 @@ node scripts/verify-docs.mjs
 
 ### 3. 重複特定
 
-`[重複]` が出力されたら、同一内容が複数文書にそのまま存在している。
+`[重複]` が出力されたら、AST抽出した段落本文が複数文書で一致している。
+強調などの書式差は無視される。
 
 - 話題として詳細な側・上位の文書（README よりは docs）を本来の置き場所とし、
   他方はポインタ1行に置換する
@@ -121,7 +123,7 @@ node scripts/verify-docs.mjs
 
 #### 意味的な重複（チェッカーでは検出できない）
 
-`[重複]`・`[準一致重複]` はいずれも文字列一致ベースであり、言い回しが
+`[重複]`・`[準一致重複]` はいずれもAST抽出した文字列の一致ベースであり、言い回しが
 異なる言い換えの重複は検知できない。この判断は
 [dedupe-docs スキル](../dedupe-docs/SKILL.md) を参照する。
 

@@ -10,7 +10,7 @@
 - **チェッカー**（`scripts/verify-docs.mjs`）
   - 参照切れと孤立文書
   - 文書のサイズ超過
-  - 同一説明の重複
+  - AST抽出した段落本文の重複（強調などの書式差は無視）
 - **verify-docsスキル**（`.agents/skills/verify-docs/SKILL.md`）
   - 検出事項の是正手順
 - **dedupe-docsスキル**（`.agents/skills/dedupe-docs/SKILL.md`）
@@ -34,6 +34,10 @@ GitHub Actionsのワークフローは自動追加しない。CIへの組み込�
 ```text
 your-repo/
 ├── scripts/verify-docs.mjs
+├── scripts/markdown-structure.mjs
+├── scripts/extract-doc-blocks.mjs
+├── scripts/vendor/commonmark.cjs
+├── scripts/vendor/commonmark-LICENSE.txt
 ├── .agents/skills/verify-docs/
 ├── .agents/skills/dedupe-docs/
 └── .agents/skills/tighten-docs/
@@ -42,6 +46,10 @@ your-repo/
 既定値のまま開始し、対象リポジトリと異なる項目だけ
 `verify-docs.config.json`で上書きする。
 
+Markdown構文解析にはCommonMark.js 0.31.2を同梱しているため、導入先で
+追加のnpmインストールは不要。ライセンスは
+`scripts/vendor/commonmark-LICENSE.txt`を参照。
+
 ## 実行方法
 
 ### 文書構造の検査
@@ -49,6 +57,19 @@ your-repo/
 ```bash
 node scripts/verify-docs.mjs
 ```
+
+### 段落の構造・位置・サイズを一覧化
+
+dedupe-docs / tighten-docs で対象文書を調べるときは、次のコマンドでCommonMarkの
+見出し階層と段落をJSON出力できる。意味的な重複や冗長性は判定しない。
+
+```bash
+node scripts/extract-doc-blocks.mjs --root=. README.md docs/guide.md
+```
+
+段落ごとに見出し階層、ソース位置、本文、元ソースのバイト数を返す。見出しごとの
+`bytes` と `paragraphCount` は子見出しを含む集計。親子の値は重複するため合算しない。
+詳しい使い方は各スキルの手順を参照。
 
 既存文書に違反があるリポジトリでは、最初に次を実行する。
 

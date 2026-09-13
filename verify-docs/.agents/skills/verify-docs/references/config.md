@@ -38,10 +38,12 @@
 | `agentConfigDirs`     | スキル以外のエージェント設定文書を孤立チェックから除外するディレクトリ |
 | `excludePaths`        | 検査対象から除外するディレクトリ（下記「検査対象の集め方」を参照）。既定に含まれる `.verify-docs/` は作業チェックリストの保管先（[checklist.md「物理ファイル作成」](checklist.md#物理ファイル作成必須)を参照） |
 | `maxDocBytes`         | 1文書あたりの上限（バイト数）。超過時は分割するか TODO に記載する    |
-| `minDuplicateChars`   | 重複検査の対象とする段落の最小文字数。値が小さいほど誤検知が増加する |
+| `minDuplicateChars`   | AST抽出した段落本文の最小文字数。値が小さいほど誤検知が増加する |
 | `checkDuplicates`     | 完全一致の重複検査の有効・無効。既定は有効                           |
 | `checkNearDuplicates` | 準一致の重複検査の有効・無効。既定は無効（下記「準一致重複」を参照） |
 | `todoFile`            | 例外リストの配置先                                                   |
+
+入力値の制約は[設定ファイルの入力検証](config-validation.md)を参照。
 
 ### 検査対象の集め方
 
@@ -77,7 +79,8 @@
 現存する文書の最大サイズで「問題ない」と判断できるものより1〜2割大きい
 値を初期値とする。過度に厳格だと正当な理由のある文書まで分割を強制する。
 
-`minDuplicateChars` の設定方針: 既定値60は短い定型句レベルの一致を検出
+`minDuplicateChars` は強調などの書式記号を除いた段落本文の文字数に適用する。
+設定方針: 既定値60は短い定型句レベルの一致を検出
 しないための下限。誤検知が多ければ上げ、見逃しが多ければ下げる。
 `checkNearDuplicates` を有効化した場合も同一の値が適用される。準一致重複の
 挙動詳細は [references/duplicate-handling.md](duplicate-handling.md) を

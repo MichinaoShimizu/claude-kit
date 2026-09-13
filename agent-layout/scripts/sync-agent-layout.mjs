@@ -97,9 +97,14 @@ function normalizeSkills() {
         issue(`${relative(ROOT, alias)} が ${expected} へのシンボリックリンクではない`);
       }
     }
-    return;
+    return null;
   }
+  return { canonical, aliases };
+}
 
+function applySkillPlan(plan) {
+  if (!plan) return;
+  const { canonical, aliases } = plan;
   mkdirSync(canonical, { recursive: true });
   for (const [alias, expected] of aliases) {
     if (pathEntryExists(alias) && !isSymlink(alias)) {
@@ -231,6 +236,7 @@ function importNewAgents(specs) {
   ];
   const pending = new Map();
   const adoptedPaths = new Set();
+  const writes = [];
   for (const [provider, dir] of sources) {
     for (const path of filesUnder(dir, '.md')) {
       let spec;
@@ -256,13 +262,11 @@ function importNewAgents(specs) {
       issue(`${name} が .agents/agents に取り込まれていない`);
       continue;
     }
-    mkdirSync(dirname(target), { recursive: true });
-    writeFileSync(target, JSON.stringify(spec, null, 2) + '\n');
-    action(`${name} を .agents/agents に取り込み`);
+    writes.push({ target, content: JSON.stringify(spec, null, 2) + '\n', name });
     specs.set(name, { spec, path: target });
     adoptedPaths.add(sourcePath);
   }
-  return adoptedPaths;
+  return { adoptedPaths, writes };
 }
 
 function claudeOutput(spec) {
@@ -322,8 +326,9 @@ function syncGenerated(specs, adoptedPaths) {
     [join(ROOT, '.kiro/agents'), '.md', kiroOutput],
     [join(ROOT, '.codex/agents'), '.toml', codexOutput],
   ];
+  const writes = [];
+  const deletes = [];
   for (const [dir, extension, render] of targets) {
-    if (WRITE) mkdirSync(dir, { recursive: true });
     const expectedNames = new Set();
     for (const { spec } of specs.values()) {
       const path = join(dir, `${spec.name}${extension}`);
@@ -339,8 +344,7 @@ function syncGenerated(specs, adoptedPaths) {
           continue;
         }
         if (WRITE) {
-          writeFileSync(path, expected);
-          action(`${relative(ROOT, path)} を生成`);
+          writes.push({ path, content: expected });
         } else {
           issue(`${relative(ROOT, path)} が正本と同期していない`);
         }
@@ -350,19 +354,19 @@ function syncGenerated(specs, adoptedPaths) {
       if (expectedNames.has(path.slice(dir.length + 1))) continue;
       if (!readFileSync(path, 'utf8').includes(GENERATED)) continue;
       if (WRITE) {
-        rmSync(path);
-        action(`${relative(ROOT, path)} を削除`);
+        deletes.push(path);
       } else {
         issue(`${relative(ROOT, path)} に対応する正本がない`);
       }
     }
   }
+  return { writes, deletes };
 }
 
-normalizeSkills();
+const skillPlan = normalizeSkills();
 let specs = readSpecs(join(ROOT, '.agents/agents'));
-const adoptedPaths = importNewAgents(specs);
-if (issues.length === 0) syncGenerated(specs, adoptedPaths);
+const imported = importNewAgents(specs);
+const generated = issues.length === 0 ? syncGenerated(specs, imported.adoptedPaths) : null;
 
 if (issues.length > 0) {
   console.error(`エージェント構成の${WRITE ? '補正' : '検査'}に失敗（${issues.length}件）:`);
@@ -372,6 +376,22 @@ if (issues.length > 0) {
 }
 
 if (WRITE) {
+  // No filesystem mutation occurs until every source and generated target is validated.
+  applySkillPlan(skillPlan);
+  for (const { target, content, name } of imported.writes) {
+    mkdirSync(dirname(target), { recursive: true });
+    writeFileSync(target, content);
+    action(`${name} を .agents/agents に取り込み`);
+  }
+  for (const { path, content } of generated.writes) {
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, content);
+    action(`${relative(ROOT, path)} を生成`);
+  }
+  for (const path of generated.deletes) {
+    rmSync(path);
+    action(`${relative(ROOT, path)} を削除`);
+  }
   console.log(actions.length ? actions.join('\n') : 'エージェント構成は同期済み');
 } else {
   console.log('エージェント構成: 同期済み');

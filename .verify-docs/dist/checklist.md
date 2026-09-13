@@ -28,26 +28,22 @@
 - 作業にかかった時間: 2026-09-13 09:59:42 〜 10:01:15（所要1分33秒）
 - 全体のサイズ変化: サイズ変更なし（合計62,173B）
 - 常時読み込み→オンデマンド化: 該当なし
-## dedupe-docs — 2026-09-13T10:02:01+0900
+## dedupe-docs — 2026-09-13T13:00:46+0900
 
-- [x] README.md — 2026-09-13 / 意味的重複なし
-- [x] AGENTS.md — 2026-09-13 / 意味的重複なし
-- [x] CLAUDE.md — 2026-09-13 / AGENTS.mdへのポインタのみ
-- [x] CONTRIBUTING.md — 2026-09-13 / AGENTS.mdのMUST再掲をポインタ化 / 1,424B → 1,317B（7.5%減）
-- [x] agent-layout/README.md — 2026-09-13 / 互換構成の説明は単体配布に必要、重複なし
-- [x] verify-docs/README.md — 2026-09-13 / 導入手順の正本として維持
-- [x] verify-docs/CONTRIBUTING.md — 2026-09-13 / 意味的重複なし
-- [x] verify-docs/docs/adoption.md — 2026-09-13 / READMEの導入手順再掲をポインタ化 / 3,582B → 2,758B（23.0%減）
-- [x] verify-docs/.agents/skills/verify-docs/SKILL.md — 2026-09-13 / 意味的重複なし
-- [x] verify-docs/.agents/skills/verify-docs/references/agent-compatibility.md — 2026-09-13 / 単体配布に必要な互換詳細、重複なし
-- [x] verify-docs/.agents/skills/verify-docs/references/checklist-summary.md — 2026-09-13 / 意味的重複なし
-- [x] verify-docs/.agents/skills/verify-docs/references/checklist.md — 2026-09-13 / 意味的重複なし
-- [x] verify-docs/.agents/skills/verify-docs/references/config.md — 2026-09-13 / 意味的重複なし
-- [x] verify-docs/.agents/skills/verify-docs/references/duplicate-handling.md — 2026-09-13 / 意味的重複なし
-- [x] verify-docs/.agents/skills/verify-docs/references/todo.md — 2026-09-13 / 意味的重複なし
-- [x] verify-docs/.agents/skills/dedupe-docs/SKILL.md — 2026-09-13 / 意味的重複なし
-- [x] verify-docs/.agents/skills/tighten-docs/SKILL.md — 2026-09-13 / 意味的重複なし
-- [x] verify-docs/.agents/skills/tighten-docs/references/patterns.md — 2026-09-13 / 意味的重複なし
+- [x] verify-docs/scripts/verify-docs.mjs — 2026-09-13 / AST段落収集へ移行、既存判定を維持
+- [x] verify-docs/scripts/markdown-structure.mjs — 2026-09-13 / 強調差は正規化、リンク先・コードは区別
+- [x] verify-docs/scripts/verify-docs.test.mjs — 2026-09-13 / 4ケース追加、35テスト通過
+- [x] verify-docs/.agents/skills/dedupe-docs/SKILL.md — 2026-09-13 / AST比較仕様を反映
+- [x] verify-docs/README.md — 2026-09-13 / AST重複比較を記載
+- [x] verify-docs/ci-selfcheck.sh・install.sh — 2026-09-13 / 既存の同梱・自己検査対象で実行確認
+
+### 総評
+
+- 検査対象: 5文書（コードの回帰検証は verify-docs 35テスト）
+- 検出した意味的重複: 対象外（チェッカー改修であり、文書間の意味探索は未実施）
+- 作業にかかった時間: 2026-09-13 13:00:46 〜 13:05:59（所要5分13秒）
+- 全体のサイズ変化: 28,838B → 29,310B（472B増）
+- 常時読み込み→オンデマンド化: 該当なし
 
 ### 総評
 
@@ -56,26 +52,22 @@
 - 作業にかかった時間: 2026-09-13 10:02:01 〜 10:02:51（所要50秒）
 - 全体のサイズ変化: 62,173B → 61,242B（931B減、1.5%減）
 - 常時読み込み→オンデマンド化: 該当なし
-## tighten-docs — 2026-09-13T10:03:27+0900
+## tighten-docs — 2026-09-13T13:05:59+0900
 
-- [x] README.md — 2026-09-13 / 見出し直後の同語反復を削減 / 1,635B → 1,600B（2.1%減）
-- [x] AGENTS.md — 2026-09-13 / 該当パターンなし
-- [x] CLAUDE.md — 2026-09-13 / 該当パターンなし
-- [x] CONTRIBUTING.md — 2026-09-13 / 該当パターンなし
-- [x] agent-layout/README.md — 2026-09-13 / 冗長な条件・可能表現を削減 / 2,360B → 2,229B（5.6%減）
-- [x] verify-docs/README.md — 2026-09-13 / 3スキルの連続実行方法を全エージェント共通の依頼として明記 / 3,354B → 3,209B（4.3%減）
-- [x] verify-docs/CONTRIBUTING.md — 2026-09-13 / 該当パターンなし
-- [x] verify-docs/docs/adoption.md — 2026-09-13 / 番号付き手順の動詞見出しは操作を明示するため維持
-- [x] verify-docs/.agents/skills/verify-docs/SKILL.md — 2026-09-13 / 該当パターンなし
-- [x] verify-docs/.agents/skills/verify-docs/references/agent-compatibility.md — 2026-09-13 / 該当パターンなし
-- [x] verify-docs/.agents/skills/verify-docs/references/checklist-summary.md — 2026-09-13 / 該当パターンなし
-- [x] verify-docs/.agents/skills/verify-docs/references/checklist.md — 2026-09-13 / 該当パターンなし
-- [x] verify-docs/.agents/skills/verify-docs/references/config.md — 2026-09-13 / 該当パターンなし
-- [x] verify-docs/.agents/skills/verify-docs/references/duplicate-handling.md — 2026-09-13 / 該当パターンなし
-- [x] verify-docs/.agents/skills/verify-docs/references/todo.md — 2026-09-13 / 該当パターンなし
-- [x] verify-docs/.agents/skills/dedupe-docs/SKILL.md — 2026-09-13 / 該当パターンなし
-- [x] verify-docs/.agents/skills/tighten-docs/SKILL.md — 2026-09-13 / 該当パターンなし
-- [x] verify-docs/.agents/skills/tighten-docs/references/patterns.md — 2026-09-13 / 判定基準の正本として維持
+- [x] verify-docs/scripts/markdown-structure.mjs — 2026-09-13 / 子見出しを含む節バイト数・段落数を実装
+- [x] verify-docs/scripts/extract-doc-blocks.mjs — 2026-09-13 / 既存JSONへ見出し指標を追加、CLI互換
+- [x] verify-docs/scripts/extract-doc-blocks.test.mjs — 2026-09-13 / 入れ子・兄弟境界を含む5テスト通過
+- [x] verify-docs/.agents/skills/tighten-docs/SKILL.md — 2026-09-13 / 集計範囲と親子値の重複を説明
+- [x] verify-docs/README.md — 2026-09-13 / 新しい見出し指標を説明
+- [x] verify-docs/ci-selfcheck.sh・install.sh — 2026-09-13 / 同梱CLIと自己検査で実行確認
+
+### 総評
+
+- 検査対象: 2文書（抽出ヘルパー5テスト）
+- 冗長表現の削減: 0件（今回は抽出指標の仕様追記）
+- 作業にかかった時間: 2026-09-13 13:05:59 〜 13:08:04（所要2分05秒）
+- 全体のサイズ変化: 8,294B → 8,628B（334B増）
+- 常時読み込み→オンデマンド化: 該当なし
 
 ### 総評
 

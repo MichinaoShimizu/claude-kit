@@ -95,6 +95,7 @@
 
 import { existsSync, lstatSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
+import { extractProseBlocks, markdownText, parseMarkdown } from './markdown-structure.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name) => args.includes(`--${name}`);
@@ -120,6 +121,65 @@ const DEFAULTS = {
   todoFile: 'verify-docs.todo.json',
 };
 
+function readJson(path, label) {
+  try {
+    return JSON.parse(readFileSync(path, 'utf8'));
+  } catch (error) {
+    throw new Error(`${label} を読み込めない: ${error.message}`);
+  }
+}
+
+const CONFIG_TYPES = {
+  entryPoints: 'string[]',
+  docsDir: 'path',
+  skillsDir: 'path',
+  pathRoots: 'string[]',
+  agentConfigDirs: 'string[]',
+  excludePaths: 'string[]',
+  maxDocBytes: 'positive integer',
+  minDuplicateChars: 'positive integer',
+  checkDuplicates: 'boolean',
+  checkNearDuplicates: 'boolean',
+  todoFile: 'path',
+};
+
+function validateRelativePath(value, label) {
+  if (
+    typeof value !== 'string'
+    || value.trim() === ''
+    || value.startsWith('/')
+    || /^[A-Za-z]:[\\/]/.test(value)
+    || value.split(/[\\/]/).includes('..')
+  ) {
+    throw new Error(`${label} はリポジトリ内の相対パスにしてください`);
+  }
+}
+
+function validateConfig(config) {
+  if (!config || typeof config !== 'object' || Array.isArray(config)) {
+    throw new Error('verify-docs.config.json はJSONオブジェクトである必要があります');
+  }
+  for (const key of Object.keys(config)) {
+    if (!Object.hasOwn(CONFIG_TYPES, key)) throw new Error(`未対応の設定キー: ${key}`);
+    const type = CONFIG_TYPES[key];
+    const value = config[key];
+    if (type === 'path') validateRelativePath(value, key);
+    else if (type === 'string[]') {
+      if (!Array.isArray(value) || value.some((item) => typeof item !== 'string' || item.trim() === '')) {
+        throw new Error(`${key} は空でない文字列の配列にしてください`);
+      }
+      if (['entryPoints', 'pathRoots', 'agentConfigDirs', 'excludePaths'].includes(key)) {
+        value.forEach((item, index) => validateRelativePath(item, `${key}[${index}]`));
+      }
+    } else if (type === 'positive integer') {
+      if (!Number.isSafeInteger(value) || value <= 0) throw new Error(`${key} は正の整数にしてください`);
+    } else if (typeof value !== type) {
+      throw new Error(`${key} は ${type} にしてください`);
+    }
+  }
+  return config;
+}
+
 function loadConfig() {
   const path = option('config', join(ROOT, 'verify-docs.config.json'));
   const detectedSkillsDir = [DEFAULTS.skillsDir, '.claude/skills', '.kiro/skills'].find((dir) =>
@@ -129,20 +189,46 @@ function loadConfig() {
     ? { ...DEFAULTS, skillsDir: detectedSkillsDir }
     : DEFAULTS;
   if (!existsSync(path)) return defaults;
-  const user = JSON.parse(readFileSync(path, 'utf8'));
-  return { ...defaults, ...user };
+  const user = readJson(path, 'verify-docs.config.json');
+  if (!user || typeof user !== 'object' || Array.isArray(user)) {
+    throw new Error('verify-docs.config.json はJSONオブジェクトである必要があります');
+  }
+  return validateConfig({ ...defaults, ...user });
 }
 
-const config = loadConfig();
-
-function loadTodo() {
+function loadTodo(config) {
   const path = join(ROOT, config.todoFile);
   if (!existsSync(path)) return new Map();
-  const list = JSON.parse(readFileSync(path, 'utf8'));
-  return new Map(list.map((entry) => [entry.path, entry]));
+  const list = readJson(path, config.todoFile);
+  if (!Array.isArray(list)) throw new Error(`${config.todoFile} は配列である必要があります`);
+  const entries = new Map();
+  for (const [index, entry] of list.entries()) {
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
+      throw new Error(`${config.todoFile}[${index}] はオブジェクトである必要があります`);
+    }
+    const keys = Object.keys(entry);
+    if (keys.some((key) => !['path', 'reason'].includes(key))) {
+      throw new Error(`${config.todoFile}[${index}] は path と reason だけを指定できます`);
+    }
+    validateRelativePath(entry.path, `${config.todoFile}[${index}].path`);
+    if (typeof entry.reason !== 'string' || entry.reason.trim() === '') {
+      throw new Error(`${config.todoFile}[${index}].reason は空でない文字列にしてください`);
+    }
+    if (entries.has(entry.path)) throw new Error(`${config.todoFile} に重複した path があります: ${entry.path}`);
+    entries.set(entry.path, entry);
+  }
+  return entries;
 }
 
-const todo = loadTodo();
+let config;
+let todo;
+try {
+  config = loadConfig();
+  todo = loadTodo(config);
+} catch (error) {
+  console.error(`設定エラー: ${error.message}`);
+  process.exit(2);
+}
 
 /** 実体のない書き方。手順の説明で使うので、パスとしては見ない。 */
 const PLACEHOLDER = /[<>*…]|\.\.\./;
@@ -235,13 +321,28 @@ function stripFences(text) {
 }
 
 const bodies = new Map();
+const sources = new Map();
+const syntaxTrees = new Map();
 const fragments = new Map();
 
 for (const doc of documents) {
-  const body = stripFences(readFileSync(join(ROOT, doc), 'utf8'));
+  const source = readFileSync(join(ROOT, doc), 'utf8');
+  const tree = parseMarkdown(source);
+  sources.set(doc, source);
+  syntaxTrees.set(doc, tree);
+  const body = stripFences(source);
   bodies.set(doc, body);
   const ids = new Set();
-  for (const [, heading] of body.matchAll(/^#{1,6}\s+(.+)$/gm)) ids.add(slug(heading));
+  const walker = tree.walker();
+  let event;
+  while ((event = walker.next())) {
+    if (!event.entering || event.node.type !== 'heading') continue;
+    const base = slug(markdownText(event.node));
+    let id = base;
+    let suffix = 1;
+    while (ids.has(id)) id = `${base}-${suffix++}`;
+    ids.add(id);
+  }
   fragments.set(doc, ids);
 }
 
@@ -258,13 +359,27 @@ function noteReference(target, from) {
   referencedBy.get(normalized).add(from);
 }
 
+function decodeLinkPart(value) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
 for (const doc of documents) {
   const from = dirname(join(ROOT, doc));
+  const walker = syntaxTrees.get(doc).walker();
+  let event;
+  while ((event = walker.next())) {
+    const node = event.node;
+    if (!event.entering || !['link', 'image'].includes(node.type)) continue;
+    const target = node.destination;
+    if (!target || /^[A-Za-z][A-Za-z0-9+.-]*:/.test(target)) continue;
 
-  for (const [, target] of bodies.get(doc).matchAll(/\[[^\]]*\]\(([^)\s]+)\)/g)) {
-    if (/^(https?:|mailto:|tel:)/.test(target)) continue;
-
-    const [path, fragment] = target.split('#');
+    const [rawPath, rawFragment] = target.split('#');
+    const path = decodeLinkPart(rawPath);
+    const fragment = rawFragment === undefined ? undefined : decodeLinkPart(rawFragment);
 
     if (path === '') {
       if (fragment && !fragments.get(doc).has(fragment.toLowerCase())) {
@@ -371,8 +486,8 @@ for (const path of todo.keys()) {
 
 /* ---------- 5. 文書間の重複 ---------- */
 
-/* コピーしてから片方だけ直すと、矛盾した2つの説明が残る。同じ段落（正規化した
- * 空白を除いて完全一致）が複数の文書に出てきたら、1か所にまとめてリンクするよう促す。
+/* コピーしてから片方だけ直すと、矛盾した説明が残る。ASTから抽出した段落本文が
+ * 完全一致する組（強調などの書式差は無視）を見つけ、1か所にまとめるよう促す。
  * 短い共通の言い回しまで拾うと誤検知だらけになるので、`minDuplicateChars` 未満の
  * 段落・見出し・表の行は見ない。 */
 
@@ -382,19 +497,23 @@ const ALLOW_MARKER = '<!-- verify-docs:allow-duplicate -->';
 function collectParagraphs() {
   const hits = [];
   for (const doc of documents) {
-    const blocks = bodies.get(doc).split(/\n\s*\n/);
-    for (let i = 0; i < blocks.length; i++) {
-      const raw = blocks[i].trim();
-      if (raw === '') continue;
-      if (raw.startsWith('#') || raw.startsWith('|')) continue;
+    const source = sources.get(doc);
+    const lines = source.split(/\r?\n/);
+    const { blocks } = extractProseBlocks(source, {
+      includeSignatures: true,
+      tree: syntaxTrees.get(doc),
+    });
+    for (const block of blocks) {
+      if (block.source.trimStart().startsWith('|')) continue;
 
-      const previous = blocks[i - 1]?.trim();
-      if (previous === ALLOW_MARKER) continue;
+      let previousLine = block.sourcepos.start.line - 2;
+      while (previousLine >= 0 && lines[previousLine].trim() === '') previousLine--;
+      if (previousLine >= 0 && lines[previousLine].trim() === ALLOW_MARKER) continue;
 
-      const normalized = raw.replace(/\s+/g, ' ').trim();
+      const normalized = block.text.replace(/\s+/g, ' ').trim();
       if (normalized.length < config.minDuplicateChars) continue;
 
-      hits.push({ doc, normalized });
+      hits.push({ doc, normalized, signature: block.signature });
     }
   }
   return hits;
@@ -403,16 +522,17 @@ function collectParagraphs() {
 const paragraphs = config.checkDuplicates || config.checkNearDuplicates ? collectParagraphs() : [];
 
 if (config.checkDuplicates) {
-  const paragraphLocations = new Map();
-  for (const { doc, normalized } of paragraphs) {
-    if (!paragraphLocations.has(normalized)) paragraphLocations.set(normalized, new Set());
-    paragraphLocations.get(normalized).add(doc);
+  const paragraphGroups = new Map();
+  for (const { doc, normalized, signature } of paragraphs) {
+    const identity = JSON.stringify([normalized, signature]);
+    if (!paragraphGroups.has(identity)) paragraphGroups.set(identity, { normalized, docs: new Set() });
+    paragraphGroups.get(identity).docs.add(doc);
   }
 
-  for (const [paragraph, docs] of paragraphLocations) {
+  for (const { normalized, docs } of paragraphGroups.values()) {
     if (docs.size < 2) continue;
     const [first, ...rest] = [...docs].sort();
-    const snippet = paragraph.length > 50 ? `${paragraph.slice(0, 50)}…` : paragraph;
+    const snippet = normalized.length > 50 ? `${normalized.slice(0, 50)}…` : normalized;
     fail(
       'duplicate',
       first,
@@ -455,12 +575,13 @@ function fuzzyNormalize(text) {
 
 if (config.checkNearDuplicates) {
   const fuzzyGroups = new Map();
-  for (const { doc, normalized } of paragraphs) {
+  for (const { doc, normalized, signature } of paragraphs) {
     const fuzzy = fuzzyNormalize(normalized);
     if (fuzzy.length < config.minDuplicateChars) continue;
 
-    if (!fuzzyGroups.has(fuzzy)) fuzzyGroups.set(fuzzy, { texts: new Set(), docs: new Map() });
-    const group = fuzzyGroups.get(fuzzy);
+    const identity = JSON.stringify([fuzzy, signature]);
+    if (!fuzzyGroups.has(identity)) fuzzyGroups.set(identity, { texts: new Set(), docs: new Map() });
+    const group = fuzzyGroups.get(identity);
     group.texts.add(normalized);
     if (!group.docs.has(doc)) group.docs.set(doc, normalized);
   }

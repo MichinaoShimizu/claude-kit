@@ -35,6 +35,15 @@ function run(root, extraArgs = []) {
   }
 }
 
+function runError(root) {
+  try {
+    execFileSync('node', [SCRIPT, `--root=${root}`], { encoding: 'utf8' });
+    assert.fail('expected verify-docs to fail');
+  } catch (error) {
+    return `${error.stderr ?? ''}${error.stdout ?? ''}`;
+  }
+}
+
 test('clean repo passes', () => {
   const root = makeRepo({
     'README.md': '# Repo\n\n[docs](docs/guide.md)\n',
@@ -50,9 +59,114 @@ test('detects broken link', () => {
   rmSync(root, { recursive: true, force: true });
 });
 
+test('checks image destinations and ignores external CommonMark autolinks', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n\n<https://example.com>\n\n![missing image](images/missing.png)\n',
+  });
+  const failures = run(root).failures;
+  assert.equal(failures.length, 1);
+  assert.equal(failures[0].kind, 'link');
+  assert.equal(failures[0].target, 'images/missing.png');
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('ignores link syntax inside inline code and HTML comments', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n\n`[example](missing.md)`\n\n<!-- [example](also-missing.md) -->\n',
+  });
+  assert.deepEqual(run(root).failures, []);
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('supports balanced parentheses in inline link destinations', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n\n[guide](docs/guide_(draft).md)\n',
+    'docs/guide_(draft).md': '# Guide\n',
+  });
+  assert.deepEqual(run(root).failures, []);
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('supports angle-bracket destinations with spaces and an optional title', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n\n[guide](<docs/guide draft.md> "Guide")\n',
+    'docs/guide draft.md': '# Guide\n',
+  });
+  assert.deepEqual(run(root).failures, []);
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('supports full, collapsed, and shortcut reference links', () => {
+  const root = makeRepo({
+    'README.md': [
+      '# Repo',
+      '',
+      '[Full][Guide Ref] [Guide Ref][] [Guide Ref]',
+      '',
+      '[guide ref]: docs/guide.md "Guide title"',
+      '',
+    ].join('\n'),
+    'docs/guide.md': '# Guide\n',
+  });
+  assert.deepEqual(run(root).failures, []);
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('treats unresolved references as text and detects broken defined destinations', () => {
+  const root = makeRepo({
+    'README.md': [
+      '# Repo',
+      '',
+      '[undefined][missing]',
+      '[broken][guide]',
+      '',
+      '[guide]: docs/missing.md',
+      '',
+    ].join('\n'),
+  });
+  const failures = run(root).failures;
+  assert.ok(!failures.some((failure) => failure.kind === 'link' && failure.reason.includes('定義がない')));
+  assert.ok(failures.some((failure) => failure.kind === 'link' && failure.target === 'docs/missing.md'));
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('ignores link-like content in CommonMark code blocks and parses setext headings', () => {
+  const root = makeRepo({
+    'README.md': [
+      '# Repo',
+      '',
+      '~~~markdown',
+      '[fake](missing.md)',
+      '~~~',
+      '',
+      '[guide](docs/guide.md#hello-code-world)',
+      '',
+    ].join('\n'),
+    'docs/guide.md': 'Hello *Code* `World`\n---\n',
+  });
+  assert.deepEqual(run(root).failures, []);
+  rmSync(root, { recursive: true, force: true });
+});
+
 test('detects missing fragment', () => {
   const root = makeRepo({ 'README.md': '# Repo\n\n[section](#nope)\n' });
   assert.ok(run(root).failures.some((f) => f.kind === 'fragment'));
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('recognizes GitHub-style fragment IDs for duplicate headings', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n\n[second duplicate](docs/guide.md#section-2)\n',
+    'docs/guide.md': [
+      '# Guide',
+      '## Section',
+      '## Section',
+      '## Section-1',
+      '## Section',
+      '',
+    ].join('\n'),
+  });
+  assert.deepEqual(run(root).failures, []);
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -162,6 +276,57 @@ test('flags stale todo entries', () => {
   rmSync(root, { recursive: true, force: true });
 });
 
+test('reports invalid config values without a stack trace', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n',
+    'verify-docs.config.json': JSON.stringify({ unexpected: true }),
+  });
+  const output = runError(root);
+  assert.match(output, /設定エラー: 未対応の設定キー: unexpected/);
+  assert.doesNotMatch(output, /at .*verify-docs\.mjs/);
+  rmSync(root, { recursive: true, force: true });
+
+  const wrongType = makeRepo({
+    'README.md': '# Repo\n',
+    'verify-docs.config.json': JSON.stringify({ maxDocBytes: '7000' }),
+  });
+  assert.match(runError(wrongType), /maxDocBytes は正の整数/);
+  rmSync(wrongType, { recursive: true, force: true });
+
+  const malformed = makeRepo({
+    'README.md': '# Repo\n',
+    'verify-docs.config.json': '{ not valid json',
+  });
+  assert.match(runError(malformed), /設定エラー: verify-docs.config.json を読み込めない/);
+  rmSync(malformed, { recursive: true, force: true });
+});
+
+test('validates TODO fields and duplicate paths', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n',
+    'verify-docs.todo.json': JSON.stringify([
+      { path: 'docs/large.md', reason: 'legacy' },
+      { path: 'docs/large.md', reason: 'duplicate' },
+    ]),
+  });
+  assert.match(runError(root), /重複した path/);
+  rmSync(root, { recursive: true, force: true });
+
+  const invalid = makeRepo({
+    'README.md': '# Repo\n',
+    'verify-docs.todo.json': JSON.stringify([{ path: '../outside.md', reason: 'unsafe' }]),
+  });
+  assert.match(runError(invalid), /相対パス/);
+  rmSync(invalid, { recursive: true, force: true });
+
+  const missingReason = makeRepo({
+    'README.md': '# Repo\n',
+    'verify-docs.todo.json': JSON.stringify([{ path: 'docs/large.md' }]),
+  });
+  assert.match(runError(missingReason), /reason は空でない文字列/);
+  rmSync(missingReason, { recursive: true, force: true });
+});
+
 test('detects duplicate paragraphs across docs', () => {
   const shared =
     'This paragraph is intentionally long enough to trigger duplicate detection logic here.';
@@ -171,6 +336,53 @@ test('detects duplicate paragraphs across docs', () => {
     'docs/b.md': `# B\n\n${shared}\n`,
   });
   assert.ok(run(root).failures.some((f) => f.kind === 'duplicate'));
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('AST duplicate comparison ignores inline emphasis differences', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n\n[a](docs/a.md)\n[b](docs/b.md)\n',
+    'docs/a.md': '# A\n\nThis sentence contains **important wording** that should count as the same prose.\n',
+    'docs/b.md': '# B\n\nThis sentence contains important wording that should count as the same prose.\n',
+    'verify-docs.config.json': JSON.stringify({ minDuplicateChars: 10 }),
+  });
+  assert.ok(run(root).failures.some((f) => f.kind === 'duplicate'));
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('AST duplicate comparison distinguishes link destinations and code spans', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n\n[a](docs/a.md)\n[b](docs/b.md)\n',
+    'docs/a.md': '# A\n\nThis sentence has a [long linked phrase with matching text](https://one.example/path) and enough prose.\n\nThis sentence keeps `code literal` distinct from plain prose in a paragraph.\n',
+    'docs/b.md': '# B\n\nThis sentence has a [long linked phrase with matching text](https://two.example/path) and enough prose.\n\nThis sentence keeps code literal distinct from plain prose in a paragraph.\n',
+    'verify-docs.config.json': JSON.stringify({ minDuplicateChars: 10, checkNearDuplicates: true }),
+  });
+  const failures = run(root).failures;
+  assert.ok(!failures.some((f) => f.kind === 'duplicate'));
+  assert.ok(!failures.some((f) => f.kind === 'near-duplicate'));
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('AST duplicate comparison finds prose in list and blockquote paragraphs', () => {
+  const shared = 'This paragraph is long enough to identify the same content across block containers.';
+  const root = makeRepo({
+    'README.md': '# Repo\n\n[a](docs/a.md)\n[b](docs/b.md)\n',
+    'docs/a.md': `# A\n\n- ${shared}\n`,
+    'docs/b.md': `# B\n\n> ${shared}\n`,
+  });
+  assert.ok(run(root).failures.some((f) => f.kind === 'duplicate'));
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('AST duplicate extraction continues to exclude pipe-table rows and code blocks', () => {
+  const row = '| This table row is long enough to pass the duplicate detection character limit | Value |';
+  const code = 'This code-only paragraph should never count as prose in duplicate comparisons.';
+  const root = makeRepo({
+    'README.md': '# Repo\n\n[a](docs/a.md)\n[b](docs/b.md)\n',
+    'docs/a.md': `# A\n\n${row}\n\n\n    ${code}\n`,
+    'docs/b.md': `# B\n\n${row}\n\n\n    ${code}\n`,
+  });
+  assert.ok(!run(root).failures.some((f) => f.kind === 'duplicate'));
   rmSync(root, { recursive: true, force: true });
 });
 
