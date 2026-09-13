@@ -73,78 +73,35 @@ node scripts/verify-docs.mjs
 
 ## 手順
 
+各手順を順に実施する。是正方法の詳細は
+[references/remediation.md](references/remediation.md)を参照する。
+準一致重複・意図した重複の扱いは
+[references/duplicate-handling.md](references/duplicate-handling.md)、
+TODOの記述形式は [references/todo.md](references/todo.md)を参照する。
+
 ### 1. 入口軽量化
 
-CLAUDE.md・AGENTS.md（または README）を開き、「MUST」と「道案内（どの
-話題のときにどの文書を開くか）」のみが残っているかを確認する。この2つの
-入口ファイルはルーティングテーブルに徹する——理由・手順は記載しない。
-
-それ以外（理由・手順の詳細・過去の経緯）は docs ディレクトリ（設定の
-`docsDir`）に切り出し、入口には1行のポインタのみを残す。判断基準は
-「この段落を読まなくても次に何をすべきかが分かるか」。分かるなら詳細は
-外部でよい。冗長な言い回しの削減自体は執筆者本人・原則審査の役目で、
-チェッカーはサイズという結果のみを検査する（削減の手順は
-[tighten-docs スキル](../tighten-docs/SKILL.md)を参照）。
+[詳細](references/remediation.md#1-入口軽量化)を参照する。
 
 ### 2. 肥大化文書の特定
 
-```bash
-node scripts/verify-docs.mjs
-```
-
-`[サイズ超過]` が出力された文書が対象。見出し単位で内容を仕分ける。
-
-- **「一度きり」と「毎回」の手順が混在** → 一度きりの初期設定を別文書に
-  切り出す（例: `deploy.md` から `deploy-setup.md`）
-- **1つの見出しの下に複数の独立した話題** → 見出し単位でファイルを分割し、
-  元の文書には1〜2行のポインタを残す
-- **過去の作業記録・棚卸し結果が混在** → 一過性の記録用文書
-  （`review-YYYY-MM.md` など）に切り出す
-
-分割後は、元の文書に残った内部リンク（`#見出し`）が移動先を指していないか
-確認し、断片リンクは `他ファイル.md#見出し` に修正する。分割は重複を
-生みやすいため、分割後に再度検査を実行する（次の「3.」）。
+[詳細](references/remediation.md#2-肥大化文書の特定)を参照する。
 
 ### 3. 重複特定
 
-`[重複]` が出力されたら、AST抽出した段落本文が複数文書で一致している。
-強調などの書式差は無視される。
-
-- 話題として詳細な側・上位の文書（README よりは docs）を本来の置き場所とし、
-  他方はポインタ1行に置換する
-- 両者が独立に存在すべき理由がある場合（例: 免責文言を子ども向け・大人向け
-  両方に配置）は、段落の直前に `<!-- verify-docs:allow-duplicate -->` を
-  配置して除外する。「意図した重複」を宣言する処置であり乱用しない
-- `[準一致重複]` は `checkNearDuplicates`（既定オフ）を有効化した場合のみ
-  出力される。句読点・敬体/常体の差異のみの重複で、是正方法は `[重複]` と
-  同一（詳細:
-  [references/duplicate-handling.md](references/duplicate-handling.md)
-  「準一致重複」）
-
-#### 意味的な重複（チェッカーでは検出できない）
-
-`[重複]`・`[準一致重複]` はいずれもAST抽出した文字列の一致ベースであり、言い回しが
-異なる言い換えの重複は検知できない。この判断は
-[dedupe-docs スキル](../dedupe-docs/SKILL.md) を参照する。
+[詳細](references/remediation.md#3-重複特定)を参照する。
 
 ### 4. 分割不可時の TODO 記載
 
-既存の大規模リポジトリへの後発導入では、その場では分割できない文書が
-出る。超過を黙認せず、`verify-docs.todo.json`（既定のファイル名）に理由を
-付して記載する。記述形式・運用ルールは
-[references/todo.md](references/todo.md) を参照する。
+[詳細](references/remediation.md#4-分割不可時の-todo-記載)を参照する。
 
 ### 5. CI 組み込み
 
-push・PR の前に必ず通過するよう構成する。組み込み方法は
-[README.md](../../../README.md)「CI への組み込み」を参照する。ローカルに
-配置するだけでは、直後に再度肥大化する。
+[詳細](references/remediation.md#5-ci-組み込み)を参照する。
 
 ### 6. 維持
 
-一度是正しても、追記のたびに再度肥大化・重複が起きる。新規文書追加時・
-既存文書への追記時に毎回 `node scripts/verify-docs.mjs` を実行する
-ことを push 前検証に組み込めば、崩れた時点で機械的に検知できる。
+[詳細](references/remediation.md#6-維持)を参照する。
 
 ## 完了条件
 

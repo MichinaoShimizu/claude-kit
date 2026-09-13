@@ -1,23 +1,18 @@
 # verify-docs-checklist
 
-## verify-docs — 2026-09-13T13:44:29+0900
+## verify-docs — 2026-09-13T14:02:08+0900
 
-- [x] README.md > 使い方（11〜23行）
-- [x] AGENTS.md > MUST（6〜19行）
-- [x] AGENTS.md > 話題別の参照先（20〜28行）
-- [x] CLAUDE.md（1行目）
-- [x] CONTRIBUTING.md > 新規パッケージの追加（6〜11行）
-- [x] CONTRIBUTING.md > 既存パッケージの改修（12〜17行）
-- [x] CONTRIBUTING.md > ドキュメントの分割・移動（18〜22行）
-- [x] CONTRIBUTING.md > PR 提出前（23〜30行）
+- [x] .agents/skills/verify-docs/SKILL.md > 手順（74〜148行）
+- [x] .agents/skills/verify-docs/references/remediation.md
+- [x] verify-docs.todo.json のサイズ超過TODO
 
 ### 実行結果
 
 | 項目 | 結果 |
 | --- | --- |
-| 対象 | README.md、AGENTS.md、CLAUDE.md、CONTRIBUTING.md |
-| 実施 | ASTで抽出した章・段落を確認。リンク、入口、文書サイズ、構造違反を検査 |
-| 最終検査 | `node verify-docs/scripts/verify-docs.mjs --root=.` — 違反 0 件 |
+| 対象 | `.agents/skills/verify-docs/SKILL.md`、`references/remediation.md`、`verify-docs.todo.json` |
+| 実施 | 手順1〜6の本文を参照文書へ移動し、SKILL.mdには既存見出しと詳細へのポインタを残した。SKILL.mdから各参照文書への直接リンクも維持 |
+| 最終検査 | `verify-docs/ci-selfcheck.sh`（40テスト）・`node verify-docs/scripts/verify-docs.mjs --root=verify-docs` — 違反 0 件 |
 | 判断保留 | なし |
 
 ## dedupe-docs — 2026-09-13T13:54:21+0900
