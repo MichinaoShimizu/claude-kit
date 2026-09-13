@@ -4,7 +4,7 @@
 
 作業単位: リポジトリ Markdown の文章補正と検証記録の整備
 開始: 2026-09-13T18:50:12+0900
-最終更新: 2026-09-13T23:24:26+0900
+最終更新: 2026-09-14T00:20:41+0900
 
 ## 実行履歴
 
@@ -18,14 +18,18 @@
 | 6 | 23:07 | verify-docs・dedupe-docs・tighten-docs | 重複説明と旧形式例を削除し、参照先を正本へ集約 | 構造違反0件 |
 | 7 | 23:15 | verify-docs・dedupe-docs・tighten-docs | タスク管理機能の記述を削除し、一時作業記録を正本化 | 構造違反0件 |
 | 8 | 23:24 | verify-docs・dedupe-docs・tighten-docs | インストーラーで一時作業記録を除外し、自己検査を追加 | 構造違反0件 |
+| 9 | 23:41 | verify-docs・dedupe-docs・tighten-docs | 文書単位の冗長性を削る規則と判断評価ケースを追加 | 構造違反0件 |
+| 10 | 23:45 | verify-docs・dedupe-docs・tighten-docs | 同一文書内の節削除・節結合を圧縮手段として追加 | 構造違反0件 |
+| 11 | 23:59 | verify-docs・dedupe-docs・tighten-docs | サイズ表を削減量・削減率で表示し、削減量順に整理 | 構造違反0件 |
+| 12 | 00:20 | verify-docs・dedupe-docs・tighten-docs | 作業単位の定義を導入・運用文書へ集約 | 構造違反0件 |
 
 ## verify-docs
 
-最終実行: 2026-09-13T23:24:26+0900
+最終実行: 2026-09-14T00:20:41+0900
 
 - [x] リポジトリルート: [AGENTS.md](../../AGENTS.md)、[CLAUDE.md](../../CLAUDE.md)、[CONTRIBUTING.md](../../CONTRIBUTING.md)、[README.md](../../README.md) — 2026-09-13 / 構造検査を完了
 - [x] [agent-layout/README.md](../../agent-layout/README.md) — 2026-09-13 / 構造検査を完了
-- [x] [verify-docs/](../../verify-docs/) の20文書 — 2026-09-13 / 導入先の一時作業記録の除外規則と自己検査を追加
+- [x] [verify-docs/](../../verify-docs/) の20文書 — 2026-09-14 / 作業単位の共有定義を導入・運用文書へ集約
 
 ### 最終検査結果
 
@@ -36,15 +40,15 @@
 | 文書サイズ | `maxDocBytes` 以下、または TODO に理由を記録済みである | `node verify-docs/scripts/verify-docs.mjs` | サイズ違反0件 |
 | 機械的重複 | 完全一致と、有効時の準一致の段落重複を検出・是正済みである | `node verify-docs/scripts/verify-docs.mjs` | 重複違反0件 |
 
-最終検査: `node verify-docs/scripts/verify-docs.mjs`、`node verify-docs/scripts/verify-docs.mjs --root=agent-layout`、`cd verify-docs && node scripts/verify-docs.mjs` — 違反0件
+最終検査: `verify-docs/ci-selfcheck.sh`、`node verify-docs/scripts/verify-docs.mjs`、`node verify-docs/scripts/verify-docs.mjs --root=agent-layout`、`cd verify-docs && node scripts/verify-docs.mjs` — 違反0件
 
 ## dedupe-docs
 
-最終実行: 2026-09-13T23:24:26+0900
+最終実行: 2026-09-14T00:20:41+0900
 
 - [x] リポジトリルート: [AGENTS.md](../../AGENTS.md)、[CLAUDE.md](../../CLAUDE.md)、[CONTRIBUTING.md](../../CONTRIBUTING.md)、[README.md](../../README.md) — 2026-09-13 / 意味的重複なし
 - [x] [agent-layout/README.md](../../agent-layout/README.md) — 2026-09-13 / 意味的重複なし
-- [x] [verify-docs/](../../verify-docs/) の20文書 — 2026-09-13 / 意味的重複なし
+- [x] [verify-docs/](../../verify-docs/) の20文書 — 2026-09-14 / 同じ PR の反復と新しい作業単位の切替を分離
 
 ### 最終検査結果
 
@@ -60,11 +64,11 @@
 
 ## tighten-docs
 
-最終実行: 2026-09-13T23:24:26+0900
+最終実行: 2026-09-14T00:20:41+0900
 
 - [x] リポジトリルート: [AGENTS.md](../../AGENTS.md)、[CLAUDE.md](../../CLAUDE.md)、[CONTRIBUTING.md](../../CONTRIBUTING.md)、[README.md](../../README.md) — 2026-09-13 / 安全に削れる表現なし
 - [x] [agent-layout/README.md](../../agent-layout/README.md) — 2026-09-13 / 安全に削れる表現なし
-- [x] [verify-docs/](../../verify-docs/) の20文書 — 2026-09-13 / タスク管理機能の説明を削除
+- [x] [verify-docs/](../../verify-docs/) の20文書 — 2026-09-14 / 同じ作業単位の累積値と新しい作業単位の初期化を定義
 
 ### 最終検査結果
 
@@ -73,36 +77,37 @@
 | 意味の保持 | 数値・条件・手順順序・免責文言を変えていない | 変更前後の原文照合 | 通過 |
 | 語句と文法 | 冗長な語句、形式名詞、不要な受け身などを確認した | 典型パターンと原文 | 通過 |
 | 重複と文体 | 同一理由の反復、重言、文体の混在を確認した | 典型パターンと原文 | 通過 |
+| 文書単位の冗長性 | 固有情報を持たない導入・参照案内・旧形式例の削除と、同役割の節結合の条件を定めた | パターン資料、実施手順、判断評価ケース | 通過 |
 | Markdown表現 | 空行、強調、リンクテキスト、表、装飾の冗長さを確認した | 典型パターンと原文 | 通過 |
 
 ### ファイル別サイズ
 
-| ファイル | 開始時点 | 最終 | 累積圧縮率 | 直前試行との差分 | 結果 |
-| --- | ---: | ---: | ---: | ---: | --- |
-| [AGENTS.md](../../AGENTS.md) | 2,582B | 2,554B | 1.1% | 0B | 文章補正後、追加の削減なし |
-| [CLAUDE.md](../../CLAUDE.md) | 11B | 11B | 0.0% | 0B | 変更なし |
-| [CONTRIBUTING.md](../../CONTRIBUTING.md) | 1,176B | 1,214B | -3.2% | 0B | 参照先の見出し変更を反映 |
-| [README.md](../../README.md) | 879B | 870B | 1.0% | 0B | 文章補正後、追加の削減なし |
-| [agent-layout/README.md](../../agent-layout/README.md) | 2,832B | 2,944B | -4.0% | 0B | 構成を明確化 |
-| [verify-docs/.agents/skills/dedupe-docs/SKILL.md](../../verify-docs/.agents/skills/dedupe-docs/SKILL.md) | 6,876B | 6,106B | 11.2% | -687B | 重複導入を短縮し、発動条件を維持 |
-| [verify-docs/.agents/skills/tighten-docs/SKILL.md](../../verify-docs/.agents/skills/tighten-docs/SKILL.md) | 4,709B | 4,551B | 3.4% | +66B | 抽出対象とサイズ記録を正確化 |
-| [verify-docs/.agents/skills/tighten-docs/references/patterns-duplication-and-style.md](../../verify-docs/.agents/skills/tighten-docs/references/patterns-duplication-and-style.md) | 2,085B | 2,085B | 0.0% | 0B | 変更なし |
-| [verify-docs/.agents/skills/tighten-docs/references/patterns-markdown.md](../../verify-docs/.agents/skills/tighten-docs/references/patterns-markdown.md) | 1,112B | 1,112B | 0.0% | 0B | 変更なし |
-| [verify-docs/.agents/skills/tighten-docs/references/patterns-wording.md](../../verify-docs/.agents/skills/tighten-docs/references/patterns-wording.md) | 2,060B | 2,060B | 0.0% | 0B | 変更なし |
-| [verify-docs/.agents/skills/verify-docs/SKILL.md](../../verify-docs/.agents/skills/verify-docs/SKILL.md) | 6,490B | 6,036B | 7.0% | -544B | リンクだけの手順見出しを是正手順へ集約 |
-| [verify-docs/.agents/skills/verify-docs/references/agent-compatibility.md](../../verify-docs/.agents/skills/verify-docs/references/agent-compatibility.md) | 1,692B | 1,698B | -0.4% | 0B | 見出しを補正 |
-| [verify-docs/.agents/skills/verify-docs/references/checklist-summary.md](../../verify-docs/.agents/skills/verify-docs/references/checklist-summary.md) | 3,888B | 4,724B | -21.5% | -184B | 作業手順の重複を削除 |
-| [verify-docs/.agents/skills/verify-docs/references/checklist.md](../../verify-docs/.agents/skills/verify-docs/references/checklist.md) | 5,849B | 5,083B | 13.1% | -314B | タスク管理機能の説明を削除 |
-| [verify-docs/.agents/skills/verify-docs/references/config-validation.md](../../verify-docs/.agents/skills/verify-docs/references/config-validation.md) | 680B | 680B | 0.0% | 0B | 変更なし |
-| [verify-docs/.agents/skills/verify-docs/references/config.md](../../verify-docs/.agents/skills/verify-docs/references/config.md) | 6,711B | 6,660B | 0.8% | 0B | 作業記録の説明を補正 |
-| [verify-docs/.agents/skills/verify-docs/references/duplicate-handling.md](../../verify-docs/.agents/skills/verify-docs/references/duplicate-handling.md) | 2,144B | 2,175B | -1.4% | +22B | 重複特定の参照先を是正手順へ変更 |
-| [verify-docs/.agents/skills/verify-docs/references/remediation.md](../../verify-docs/.agents/skills/verify-docs/references/remediation.md) | 4,105B | 4,119B | -0.3% | 0B | 継続的な検査を明確化 |
-| [verify-docs/.agents/skills/verify-docs/references/todo.md](../../verify-docs/.agents/skills/verify-docs/references/todo.md) | 2,261B | 2,289B | -1.2% | +22B | TODO手順の参照先を是正手順へ変更 |
-| [verify-docs/CONTRIBUTING.md](../../verify-docs/CONTRIBUTING.md) | 2,954B | 2,948B | 0.2% | 0B | 見出しを補正 |
-| [verify-docs/README.md](../../verify-docs/README.md) | 6,851B | 6,996B | -2.1% | +74B | 導入時の一時作業記録の除外を明記 |
-| [verify-docs/docs/adoption.md](../../verify-docs/docs/adoption.md) | 2,836B | 2,835B | 0.0% | +72B | 導入時の参照先を是正手順へ変更 |
-| [verify-docs/docs/advanced-usage.md](../../verify-docs/docs/advanced-usage.md) | 1,348B | 1,303B | 3.3% | 0B | 見出しを具体化 |
-| [verify-docs/docs/structure.md](../../verify-docs/docs/structure.md) | 1,902B | 1,889B | 0.7% | -21B | 完了レコードを廃止 |
-| [verify-docs/evals/README.md](../../verify-docs/evals/README.md) | 803B | 797B | 0.7% | 0B | 表現を簡潔化 |
+| ファイル | 開始時点 | 最終 | 削減バイト数 | 開始時点からの削減率 |
+| --- | ---: | ---: | ---: | ---: |
+| [verify-docs/.agents/skills/verify-docs/references/checklist.md](../../verify-docs/.agents/skills/verify-docs/references/checklist.md) | 5,849B | 5,068B | 781B | 13.4% |
+| [verify-docs/.agents/skills/dedupe-docs/SKILL.md](../../verify-docs/.agents/skills/dedupe-docs/SKILL.md) | 6,876B | 6,106B | 770B | 11.2% |
+| [verify-docs/.agents/skills/verify-docs/SKILL.md](../../verify-docs/.agents/skills/verify-docs/SKILL.md) | 6,490B | 6,036B | 454B | 7.0% |
+| [verify-docs/README.md](../../verify-docs/README.md) | 6,851B | 6,559B | 292B | 4.3% |
+| [verify-docs/.agents/skills/verify-docs/references/config.md](../../verify-docs/.agents/skills/verify-docs/references/config.md) | 6,711B | 6,660B | 51B | 0.8% |
+| [verify-docs/docs/advanced-usage.md](../../verify-docs/docs/advanced-usage.md) | 1,348B | 1,303B | 45B | 3.3% |
+| [AGENTS.md](../../AGENTS.md) | 2,582B | 2,554B | 28B | 1.1% |
+| [README.md](../../README.md) | 879B | 870B | 9B | 1.0% |
+| [verify-docs/CONTRIBUTING.md](../../verify-docs/CONTRIBUTING.md) | 2,954B | 2,948B | 6B | 0.2% |
+| [verify-docs/evals/README.md](../../verify-docs/evals/README.md) | 803B | 797B | 6B | 0.7% |
+| [CLAUDE.md](../../CLAUDE.md) | 11B | 11B | 0B | 0.0% |
+| [verify-docs/.agents/skills/tighten-docs/references/patterns-markdown.md](../../verify-docs/.agents/skills/tighten-docs/references/patterns-markdown.md) | 1,112B | 1,112B | 0B | 0.0% |
+| [verify-docs/.agents/skills/tighten-docs/references/patterns-wording.md](../../verify-docs/.agents/skills/tighten-docs/references/patterns-wording.md) | 2,060B | 2,060B | 0B | 0.0% |
+| [verify-docs/.agents/skills/verify-docs/references/config-validation.md](../../verify-docs/.agents/skills/verify-docs/references/config-validation.md) | 680B | 680B | 0B | 0.0% |
+| [verify-docs/.agents/skills/verify-docs/references/agent-compatibility.md](../../verify-docs/.agents/skills/verify-docs/references/agent-compatibility.md) | 1,692B | 1,698B | -6B | -0.4% |
+| [verify-docs/.agents/skills/verify-docs/references/remediation.md](../../verify-docs/.agents/skills/verify-docs/references/remediation.md) | 4,105B | 4,119B | -14B | -0.3% |
+| [verify-docs/.agents/skills/verify-docs/references/todo.md](../../verify-docs/.agents/skills/verify-docs/references/todo.md) | 2,261B | 2,289B | -28B | -1.2% |
+| [verify-docs/.agents/skills/verify-docs/references/duplicate-handling.md](../../verify-docs/.agents/skills/verify-docs/references/duplicate-handling.md) | 2,144B | 2,175B | -31B | -1.4% |
+| [CONTRIBUTING.md](../../CONTRIBUTING.md) | 1,176B | 1,214B | -38B | -3.2% |
+| [agent-layout/README.md](../../agent-layout/README.md) | 2,832B | 2,944B | -112B | -4.0% |
+| [verify-docs/docs/structure.md](../../verify-docs/docs/structure.md) | 1,902B | 2,620B | -718B | -37.7% |
+| [verify-docs/.agents/skills/tighten-docs/SKILL.md](../../verify-docs/.agents/skills/tighten-docs/SKILL.md) | 4,709B | 5,460B | -751B | -16.0% |
+| [verify-docs/.agents/skills/verify-docs/references/checklist-summary.md](../../verify-docs/.agents/skills/verify-docs/references/checklist-summary.md) | 3,888B | 4,726B | -838B | -21.6% |
+| [verify-docs/docs/adoption.md](../../verify-docs/docs/adoption.md) | 2,836B | 3,773B | -937B | -33.0% |
+| [verify-docs/.agents/skills/tighten-docs/references/patterns-duplication-and-style.md](../../verify-docs/.agents/skills/tighten-docs/references/patterns-duplication-and-style.md) | 2,085B | 3,586B | -1,501B | -72.0% |
 
 最終検査: 3ルート再検査 — 構造違反0件
