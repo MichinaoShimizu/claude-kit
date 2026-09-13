@@ -11,6 +11,9 @@
 - 新規パッケージ追加時は [README.md](README.md) の一覧表に1行追加する。
 - 自己検査を持つパッケージは、フォルダ直下に実行可能な `ci-selfcheck.sh`
   を配置する（詳細: README.md「本リポジトリ自身の CI」）。
+- ClaudeまたはKiro固有の場所にスキルやカスタムエージェントを追加した場合は、
+  `node agent-layout/scripts/sync-agent-layout.mjs --write`で補正する
+  （詳細: [agent-layout/README.md](agent-layout/README.md)）。
 - ドキュメントの分割・移動は移動とポインタ化のみ。要約・言い換えによる
   内容変更は禁止。
 
@@ -21,3 +24,4 @@
 | パッケージ一覧・使い方                          | [README.md](README.md)                          |
 | ドキュメント構造の検査（参照切れ・サイズ超過・重複） | [verify-docs/README.md](verify-docs/README.md) |
 | CI の中身                                        | [.github/workflows/ci.yml](.github/workflows/ci.yml) |
+| スキル・カスタムエージェントの互換構成          | [agent-layout/README.md](agent-layout/README.md)    |

@@ -6,6 +6,7 @@ Claude Code・Codex・Kiro などの生成AIエージェント向けパッケー
 | パッケージ | 何をするか |
 | --- | --- |
 | [verify-docs](verify-docs/) | 階層的な文書群の参照整合性・サイズ・重複を検査する |
+| [agent-layout](agent-layout/) | スキルとカスタムエージェントをClaude Code・Codex・Kiro向けに補正・同期する |
 
 ## 使い方
 
@@ -29,4 +30,5 @@ READMEなど、必要な構成要素を同じフォルダに格納する。利�
 ## 本リポジトリ自身の CI
 
 本リポジトリでは、各パッケージとリポジトリ直下にverify-docsを適用する。
-自己検査の追加方法とCIの構成は[CONTRIBUTING.md](CONTRIBUTING.md)を参照する。
+agent-layoutによる互換構成も検査する。自己検査の追加方法とCIの構成は
+[CONTRIBUTING.md](CONTRIBUTING.md)を参照する。
