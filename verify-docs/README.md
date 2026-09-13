@@ -66,6 +66,10 @@ Kiroで個別に呼び出す場合は次の記法を使う。
 
 > verify-docs・dedupe-docs・tighten-docsを順番に全部実行して
 
+エージェントがスキルを実行すると、対象文書・判断理由・総評を
+`.verify-docs/dist/checklist.md`に記録する。チェッカーコマンド単独では
+チェックリストを作成しない。
+
 ## 詳細
 
 - [既存リポジトリへの導入、CI、TODOの運用](docs/adoption.md)
