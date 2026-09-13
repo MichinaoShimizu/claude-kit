@@ -11,8 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: verify-docs でリポジトリ直下の文書（README.md・AGENTS.md・CLAUDE.md・CONTRIBUTING.md など）を検査する
-        run: node verify-docs/scripts/verify-docs.mjs
+      - name: リポジトリルートと各パッケージの文書をそれぞれのルートで検査する
+        run: |
+          node verify-docs/scripts/verify-docs.mjs
+          node verify-docs/scripts/verify-docs.mjs --root=agent-layout
 
   agent-layout-root-check:
     runs-on: ubuntu-latest
