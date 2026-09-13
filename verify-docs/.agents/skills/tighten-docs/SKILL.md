@@ -78,9 +78,11 @@ node scripts/verify-docs.mjs
 
 - チェックリストの全項目にチェックが入っている
 - `node scripts/verify-docs.mjs` が「文書構造: すべて通過」で終わっている
-- 作業完了を報告する際は、チェックリストファイルのパスと総評
-  （[verify-docs/references/checklist-summary.md](../verify-docs/references/checklist-summary.md)
-  参照）を人に伝える
+- 自分のチェックリストセクションに `### 実行結果` を記載し、作業完了を報告する際は
+  チェックリストファイルのパスと実行結果を人に伝える
+- 本スキルが verify-docs・dedupe-docs・tighten-docs の連続実行の最後である場合は、
+  すべての実行結果の後に `## 完了レコード` を更新する
+  （[verify-docs/references/checklist-summary.md](../verify-docs/references/checklist-summary.md)参照）
 
 ## 対象外とする範囲
 

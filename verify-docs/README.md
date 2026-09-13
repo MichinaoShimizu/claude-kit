@@ -82,7 +82,7 @@ node scripts/verify-docs.mjs --init-todo
 通常の検査は、標準出力に最大5件の末端節とTODOの対象節を、JSON出力に
 `summary.documents`（文書数・構造集計）、`summary.violations`（種別ごとの件数）、
 `summary.largestSections`、`summary.todo` を含める。違反には行・列・見出し階層、
-重複箇所、サイズ超過時の大きな節も含める。チェックリストや総評を作るときは、
+重複箇所、サイズ超過時の大きな節も含める。チェックリストの実行結果や完了レコードを作るときは、
 この出力を根拠として使う。
 
 ```bash
@@ -104,8 +104,9 @@ Kiroで個別に呼び出す場合は次の記法を使う。
 
 > verify-docs・dedupe-docs・tighten-docsを順番に全部実行して
 
-エージェントがスキルを実行すると、対象文書・判断理由・総評を
-`.verify-docs/dist/checklist.md`に記録する。チェッカーコマンド単独では
+エージェントがスキルを実行すると、対象文書・判断理由・スキル別の実行結果を
+`.verify-docs/dist/checklist.md`に記録する。3スキルを連続実行した回だけ、同ファイルに
+統合した完了レコードも記録する。チェッカーコマンド単独では
 チェックリストを作成しない。
 
 ## 詳細
