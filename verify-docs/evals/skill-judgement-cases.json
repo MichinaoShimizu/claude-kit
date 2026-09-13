@@ -32,7 +32,27 @@
         { "path": "docs/deploy.md", "content": "# Deploy\n\n本番モードを必ず使う。タイムアウトは30秒。再試行の順序は変更しない。\n" }
       ],
       "mustPreserve": ["本番モード", "30秒", "再試行の順序は変更しない"],
-      "reviewQuestions": ["削減後も数値・条件・手順が残るか", "短縮が構造変更や意味変更になっていないか"]
+      "reviewQuestions": ["削減後も数値・条件・手順が残るか", "短縮が許可範囲外の構造変更や意味変更になっていないか"]
+    },
+    {
+      "id": "tighten-document-level-redundancy",
+      "skill": "tighten-docs",
+      "expectedDecision": "tighten",
+      "documents": [
+        { "path": "docs/guide.md", "content": "# ガイド\n\n## 設定\n\n設定値は[設定リファレンス](settings.md)を参照する。\n\n## 設定の詳細\n\n設定値は[設定リファレンス](settings.md)を参照する。\n" }
+      ],
+      "mustPreserve": ["設定リファレンス", "設定値"],
+      "reviewQuestions": ["固有の手順・条件・例外を持たない参照だけの見出しを削除できるか", "削除前に外部からの断片リンクを確認し、必要なら正本へ付け替えるか", "別文書の正本化や内容移動と混同していないか"]
+    },
+    {
+      "id": "tighten-merge-same-role-sections",
+      "skill": "tighten-docs",
+      "expectedDecision": "tighten",
+      "documents": [
+        { "path": "docs/deploy.md", "content": "# デプロイ\n\n## 実行条件\n\n本番モードで実行する。\n\n## 本番実行の前提\n\n本番モードで実行する。タイムアウトは30秒にする。\n" }
+      ],
+      "mustPreserve": ["本番モード", "30秒"],
+      "reviewQuestions": ["同じ役割の二つの節を一つに結合できるか", "統合後に片方だけにあったタイムアウト条件を残せるか", "削除または変更する見出しへの断片リンクを確認するか", "文書間の正本化や内容移動に拡大していないか"]
     }
   ]
 }

@@ -4,7 +4,7 @@
 
 作業単位: リポジトリ Markdown の文章補正と検証記録の整備
 開始: 2026-09-13T18:50:12+0900
-最終更新: 2026-09-13T23:24:26+0900
+最終更新: 2026-09-13T23:45:50+0900
 
 ## 実行履歴
 
@@ -18,14 +18,16 @@
 | 6 | 23:07 | verify-docs・dedupe-docs・tighten-docs | 重複説明と旧形式例を削除し、参照先を正本へ集約 | 構造違反0件 |
 | 7 | 23:15 | verify-docs・dedupe-docs・tighten-docs | タスク管理機能の記述を削除し、一時作業記録を正本化 | 構造違反0件 |
 | 8 | 23:24 | verify-docs・dedupe-docs・tighten-docs | インストーラーで一時作業記録を除外し、自己検査を追加 | 構造違反0件 |
+| 9 | 23:41 | verify-docs・dedupe-docs・tighten-docs | 文書単位の冗長性を削る規則と判断評価ケースを追加 | 構造違反0件 |
+| 10 | 23:45 | verify-docs・dedupe-docs・tighten-docs | 同一文書内の節削除・節結合を圧縮手段として追加 | 構造違反0件 |
 
 ## verify-docs
 
-最終実行: 2026-09-13T23:24:26+0900
+最終実行: 2026-09-13T23:45:50+0900
 
 - [x] リポジトリルート: [AGENTS.md](../../AGENTS.md)、[CLAUDE.md](../../CLAUDE.md)、[CONTRIBUTING.md](../../CONTRIBUTING.md)、[README.md](../../README.md) — 2026-09-13 / 構造検査を完了
 - [x] [agent-layout/README.md](../../agent-layout/README.md) — 2026-09-13 / 構造検査を完了
-- [x] [verify-docs/](../../verify-docs/) の20文書 — 2026-09-13 / 導入先の一時作業記録の除外規則と自己検査を追加
+- [x] [verify-docs/](../../verify-docs/) の20文書 — 2026-09-13 / 同一文書内の節削除・節結合の条件と判断評価ケースを追加
 
 ### 最終検査結果
 
@@ -36,15 +38,15 @@
 | 文書サイズ | `maxDocBytes` 以下、または TODO に理由を記録済みである | `node verify-docs/scripts/verify-docs.mjs` | サイズ違反0件 |
 | 機械的重複 | 完全一致と、有効時の準一致の段落重複を検出・是正済みである | `node verify-docs/scripts/verify-docs.mjs` | 重複違反0件 |
 
-最終検査: `node verify-docs/scripts/verify-docs.mjs`、`node verify-docs/scripts/verify-docs.mjs --root=agent-layout`、`cd verify-docs && node scripts/verify-docs.mjs` — 違反0件
+最終検査: `verify-docs/ci-selfcheck.sh`、`node verify-docs/scripts/verify-docs.mjs`、`node verify-docs/scripts/verify-docs.mjs --root=agent-layout`、`cd verify-docs && node scripts/verify-docs.mjs` — 違反0件
 
 ## dedupe-docs
 
-最終実行: 2026-09-13T23:24:26+0900
+最終実行: 2026-09-13T23:45:50+0900
 
 - [x] リポジトリルート: [AGENTS.md](../../AGENTS.md)、[CLAUDE.md](../../CLAUDE.md)、[CONTRIBUTING.md](../../CONTRIBUTING.md)、[README.md](../../README.md) — 2026-09-13 / 意味的重複なし
 - [x] [agent-layout/README.md](../../agent-layout/README.md) — 2026-09-13 / 意味的重複なし
-- [x] [verify-docs/](../../verify-docs/) の20文書 — 2026-09-13 / 意味的重複なし
+- [x] [verify-docs/](../../verify-docs/) の20文書 — 2026-09-13 / 同一文書内の節結合と文書間の正本化を切り分け
 
 ### 最終検査結果
 
@@ -60,11 +62,11 @@
 
 ## tighten-docs
 
-最終実行: 2026-09-13T23:24:26+0900
+最終実行: 2026-09-13T23:45:50+0900
 
 - [x] リポジトリルート: [AGENTS.md](../../AGENTS.md)、[CLAUDE.md](../../CLAUDE.md)、[CONTRIBUTING.md](../../CONTRIBUTING.md)、[README.md](../../README.md) — 2026-09-13 / 安全に削れる表現なし
 - [x] [agent-layout/README.md](../../agent-layout/README.md) — 2026-09-13 / 安全に削れる表現なし
-- [x] [verify-docs/](../../verify-docs/) の20文書 — 2026-09-13 / タスク管理機能の説明を削除
+- [x] [verify-docs/](../../verify-docs/) の20文書 — 2026-09-13 / 同一文書内の節削除・節結合と断片リンクの確認手順を追加
 
 ### 最終検査結果
 
@@ -73,6 +75,7 @@
 | 意味の保持 | 数値・条件・手順順序・免責文言を変えていない | 変更前後の原文照合 | 通過 |
 | 語句と文法 | 冗長な語句、形式名詞、不要な受け身などを確認した | 典型パターンと原文 | 通過 |
 | 重複と文体 | 同一理由の反復、重言、文体の混在を確認した | 典型パターンと原文 | 通過 |
+| 文書単位の冗長性 | 固有情報を持たない導入・参照案内・旧形式例の削除と、同役割の節結合の条件を定めた | パターン資料、実施手順、判断評価ケース | 通過 |
 | Markdown表現 | 空行、強調、リンクテキスト、表、装飾の冗長さを確認した | 典型パターンと原文 | 通過 |
 
 ### ファイル別サイズ
@@ -85,8 +88,8 @@
 | [README.md](../../README.md) | 879B | 870B | 1.0% | 0B | 文章補正後、追加の削減なし |
 | [agent-layout/README.md](../../agent-layout/README.md) | 2,832B | 2,944B | -4.0% | 0B | 構成を明確化 |
 | [verify-docs/.agents/skills/dedupe-docs/SKILL.md](../../verify-docs/.agents/skills/dedupe-docs/SKILL.md) | 6,876B | 6,106B | 11.2% | -687B | 重複導入を短縮し、発動条件を維持 |
-| [verify-docs/.agents/skills/tighten-docs/SKILL.md](../../verify-docs/.agents/skills/tighten-docs/SKILL.md) | 4,709B | 4,551B | 3.4% | +66B | 抽出対象とサイズ記録を正確化 |
-| [verify-docs/.agents/skills/tighten-docs/references/patterns-duplication-and-style.md](../../verify-docs/.agents/skills/tighten-docs/references/patterns-duplication-and-style.md) | 2,085B | 2,085B | 0.0% | 0B | 変更なし |
+| [verify-docs/.agents/skills/tighten-docs/SKILL.md](../../verify-docs/.agents/skills/tighten-docs/SKILL.md) | 4,709B | 5,451B | -15.8% | +477B | 同一文書内の節削除・節結合の条件を追加 |
+| [verify-docs/.agents/skills/tighten-docs/references/patterns-duplication-and-style.md](../../verify-docs/.agents/skills/tighten-docs/references/patterns-duplication-and-style.md) | 2,085B | 3,586B | -72.0% | +378B | 同役割の節結合パターンと保持条件を追加 |
 | [verify-docs/.agents/skills/tighten-docs/references/patterns-markdown.md](../../verify-docs/.agents/skills/tighten-docs/references/patterns-markdown.md) | 1,112B | 1,112B | 0.0% | 0B | 変更なし |
 | [verify-docs/.agents/skills/tighten-docs/references/patterns-wording.md](../../verify-docs/.agents/skills/tighten-docs/references/patterns-wording.md) | 2,060B | 2,060B | 0.0% | 0B | 変更なし |
 | [verify-docs/.agents/skills/verify-docs/SKILL.md](../../verify-docs/.agents/skills/verify-docs/SKILL.md) | 6,490B | 6,036B | 7.0% | -544B | リンクだけの手順見出しを是正手順へ集約 |
