@@ -42,6 +42,7 @@ CLIを使うその他の操作は[高度な使い方](docs/advanced-usage.md)を
 スキルは対象文書・判断理由・実行結果を`.verify-docs/dist/checklist.md`に記録する
 （[チェックリストの形式](.agents/skills/verify-docs/references/checklist.md)）。
 3スキルを連続実行した回だけ、統合した完了レコードも記録する。
+チェッカーコマンド単独ではチェックリストを作成しない。
 
 ### 検査結果（標準出力）
 
