@@ -5,14 +5,16 @@ Claude Code・Codex・Kiroでスキルとカスタムエージェントを共有
 
 ## 導入
 
-このディレクトリの中身を対象リポジトリの直下へコピーする。
+macOS/Linuxでは、対象リポジトリの直下で次を実行する。
 
-```text
-your-repo/
-└── scripts/sync-agent-layout.mjs
+```bash
+curl -fsSL https://raw.githubusercontent.com/MichinaoShimizu/claude-kit/main/agent-layout/install.sh | bash
 ```
 
-補正を適用する。
+`scripts/sync-agent-layout.mjs`が配置される。既に異なる内容の同名ファイルがある場合、
+インストーラーは上書きせず停止する。
+
+配置済みのスキル・カスタムエージェントを正本へ補正する場合は、次を実行する。
 
 ```bash
 node scripts/sync-agent-layout.mjs --write
