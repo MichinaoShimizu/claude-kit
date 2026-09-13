@@ -88,7 +88,7 @@
  *   --root=<dir>    検査するリポジトリの根（既定: カレント）
  *   --config=<file> 設定ファイルの場所（既定: <root>/verify-docs.config.json）
  *   --json          結果を JSON で出す
- *   --changed-base=<ref> そのGit参照からの差分に関係する違反だけを報告する
+ *   --changed-base=<ref> そのGit参照からの差分に関係する違反だけを報告する（移動元・削除済みパスも含む）
  *   --init-todo     いま上限を超えている文書を全部 TODO ファイルに書き出して終わる
  *                   （検査は走らせない）。既存リポジトリに導入する最初の1回に使う。
  *                   すでにファイルがあれば上書きせず失敗する（手で消してから）
@@ -240,11 +240,8 @@ function loadTodo(config) {
 
 export function verifyDocs(root, { configPath, initTodo = false, changedBase } = {}) {
   ROOT = resolve(root);
-  const changedPaths = changedBase === undefined ? null : new Set(
-    execFileSync('git', ['-C', ROOT, 'diff', '--name-only', '--diff-filter=ACMRD', `${changedBase}...HEAD`], {
-      encoding: 'utf8',
-    }).split('\n').filter(Boolean),
-  );
+  const changed = changedBase === undefined ? null : changedPathsSince(changedBase);
+  const changedPaths = changed?.paths ?? null;
   configOption = configPath;
   const config = loadConfig();
   const todo = loadTodo(config);
@@ -282,6 +279,29 @@ function walk(dir, hits = []) {
     }
   }
   return hits;
+}
+
+function changedPathsSince(base) {
+  const output = execFileSync(
+    'git',
+    ['-C', ROOT, 'diff', '--name-status', '-z', '--find-renames', '--diff-filter=ACMRD', `${base}...HEAD`],
+  ).toString('utf8');
+  const fields = output.split('\0');
+  const paths = new Set();
+  const renames = [];
+  for (let index = 0; index < fields.length - 1;) {
+    const status = fields[index++];
+    if (status.startsWith('R') || status.startsWith('C')) {
+      const from = fields[index++];
+      const to = fields[index++];
+      paths.add(from);
+      paths.add(to);
+      if (status.startsWith('R')) renames.push({ from, to });
+      continue;
+    }
+    paths.add(fields[index++]);
+  }
+  return { paths, renames };
 }
 
 const documents = [...new Set(walk(ROOT))].sort();
@@ -751,7 +771,13 @@ const summary = {
 const report = {
   summary,
   failures: scopedFailures,
-  ...(changedPaths ? { changed: { base: changedBase, paths: [...changedPaths].sort() } } : {}),
+  ...(changedPaths ? {
+    changed: {
+      base: changedBase,
+      paths: [...changedPaths].sort(),
+      ...(changed.renames.length ? { renames: changed.renames } : {}),
+    },
+  } : {}),
 };
 
 return report;
