@@ -18,8 +18,7 @@ your-repo/
 node scripts/sync-agent-layout.mjs --write
 ```
 
-変更を加えず、同期状態だけを検査する場合は`--write`を外す。CIではこの形式を
-使用する。
+`--write`を外すと変更せず同期状態だけを検査する。CIではこの形式を使う。
 
 ```bash
 node scripts/sync-agent-layout.mjs
@@ -50,12 +49,11 @@ ClaudeまたはKiroが新規作成したMarkdownエージェントは、正本�
 `read`・`write`・`shell`・`web`・`subagent`の能力へ変換する。Claudeの`model`は
 Claude用設定として正本に保持する。
 
-既存の正本がある場合、生成ファイルを直接編集すると検査で差分として検出する。
-更新は`.agents/agents/*.json`へ行い、再度`--write`を実行する。
+生成ファイルの直接編集は差分として検出する。更新は`.agents/agents/*.json`へ行い、
+再度`--write`を実行する。
 
-プロバイダー固有で安全に変換できないfrontmatter項目は、推測で捨てずエラーにする。
-その項目を正本の共通仕様へ移せない場合は、生成後の個別設定として扱う仕組みを
-追加してから利用する。
+安全に変換できないfrontmatter項目は、推測で捨てずエラーにする。共通仕様へ
+移せない項目を使う場合は、生成後の個別設定を扱う仕組みを追加する。
 
 ## CI
 
