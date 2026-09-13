@@ -13,7 +13,7 @@ CommonMark ASTを基盤に、参照整合性・文書構造・サイズ・重複
 対象リポジトリのルートで次の一行を実行する。
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/MichinaoShimizu/claude-kit/main/verify-docs/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/MichinaoShimizu/claude-kit/main/packages/verify-docs/install.sh | bash
 ```
 
 ## 実行方法

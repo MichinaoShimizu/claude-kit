@@ -19,8 +19,8 @@ jobs:
           node-version-file: .nvmrc
       - name: リポジトリルートと各パッケージの文書をそれぞれのルートで検査する
         run: |
-          node verify-docs/scripts/verify-docs.mjs
-          node verify-docs/scripts/verify-docs.mjs --root=agent-layout
+          node packages/verify-docs/scripts/verify-docs.mjs
+          node packages/verify-docs/scripts/verify-docs.mjs --root=packages/agent-layout
 
   agent-layout-root-check:
     runs-on: ubuntu-latest
@@ -30,7 +30,7 @@ jobs:
         with:
           node-version-file: .nvmrc
       - name: スキルとカスタムエージェントの配置・生成結果を検査する
-        run: node agent-layout/scripts/sync-agent-layout.mjs
+        run: node packages/agent-layout/scripts/sync-agent-layout.mjs
 
   package-self-check:
     runs-on: ubuntu-latest
@@ -42,7 +42,7 @@ jobs:
       - name: 各パッケージの ci-selfcheck.sh を自動で見つけて実行する（ドッグフーディング）
         run: |
           shopt -s nullglob
-          scripts=(*/ci-selfcheck.sh)
+          scripts=(packages/*/ci-selfcheck.sh)
           if [ "${#scripts[@]}" -eq 0 ]; then
             echo "ci-selfcheck.sh を持つパッケージが無い"
             exit 0

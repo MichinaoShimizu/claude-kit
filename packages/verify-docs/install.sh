@@ -56,7 +56,7 @@ if [[ -z "$source_root" ]]; then
       https://github.com/MichinaoShimizu/claude-kit/archive/refs/heads/main.tar.gz \
       -o "$archive"
     tar -xzf "$archive" -C "$temp_root"
-    source_root="$(find "$temp_root" -mindepth 2 -maxdepth 2 -type d -name verify-docs -print -quit)"
+    source_root="$(find "$temp_root" -type d -path '*/packages/verify-docs' -print -quit)"
   fi
 fi
 

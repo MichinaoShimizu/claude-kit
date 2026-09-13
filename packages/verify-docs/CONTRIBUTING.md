@@ -6,7 +6,7 @@
 - 改修後、自身に対して検査を通過させる（ドッグフーディング）。本リポジトリ
   （claude-kit）では [ci-selfcheck.sh](ci-selfcheck.sh) を実行すればよい。
   CI の自動探索方法は
-  [../README.md「本リポジトリ自身の CI」](../README.md#本リポジトリ自身の-ci)
+  [リポジトリのCI定義](../../.github/workflows/ci.yml)
   を参照する
 - 挙動を変更した場合、`SKILL.md`・`references/config.md`・README.md の
   該当箇所を同一コミットで更新する（コードのみ改修し説明が旧状態のまま

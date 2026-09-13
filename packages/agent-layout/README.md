@@ -8,7 +8,7 @@ Claude Code・Codex・Kiroでスキルとカスタムエージェントを共有
 macOS/Linuxでは、対象リポジトリの直下で次を実行する。
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/MichinaoShimizu/claude-kit/main/agent-layout/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/MichinaoShimizu/claude-kit/main/packages/agent-layout/install.sh | bash
 ```
 
 `scripts/sync-agent-layout.mjs` を配置する。既に異なる内容の同名ファイルがある場合、

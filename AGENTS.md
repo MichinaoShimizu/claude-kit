@@ -5,14 +5,17 @@
 
 ## 必須要件
 
-- 1パッケージ = 1フォルダ。新規パッケージ（skill・agent）の構成要素は
-  全て同一フォルダ内に格納する。一部を他所へ切り出すのは禁止。
+「パッケージ」の定義は[README.md](README.md)の冒頭を参照する。公開する
+パッケージは`packages/<package-name>/`に置く。
+
+- 新規パッケージの専用 skill・カスタムエージェント・実行ファイル・文書・fixture・
+  自己検査は、全てそのパッケージのフォルダ内に置く。一部を他所へ切り出すのは禁止。
 - 新規パッケージ追加時は [README.md](README.md) の一覧表に1行追加する。
 - 自己検査を持つパッケージは、フォルダ直下に実行可能な `ci-selfcheck.sh`
   を配置する。
 - ClaudeまたはKiro固有の場所にスキルやカスタムエージェントを追加した場合は、
-  `node agent-layout/scripts/sync-agent-layout.mjs --write`で補正する
-  （詳細: [agent-layout/README.md](agent-layout/README.md)）。
+  `node packages/agent-layout/scripts/sync-agent-layout.mjs --write`で補正する
+  （詳細: [packages/agent-layout/README.md](packages/agent-layout/README.md)）。
 - ドキュメントの分割・移動は移動とポインタ化のみ。要約・言い換えによる
   内容変更は禁止。
 
@@ -30,6 +33,6 @@
 | 話題                                             | 行き先                                          |
 | ------------------------------------------------ | ------------------------------------------------ |
 | パッケージ一覧・使い方                          | [README.md](README.md)                          |
-| ドキュメント構造の検査（参照切れ・サイズ超過・重複） | [verify-docs/README.md](verify-docs/README.md) |
+| ドキュメント構造の検査（参照切れ・サイズ超過・重複） | [packages/verify-docs/README.md](packages/verify-docs/README.md) |
 | CI の中身                                        | [.github/workflows/ci.yml](.github/workflows/ci.yml) |
-| スキル・カスタムエージェントの互換構成          | [agent-layout/README.md](agent-layout/README.md)    |
+| スキル・カスタムエージェントの互換構成          | [packages/agent-layout/README.md](packages/agent-layout/README.md)    |
