@@ -1,78 +1,66 @@
 # verify-docs-checklist
 
-## verify-docs — 2026-09-13T09:59:42+0900
+## verify-docs — 2026-09-13T13:44:29+0900
 
-- [x] README.md — 2026-09-13 / 入口・参照・サイズに違反なし
-- [x] AGENTS.md — 2026-09-13 / MUSTとルーティング表に限定、構造違反なし
-- [x] CLAUDE.md — 2026-09-13 / AGENTS.mdへの入口のみ、構造違反なし
-- [x] CONTRIBUTING.md — 2026-09-13 / README・AGENTS.mdへの参照に違反なし
-- [x] agent-layout/README.md — 2026-09-13 / 参照先とサイズを手動確認、違反なし
-- [x] verify-docs/README.md — 2026-09-13 / 導入後に実行方法を読む順序へ再構成、参照・サイズ・重複に違反なし
-- [x] verify-docs/CONTRIBUTING.md — 2026-09-13 / 参照・サイズ・重複に違反なし
-- [x] verify-docs/docs/adoption.md — 2026-09-13 / 参照・サイズ・重複に違反なし
-- [x] verify-docs/.agents/skills/verify-docs/SKILL.md — 2026-09-13 / サイズ超過は既存TODOで明示、その他違反なし
-- [x] verify-docs/.agents/skills/verify-docs/references/agent-compatibility.md — 2026-09-13 / 違反なし
-- [x] verify-docs/.agents/skills/verify-docs/references/checklist-summary.md — 2026-09-13 / 違反なし
-- [x] verify-docs/.agents/skills/verify-docs/references/checklist.md — 2026-09-13 / 違反なし
-- [x] verify-docs/.agents/skills/verify-docs/references/config.md — 2026-09-13 / 違反なし
-- [x] verify-docs/.agents/skills/verify-docs/references/duplicate-handling.md — 2026-09-13 / 違反なし
-- [x] verify-docs/.agents/skills/verify-docs/references/todo.md — 2026-09-13 / 違反なし
-- [x] verify-docs/.agents/skills/dedupe-docs/SKILL.md — 2026-09-13 / 違反なし
-- [x] verify-docs/.agents/skills/tighten-docs/SKILL.md — 2026-09-13 / 違反なし
-- [x] verify-docs/.agents/skills/tighten-docs/references/patterns.md — 2026-09-13 / 違反なし
+- [x] README.md > 使い方（11〜23行）
+- [x] AGENTS.md > MUST（6〜19行）
+- [x] AGENTS.md > 話題別の参照先（20〜28行）
+- [x] CLAUDE.md（1行目）
+- [x] CONTRIBUTING.md > 新規パッケージの追加（6〜11行）
+- [x] CONTRIBUTING.md > 既存パッケージの改修（12〜17行）
+- [x] CONTRIBUTING.md > ドキュメントの分割・移動（18〜22行）
+- [x] CONTRIBUTING.md > PR 提出前（23〜30行）
 
-### 総評
+### 実行結果
 
-- 検査対象: 18ファイル（機械検査はルート4件 + verify-docs 13件、agent-layout 1件は手動確認）
-- 検出した違反: 0件（既存TODO例外1件）
-- 作業にかかった時間: 2026-09-13 09:59:42 〜 10:01:15（所要1分33秒）
-- 全体のサイズ変化: サイズ変更なし（合計62,173B）
-- 常時読み込み→オンデマンド化: 該当なし
-## dedupe-docs — 2026-09-13T13:00:46+0900
+| 項目 | 結果 |
+| --- | --- |
+| 対象 | README.md、AGENTS.md、CLAUDE.md、CONTRIBUTING.md |
+| 実施 | ASTで抽出した章・段落を確認。リンク、入口、文書サイズ、構造違反を検査 |
+| 最終検査 | `node verify-docs/scripts/verify-docs.mjs --root=.` — 違反 0 件 |
+| 判断保留 | なし |
 
-- [x] verify-docs/scripts/verify-docs.mjs — 2026-09-13 / AST段落収集へ移行、既存判定を維持
-- [x] verify-docs/scripts/markdown-structure.mjs — 2026-09-13 / 強調差は正規化、リンク先・コードは区別
-- [x] verify-docs/scripts/verify-docs.test.mjs — 2026-09-13 / 4ケース追加、35テスト通過
-- [x] verify-docs/.agents/skills/dedupe-docs/SKILL.md — 2026-09-13 / AST比較仕様を反映
-- [x] verify-docs/README.md — 2026-09-13 / AST重複比較を記載
-- [x] verify-docs/ci-selfcheck.sh・install.sh — 2026-09-13 / 既存の同梱・自己検査対象で実行確認
+## dedupe-docs — 2026-09-13T13:44:29+0900
 
-### 総評
+- [x] README.md・AGENTS.md・CLAUDE.md・CONTRIBUTING.md の意味的重複候補
 
-- 検査対象: 5文書（コードの回帰検証は verify-docs 35テスト）
-- 検出した意味的重複: 対象外（チェッカー改修であり、文書間の意味探索は未実施）
-- 作業にかかった時間: 2026-09-13 13:00:46 〜 13:05:59（所要5分13秒）
-- 全体のサイズ変化: 28,838B → 29,310B（472B増）
-- 常時読み込み→オンデマンド化: 該当なし
+### 実行結果
 
-### 総評
+| 項目 | 結果 |
+| --- | --- |
+| 対象 | README.md、AGENTS.md、CLAUDE.md、CONTRIBUTING.md |
+| 実施 | AST段落一覧で、同義の重複と重複箇所の役割を照合 |
+| 最終検査 | 統合対象 0 件。AGENTS.mdの共通規則とCONTRIBUTING.mdの貢献時の案内は用途が異なる |
+| 判断保留 | なし |
 
-- 検査対象: 18ファイル
-- 検出した意味的重複: 2件（いずれも正本へのポインタ化で解消）
-- 作業にかかった時間: 2026-09-13 10:02:01 〜 10:02:51（所要50秒）
-- 全体のサイズ変化: 62,173B → 61,242B（931B減、1.5%減）
-- 常時読み込み→オンデマンド化: 該当なし
-## tighten-docs — 2026-09-13T13:05:59+0900
+## tighten-docs — 2026-09-13T13:44:29+0900
 
-- [x] verify-docs/scripts/markdown-structure.mjs — 2026-09-13 / 子見出しを含む節バイト数・段落数を実装
-- [x] verify-docs/scripts/extract-doc-blocks.mjs — 2026-09-13 / 既存JSONへ見出し指標を追加、CLI互換
-- [x] verify-docs/scripts/extract-doc-blocks.test.mjs — 2026-09-13 / 入れ子・兄弟境界を含む5テスト通過
-- [x] verify-docs/.agents/skills/tighten-docs/SKILL.md — 2026-09-13 / 集計範囲と親子値の重複を説明
-- [x] verify-docs/README.md — 2026-09-13 / 新しい見出し指標を説明
-- [x] verify-docs/ci-selfcheck.sh・install.sh — 2026-09-13 / 同梱CLIと自己検査で実行確認
+- [x] README.md・AGENTS.md・CLAUDE.md・CONTRIBUTING.md の冗長表現
 
-### 総評
+### 実行結果
 
-- 検査対象: 2文書（抽出ヘルパー5テスト）
-- 冗長表現の削減: 0件（今回は抽出指標の仕様追記）
-- 作業にかかった時間: 2026-09-13 13:05:59 〜 13:08:04（所要2分05秒）
-- 全体のサイズ変化: 8,294B → 8,628B（334B増）
-- 常時読み込み→オンデマンド化: 該当なし
+| 項目 | 結果 |
+| --- | --- |
+| 対象 | README.md、AGENTS.md、CLAUDE.md、CONTRIBUTING.md |
+| 実施 | AST章単位で重複語、不要な導入、曖昧語、過剰な箇条書きを確認 |
+| 最終検査 | 意味を保ったまま削れる表現は検出されず、本文変更なし |
+| 判断保留 | なし |
 
-### 総評
+## 完了レコード
 
-- 検査対象: 18ファイル
-- 検出した冗長表現: 4件（2ファイル、すべて是正）。共通実行方法の明記1件
-- 作業にかかった時間: 2026-09-13 10:03:27 〜 10:04:41（所要1分14秒）
-- 全体のサイズ変化: 61,242B → 60,931B（311B減、0.5%減）
-- 常時読み込み→オンデマンド化: 該当なし
+更新: 2026-09-13T13:46:29+0900
+
+| 項目 | 結果 |
+| --- | --- |
+| 検査範囲 | 4 文書 / 12 見出し / 25 段落 / 4,785 B |
+| 検出・是正 | 構造違反 0 件、統合対象 0 件、簡潔化 0 件 |
+| 作業時間 | 2026-09-13T13:44:29+0900 〜 2026-09-13T13:46:29+0900 |
+| TODO | なし |
+
+#### 変更
+
+本文変更なし。実行結果をこのチェックリストへ記録。
+
+#### 残件・注記
+
+- 分割候補なし。最大の葉セクションは AGENTS.md > MUST（920 B）で、上限 7,000 B 未満。
