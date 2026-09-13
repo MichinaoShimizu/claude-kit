@@ -326,26 +326,59 @@ function stripNonMarkdown(text) {
   return result.replace(/(`+)([\s\S]*?)\1/g, (match) => blank(match));
 }
 
-/** 基本的なインラインリンク先を抽出する。リンク先中の括弧とエスケープを扱う。 */
+/** インラインリンクと参照リンクを抽出する。 */
 function markdownLinkTargets(text) {
+  const normalizeLabel = (label) => label.replace(/\\([\\[\]])/g, '$1').trim().replace(/\s+/g, ' ').toLowerCase();
+  const definitions = new Map();
+  const definitionPattern = /^ {0,3}\[([^\n\]]+)\]:[ \t]*(?:<([^>\n]*)>|(\S+))(?:[ \t]+.*)?$/gm;
+  let visibleText = text.replace(definitionPattern, (line, label, angleTarget, plainTarget) => {
+    const key = normalizeLabel(label);
+    if (!definitions.has(key)) {
+      definitions.set(key, (angleTarget ?? plainTarget).replace(/\\([()<>\\])/g, '$1'));
+    }
+    return line.replace(/[^\n]/g, ' ');
+  });
+
   const targets = [];
-  for (let i = 0; i < text.length; i++) {
-    if (text[i] !== '[') continue;
+  for (let i = 0; i < visibleText.length; i++) {
+    if (visibleText[i] !== '[') continue;
     let closeLabel = i + 1;
-    while (closeLabel < text.length && text[closeLabel] !== ']' && text[closeLabel] !== '\n') {
-      if (text[closeLabel] === '\\') closeLabel++;
+    while (closeLabel < visibleText.length && visibleText[closeLabel] !== ']' && visibleText[closeLabel] !== '\n') {
+      if (visibleText[closeLabel] === '\\') closeLabel++;
       closeLabel++;
     }
-    if (text[closeLabel] !== ']' || text[closeLabel + 1] !== '(') continue;
+    if (visibleText[closeLabel] !== ']') continue;
+
+    const label = visibleText.slice(i + 1, closeLabel);
+    if (visibleText[closeLabel + 1] === '[') {
+      let closeReference = closeLabel + 2;
+      while (closeReference < visibleText.length && visibleText[closeReference] !== ']' && visibleText[closeReference] !== '\n') {
+        if (visibleText[closeReference] === '\\') closeReference++;
+        closeReference++;
+      }
+      if (visibleText[closeReference] !== ']') continue;
+      const identifier = visibleText.slice(closeLabel + 2, closeReference) || label;
+      const key = normalizeLabel(identifier);
+      if (definitions.has(key)) targets.push({ target: definitions.get(key) });
+      else targets.push({ missingReference: `[${label}][${identifier}]` });
+      i = closeReference;
+      continue;
+    }
+
+    if (visibleText[closeLabel + 1] !== '(') {
+      const target = definitions.get(normalizeLabel(label));
+      if (target !== undefined) targets.push({ target });
+      continue;
+    }
 
     let cursor = closeLabel + 2;
-    while (/\s/.test(text[cursor] ?? '') && text[cursor] !== '\n') cursor++;
-    const angle = text[cursor] === '<';
+    while (/\s/.test(visibleText[cursor] ?? '') && visibleText[cursor] !== '\n') cursor++;
+    const angle = visibleText[cursor] === '<';
     if (angle) cursor++;
     const start = cursor;
     let depth = 0;
-    while (cursor < text.length) {
-      const char = text[cursor];
+    while (cursor < visibleText.length) {
+      const char = visibleText[cursor];
       if (char === '\\') {
         cursor += 2;
         continue;
@@ -361,17 +394,17 @@ function markdownLinkTargets(text) {
       }
       cursor++;
     }
-    if (cursor === start || (angle && text[cursor] !== '>')) continue;
-    const target = text.slice(start, cursor).replace(/\\([()<>\\])/g, '$1');
+    if (cursor === start || (angle && visibleText[cursor] !== '>')) continue;
+    const target = visibleText.slice(start, cursor).replace(/\\([()<>\\])/g, '$1');
     if (angle) cursor++;
-    while (/\s/.test(text[cursor] ?? '') && text[cursor] !== '\n') cursor++;
+    while (/\s/.test(visibleText[cursor] ?? '') && visibleText[cursor] !== '\n') cursor++;
     // A destination may be followed by an optional title; accept it only if the
     // outer closing parenthesis is present on the same line.
-    if (text[cursor] !== ')') {
-      const end = text.indexOf(')', cursor);
-      if (end === -1 || text.slice(cursor, end).includes('\n')) continue;
+    if (visibleText[cursor] !== ')') {
+      const end = visibleText.indexOf(')', cursor);
+      if (end === -1 || visibleText.slice(cursor, end).includes('\n')) continue;
     }
-    targets.push(target);
+    targets.push({ target });
     i = closeLabel;
   }
   return targets;
@@ -404,7 +437,12 @@ function noteReference(target, from) {
 for (const doc of documents) {
   const from = dirname(join(ROOT, doc));
 
-  for (const target of markdownLinkTargets(stripNonMarkdown(bodies.get(doc)))) {
+  for (const link of markdownLinkTargets(stripNonMarkdown(bodies.get(doc)))) {
+    if (link.missingReference) {
+      fail('link', doc, link.missingReference, '参照リンクの定義がない');
+      continue;
+    }
+    const { target } = link;
     if (/^(https?:|mailto:|tel:)/.test(target)) continue;
 
     const [path, fragment] = target.split('#');

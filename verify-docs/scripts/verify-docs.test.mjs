@@ -85,6 +85,40 @@ test('supports angle-bracket destinations with spaces and an optional title', ()
   rmSync(root, { recursive: true, force: true });
 });
 
+test('supports full, collapsed, and shortcut reference links', () => {
+  const root = makeRepo({
+    'README.md': [
+      '# Repo',
+      '',
+      '[Full][Guide Ref] [Guide Ref][] [Guide Ref]',
+      '',
+      '[guide ref]: docs/guide.md "Guide title"',
+      '',
+    ].join('\n'),
+    'docs/guide.md': '# Guide\n',
+  });
+  assert.deepEqual(run(root).failures, []);
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('detects unresolved and broken reference links', () => {
+  const root = makeRepo({
+    'README.md': [
+      '# Repo',
+      '',
+      '[undefined][missing]',
+      '[broken][guide]',
+      '',
+      '[guide]: docs/missing.md',
+      '',
+    ].join('\n'),
+  });
+  const failures = run(root).failures;
+  assert.ok(failures.some((failure) => failure.kind === 'link' && failure.reason.includes('定義がない')));
+  assert.ok(failures.some((failure) => failure.kind === 'link' && failure.target === 'docs/missing.md'));
+  rmSync(root, { recursive: true, force: true });
+});
+
 test('detects missing fragment', () => {
   const root = makeRepo({ 'README.md': '# Repo\n\n[section](#nope)\n' });
   assert.ok(run(root).failures.some((f) => f.kind === 'fragment'));
