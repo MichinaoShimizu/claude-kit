@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
       - name: リポジトリルートと各パッケージの文書をそれぞれのルートで検査する
         run: |
           node verify-docs/scripts/verify-docs.mjs
@@ -20,6 +23,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
       - name: スキルとカスタムエージェントの配置・生成結果を検査する
         run: node agent-layout/scripts/sync-agent-layout.mjs
 
@@ -27,6 +33,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
       - name: 各パッケージの ci-selfcheck.sh を自動で見つけて実行する（ドッグフーディング）
         run: |
           shopt -s nullglob

@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "scope": "CIのpass/failには使わない。スキルまたはモデルを変える際に、人またはエージェントが判断品質を比較する。",
+  "cases": [
+    {
+      "id": "dedupe-canonical-pointer",
+      "skill": "dedupe-docs",
+      "expectedDecision": "consolidate",
+      "documents": [
+        { "path": "README.md", "content": "# Home\n\nセットアップはパッケージを導入してからリポジトリ直下でチェッカーを実行する。\n" },
+        { "path": "docs/setup.md", "content": "# Setup\n\nパッケージを導入してから、リポジトリ直下でチェッカーを実行する。\n" }
+      ],
+      "mustPreserve": ["パッケージを導入", "リポジトリ直下", "チェッカーを実行"],
+      "reviewQuestions": ["正本を詳細文書に置き、入口文書をポインタ化できるか", "手順の順序を失っていないか"]
+    },
+    {
+      "id": "dedupe-distinct-audiences",
+      "skill": "dedupe-docs",
+      "expectedDecision": "ask-human",
+      "documents": [
+        { "path": "README.md", "content": "# Home\n\n利用者は導入前にバックアップを作成する。\n" },
+        { "path": "docs/operations.md", "content": "# Operations\n\n運用担当者は更新前に復旧手順を確認し、バックアップを検証する。\n" }
+      ],
+      "mustPreserve": ["利用者", "運用担当者", "バックアップ"],
+      "reviewQuestions": ["対象読者と目的の差を重複と誤認していないか", "統合せず人に確認すべき根拠を説明できるか"]
+    },
+    {
+      "id": "tighten-preserve-constraints",
+      "skill": "tighten-docs",
+      "expectedDecision": "tighten",
+      "documents": [
+        { "path": "docs/deploy.md", "content": "# Deploy\n\n本番モードを必ず使う。タイムアウトは30秒。再試行の順序は変更しない。\n" }
+      ],
+      "mustPreserve": ["本番モード", "30秒", "再試行の順序は変更しない"],
+      "reviewQuestions": ["削減後も数値・条件・手順が残るか", "短縮が構造変更や意味変更になっていないか"]
+    }
+  ]
+}

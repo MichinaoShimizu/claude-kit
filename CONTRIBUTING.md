@@ -20,6 +20,7 @@
 
 ## PR 提出前
 
+- Node.js 22.23.2を使う。`.nvmrc` を使える環境では `nvm use` を実行する。
 - 変更したパッケージに `ci-selfcheck.sh` があれば実行する。
 - リポジトリ直下の README.md・AGENTS.md・CLAUDE.md を変更した場合は
   `node verify-docs/scripts/verify-docs.mjs` を実行する。

@@ -12,6 +12,7 @@ node "$dir/scripts/verify-docs.mjs" --root="$rel_dir"
 node --test "$dir/scripts/verify-docs.test.mjs"
 node --test "$dir/scripts/extract-doc-blocks.test.mjs"
 node --test "$dir/scripts/skill-contracts.test.mjs"
+node --test "$dir/scripts/skill-evals.test.mjs"
 
 install_target="$(mktemp -d)"
 trap 'rm -rf "$install_target"' EXIT
@@ -21,6 +22,8 @@ test -f "$install_target/scripts/verify-docs.mjs"
 test -f "$install_target/scripts/markdown-structure.mjs"
 test -f "$install_target/scripts/extract-doc-blocks.mjs"
 test -f "$install_target/scripts/vendor/commonmark.cjs"
+test -f "$install_target/evals/skill-judgement-cases.json"
+test -f "$install_target/evals/README.md"
 node "$install_target/scripts/verify-docs.mjs" --root="$install_target/scripts"
 node "$install_target/scripts/extract-doc-blocks.mjs" \
   --root="$install_target" .agents/skills/verify-docs/SKILL.md >/dev/null

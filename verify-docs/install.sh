@@ -70,6 +70,7 @@ files=(
   scripts/markdown-structure.mjs
   scripts/extract-doc-blocks.mjs
   scripts/vendor
+  evals
   .agents/skills/verify-docs
   .agents/skills/dedupe-docs
   .agents/skills/tighten-docs
