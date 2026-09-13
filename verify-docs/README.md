@@ -20,18 +20,23 @@
 
 ## 導入
 
-このディレクトリの中身を、対象リポジトリの直下へコピーする。
-`verify-docs/`という入れ子は作らない。
+対象リポジトリのルートで次の一行を実行する。
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/MichinaoShimizu/claude-kit/main/verify-docs/install.sh | bash
+```
+
+GitHub Actionsのワークフローは自動追加しない。CIへの組み込みは
+[導入と運用](docs/adoption.md#ciへの組み込み)を参照。
+
+インストール後の構成は次のとおり。設定ファイルは必要な場合だけ作成する。
 
 ```text
 your-repo/
 ├── scripts/verify-docs.mjs
 ├── .agents/skills/verify-docs/
 ├── .agents/skills/dedupe-docs/
-├── .agents/skills/tighten-docs/
-├── .claude/skills -> ../.agents/skills
-├── .kiro/skills -> ../.agents/skills
-└── verify-docs.config.json               # 必要な場合のみ
+└── .agents/skills/tighten-docs/
 ```
 
 既定値のまま開始し、対象リポジトリと異なる項目だけ
