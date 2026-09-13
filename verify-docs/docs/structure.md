@@ -15,11 +15,11 @@ Markdownは正規表現ではなく、同梱の CommonMark.js で AST（構文�
 | チェッカー（`scripts/verify-docs.mjs`） | 参照切れ、孤立文書、**ファイル単位**のサイズ超過、AST抽出した同一段落の重複を検出する。違反箇所の行・列・見出し階層、文書・違反種別の集計、分割検討用の大きい葉セクションも出力する。 |
 | 構造抽出CLI（`scripts/extract-doc-blocks.mjs`） | 文書の見出し・段落・位置・バイト数をJSONで出力する。dedupe-docsとtighten-docsが、対象を漏れなく確認するための共通入力になる。 |
 
-## JSON出力とTODO初期化
+## 機械可読出力とTODO初期化
 
 `node scripts/verify-docs.mjs --json` は、文書数・構造集計・違反種別ごとの件数・
-大きい葉セクション・TODOを機械可読な形式で出力する。スキル別の実行結果と
-完了レコードは、この出力を根拠として記録する。
+大きい葉セクション・TODOを機械可読な形式で出力する。スキル別の実行結果は、
+この出力を根拠として記録する。
 
 `node scripts/verify-docs.mjs --init-todo` は、既存のサイズ超過文書を理由と
 分割候補の節情報付きで`verify-docs.todo.json`へ記録する。すべてを導入初日に

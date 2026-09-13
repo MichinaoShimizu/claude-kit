@@ -76,6 +76,38 @@ files=(
   .agents/skills/tighten-docs
 )
 
+work_record_ignore='.verify-docs/dist/*.work.md'
+
+has_work_record_ignore() {
+  local gitignore="$1"
+  local entry
+
+  [[ -f "$gitignore" ]] || return 1
+  while IFS= read -r entry || [[ -n "$entry" ]]; do
+    case "$entry" in
+      "$work_record_ignore"|"/$work_record_ignore"|'.verify-docs/'|'/.verify-docs/'|'.verify-docs/**'|'/.verify-docs/**'|'.verify-docs/dist/'|'/.verify-docs/dist/'|'.verify-docs/dist/*'|'/.verify-docs/dist/*'|'.verify-docs/dist/**'|'/.verify-docs/dist/**'|'*.work.md'|'**/*.work.md')
+        return 0
+        ;;
+    esac
+  done < "$gitignore"
+  return 1
+}
+
+ensure_work_record_ignore() {
+  local gitignore="$target_root/.gitignore"
+
+  if has_work_record_ignore "$gitignore"; then
+    echo "Kept existing ignore rule for verify-docs temporary work records"
+    return
+  fi
+
+  if [[ -s "$gitignore" ]]; then
+    printf '\n' >> "$gitignore"
+  fi
+  printf '# verify-docs: temporary work records\n%s\n' "$work_record_ignore" >> "$gitignore"
+  echo "Added ignore rule for verify-docs temporary work records"
+}
+
 conflicts=()
 for item in "${files[@]}"; do
   if [[ -d "$source_root/$item" ]]; then
@@ -119,6 +151,8 @@ for item in "${files[@]}"; do
     fi
   fi
 done
+
+ensure_work_record_ignore
 
 for agent_dir in .claude .kiro; do
   alias="$target_root/$agent_dir/skills"

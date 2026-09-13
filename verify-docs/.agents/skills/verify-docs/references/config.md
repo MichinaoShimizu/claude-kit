@@ -1,4 +1,4 @@
-# 設定ファイルの中身
+# 設定ファイル
 
 `.agents/skills/verify-docs/SKILL.md` から参照される。検査スクリプトの設定を
 変更する場合に参照する。TODO ファイルの記述形式は
@@ -36,7 +36,7 @@
 | `skillsDir`           | スキル定義を配置するディレクトリ（`<skillsDir>/<name>/SKILL.md` を想定）。既定は `.agents/skills`。存在しなければ `.claude/skills`、`.kiro/skills` の順に自動検出する |
 | `pathRoots`           | 本文中のバッククォート表記をパスとして検査する接頭辞                 |
 | `agentConfigDirs`     | スキル以外のエージェント設定文書を孤立チェックから除外するディレクトリ |
-| `excludePaths`        | 検査対象から除外するディレクトリ（下記「検査対象の集め方」を参照）。既定に含まれる `.verify-docs/` は作業チェックリストの保管先（[checklist.md「物理ファイル作成」](checklist.md#物理ファイル作成必須)を参照） |
+| `excludePaths`        | 検査対象から除外するディレクトリ（下記「検査対象の集め方」を参照）。既定に含まれる `.verify-docs/` は作業記録とチェックリストの保管先（[checklist.md「作業記録」](checklist.md#作業記録)を参照） |
 | `maxDocBytes`         | 1文書あたりの上限（バイト数）。超過時は分割するか TODO に記載する    |
 | `minDuplicateChars`   | AST抽出した段落本文の最小文字数。値が小さいほど誤検知が増加する |
 | `checkDuplicates`     | 完全一致の重複検査の有効・無効。既定は有効                           |
@@ -89,7 +89,7 @@
 入口文書とスキルの共用方法は
 [agent-compatibility.md](agent-compatibility.md) を参照する。
 
-`excludePaths` の既定値に `.verify-docs/` を含めている理由（作業チェック
-リストの保管先であること）は
-[checklist.md「物理ファイル作成」](checklist.md#物理ファイル作成必須)
+`excludePaths` の既定値に `.verify-docs/` を含めている理由（作業記録と
+チェックリストの保管先であること）は
+[checklist.md「作業記録」](checklist.md#作業記録)
 を参照する。
