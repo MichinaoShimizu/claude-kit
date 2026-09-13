@@ -17,20 +17,21 @@
 | 最終検査 | `node verify-docs/scripts/verify-docs.mjs`、`--root=agent-layout`、`verify-docs/` で違反0件 |
 | 判断保留 | なし |
 
-## dedupe-docs — 2026-09-13T18:50:12+0900
+## dedupe-docs — 2026-09-13T20:38:01+0900
 
-- [x] リポジトリルート: `AGENTS.md`、`CLAUDE.md`、`CONTRIBUTING.md`、`README.md` — 2026-09-13 / 役割が異なるため統合対象なし
-- [x] `agent-layout/README.md` — 2026-09-13 / パッケージ固有の導入・同期手順であり統合対象なし
-- [x] `verify-docs/` の20文書: `README.md`、`CONTRIBUTING.md`、`docs/*.md`、`.agents/skills/**/*.md` — 2026-09-13 / 正本とポインタの役割分担を確認。確信できる意味的重複なし
+- [x] `README.md > パッケージ`（5〜11行目） — 2026-09-13 / `verify-docs/README.md` は `excludePaths` により今回の探索範囲外。範囲内の文書との意味的重複なし
+- [x] `AGENTS.md` — 2026-09-13 / ルーティング指示として固有。意味的重複なし
+- [x] `CLAUDE.md` — 2026-09-13 / `AGENTS.md` への互換ポインタのみ。重複説明なし
+- [x] `CONTRIBUTING.md` — 2026-09-13 / `AGENTS.md` への参照と貢献手順であり、意味的重複なし
 
 ### 実行結果
 
 | 項目 | 結果 |
 | --- | --- |
-| 対象 | 25文書（ルート4件・agent-layout 1件・verify-docs 20件） |
-| 実施 | AST抽出結果と原文を照合し、意味的重複を確認 |
-| 最終検査 | 3ルート再検査で重複・準一致重複・リンク・サイズ違反0件 |
-| 判断保留 | なし |
+| 対象 | `README.md`、`AGENTS.md`、`CLAUDE.md`、`CONTRIBUTING.md` |
+| 実施 | 設定の検査範囲で意味的重複を探索。是正なし |
+| 最終検査 | `node verify-docs/scripts/verify-docs.mjs --json` — 違反0件 |
+| 判断保留 | ルート `README.md` と `verify-docs/README.md` の説明重複は、後者が `excludePaths` により範囲外のため本実行では判定対象外 |
 
 ## tighten-docs — 2026-09-13T18:50:12+0900
 
