@@ -4,7 +4,7 @@
 
 作業単位: リポジトリ Markdown の文章補正と検証記録の整備
 開始: 2026-09-13T18:50:12+0900
-最終更新: 2026-09-13T23:07:56+0900
+最終更新: 2026-09-13T23:15:58+0900
 
 ## 実行履歴
 
@@ -16,14 +16,15 @@
 | 4 | 22:45 | verify-docs・dedupe-docs・tighten-docs | パーマネントリンク方針、検査根拠、最終検査結果へ整理 | 構造違反0件 |
 | 5 | 22:55 | verify-docs・dedupe-docs・tighten-docs | レビュー指摘を是正し、最終値を再計測 | 構造違反0件 |
 | 6 | 23:07 | verify-docs・dedupe-docs・tighten-docs | 重複説明と旧形式例を削除し、参照先を正本へ集約 | 構造違反0件 |
+| 7 | 23:15 | verify-docs・dedupe-docs・tighten-docs | タスク管理機能の記述を削除し、一時作業記録を正本化 | 構造違反0件 |
 
 ## verify-docs
 
-最終実行: 2026-09-13T23:07:56+0900
+最終実行: 2026-09-13T23:15:58+0900
 
 - [x] リポジトリルート: [AGENTS.md](../../AGENTS.md)、[CLAUDE.md](../../CLAUDE.md)、[CONTRIBUTING.md](../../CONTRIBUTING.md)、[README.md](../../README.md) — 2026-09-13 / 構造検査を完了
 - [x] [agent-layout/README.md](../../agent-layout/README.md) — 2026-09-13 / 構造検査を完了
-- [x] [verify-docs/](../../verify-docs/) の20文書 — 2026-09-13 / 構造検査を完了
+- [x] [verify-docs/](../../verify-docs/) の20文書 — 2026-09-13 / タスク管理機能の説明を削除し、構造検査を完了
 
 ### 最終検査結果
 
@@ -38,7 +39,7 @@
 
 ## dedupe-docs
 
-最終実行: 2026-09-13T23:07:56+0900
+最終実行: 2026-09-13T23:15:58+0900
 
 - [x] リポジトリルート: [AGENTS.md](../../AGENTS.md)、[CLAUDE.md](../../CLAUDE.md)、[CONTRIBUTING.md](../../CONTRIBUTING.md)、[README.md](../../README.md) — 2026-09-13 / 意味的重複なし
 - [x] [agent-layout/README.md](../../agent-layout/README.md) — 2026-09-13 / 意味的重複なし
@@ -58,11 +59,11 @@
 
 ## tighten-docs
 
-最終実行: 2026-09-13T23:07:56+0900
+最終実行: 2026-09-13T23:15:58+0900
 
 - [x] リポジトリルート: [AGENTS.md](../../AGENTS.md)、[CLAUDE.md](../../CLAUDE.md)、[CONTRIBUTING.md](../../CONTRIBUTING.md)、[README.md](../../README.md) — 2026-09-13 / 安全に削れる表現なし
 - [x] [agent-layout/README.md](../../agent-layout/README.md) — 2026-09-13 / 安全に削れる表現なし
-- [x] [verify-docs/](../../verify-docs/) の20文書 — 2026-09-13 / 重複導入、リンクだけの手順見出し、旧形式例を削除
+- [x] [verify-docs/](../../verify-docs/) の20文書 — 2026-09-13 / タスク管理機能の説明を削除
 
 ### 最終検査結果
 
@@ -90,7 +91,7 @@
 | [verify-docs/.agents/skills/verify-docs/SKILL.md](../../verify-docs/.agents/skills/verify-docs/SKILL.md) | 6,490B | 6,036B | 7.0% | -544B | リンクだけの手順見出しを是正手順へ集約 |
 | [verify-docs/.agents/skills/verify-docs/references/agent-compatibility.md](../../verify-docs/.agents/skills/verify-docs/references/agent-compatibility.md) | 1,692B | 1,698B | -0.4% | 0B | 見出しを補正 |
 | [verify-docs/.agents/skills/verify-docs/references/checklist-summary.md](../../verify-docs/.agents/skills/verify-docs/references/checklist-summary.md) | 3,888B | 4,724B | -21.5% | -184B | 作業手順の重複を削除 |
-| [verify-docs/.agents/skills/verify-docs/references/checklist.md](../../verify-docs/.agents/skills/verify-docs/references/checklist.md) | 5,849B | 5,397B | 7.7% | -506B | 参照元列挙と旧形式例を削除 |
+| [verify-docs/.agents/skills/verify-docs/references/checklist.md](../../verify-docs/.agents/skills/verify-docs/references/checklist.md) | 5,849B | 5,083B | 13.1% | -314B | タスク管理機能の説明を削除 |
 | [verify-docs/.agents/skills/verify-docs/references/config-validation.md](../../verify-docs/.agents/skills/verify-docs/references/config-validation.md) | 680B | 680B | 0.0% | 0B | 変更なし |
 | [verify-docs/.agents/skills/verify-docs/references/config.md](../../verify-docs/.agents/skills/verify-docs/references/config.md) | 6,711B | 6,660B | 0.8% | 0B | 作業記録の説明を補正 |
 | [verify-docs/.agents/skills/verify-docs/references/duplicate-handling.md](../../verify-docs/.agents/skills/verify-docs/references/duplicate-handling.md) | 2,144B | 2,175B | -1.4% | +22B | 重複特定の参照先を是正手順へ変更 |
