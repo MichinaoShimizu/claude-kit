@@ -67,8 +67,9 @@ dedupe-docs / tighten-docs で対象文書を調べるときは、次のコマ�
 node scripts/extract-doc-blocks.mjs --root=. README.md docs/guide.md
 ```
 
-段落ごとに見出し階層、ソース位置、本文、Markdown記法を含む元ソースのバイト数を
-返す。詳しい使い方は各スキルの手順を参照。
+段落ごとに見出し階層、ソース位置、本文、元ソースのバイト数を返す。見出しごとの
+`bytes` と `paragraphCount` は子見出しを含む集計。親子の値は重複するため合算しない。
+詳しい使い方は各スキルの手順を参照。
 
 既存文書に違反があるリポジトリでは、最初に次を実行する。
 

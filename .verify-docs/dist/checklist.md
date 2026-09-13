@@ -52,14 +52,22 @@
 - 作業にかかった時間: 2026-09-13 10:02:01 〜 10:02:51（所要50秒）
 - 全体のサイズ変化: 62,173B → 61,242B（931B減、1.5%減）
 - 常時読み込み→オンデマンド化: 該当なし
-## tighten-docs — 2026-09-13T13:00:46+0900
+## tighten-docs — 2026-09-13T13:05:59+0900
 
-- [ ] verify-docs/scripts/markdown-structure.mjs — 見出し配下のサイズ集計と階層規則を確認
-- [ ] verify-docs/scripts/extract-doc-blocks.mjs — 集計結果の出力形式と既存CLI互換性を確認
-- [ ] verify-docs/scripts/extract-doc-blocks.test.mjs — 空文書・入れ子見出し・バイト数のテストを確認
-- [ ] verify-docs/.agents/skills/tighten-docs/SKILL.md — サイズ集計の用途と意味判断の境界を確認
-- [ ] verify-docs/README.md — tighten向け集計機能の説明を確認
-- [ ] verify-docs/ci-selfcheck.sh・install.sh — インストールと自己検査の対象を確認
+- [x] verify-docs/scripts/markdown-structure.mjs — 2026-09-13 / 子見出しを含む節バイト数・段落数を実装
+- [x] verify-docs/scripts/extract-doc-blocks.mjs — 2026-09-13 / 既存JSONへ見出し指標を追加、CLI互換
+- [x] verify-docs/scripts/extract-doc-blocks.test.mjs — 2026-09-13 / 入れ子・兄弟境界を含む5テスト通過
+- [x] verify-docs/.agents/skills/tighten-docs/SKILL.md — 2026-09-13 / 集計範囲と親子値の重複を説明
+- [x] verify-docs/README.md — 2026-09-13 / 新しい見出し指標を説明
+- [x] verify-docs/ci-selfcheck.sh・install.sh — 2026-09-13 / 同梱CLIと自己検査で実行確認
+
+### 総評
+
+- 検査対象: 2文書（抽出ヘルパー5テスト）
+- 冗長表現の削減: 0件（今回は抽出指標の仕様追記）
+- 作業にかかった時間: 2026-09-13 13:05:59 〜 13:08:04（所要2分05秒）
+- 全体のサイズ変化: 8,294B → 8,628B（334B増）
+- 常時読み込み→オンデマンド化: 該当なし
 
 ### 総評
 

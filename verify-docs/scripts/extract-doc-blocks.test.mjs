@@ -25,6 +25,11 @@ test('extracts CommonMark prose with heading context, source positions, and raw 
     { level: 1, text: 'はじめに' },
     { level: 2, text: '詳細' },
   ]);
+  const firstHeadingOffset = source.indexOf('# はじめに');
+  const secondHeadingOffset = source.indexOf('## 詳細');
+  assert.equal(result.headings[0].bytes, Buffer.byteLength(source.slice(firstHeadingOffset), 'utf8'));
+  assert.equal(result.headings[1].bytes, Buffer.byteLength(source.slice(secondHeadingOffset), 'utf8'));
+  assert.deepEqual(result.headings.map(({ paragraphCount }) => paragraphCount), [3, 2]);
   assert.deepEqual(result.blocks.map(({ headingPath, text }) => ({ headingPath, text })), [
     { headingPath: ['はじめに'], text: '説明 重要 と code。' },
     { headingPath: ['はじめに', '詳細'], text: '引用文' },
@@ -50,7 +55,28 @@ test('CLI returns multiple requested documents as JSON with repository-relative 
     const documents = JSON.parse(output);
     assert.deepEqual(documents.map(({ path }) => path), ['README.md', 'docs/guide.md']);
     assert.equal(documents[1].blocks[0].headingPath.join('/'), 'Guide');
+    assert.equal(documents[1].headings[0].bytes, Buffer.byteLength('## Guide\n\nRead this.\n', 'utf8'));
+    assert.equal(documents[1].headings[0].paragraphCount, 1);
   });
+});
+
+test('section metrics stop at the next heading of the same or higher level', () => {
+  const source = '# First\n\nFirst section.\n\n## Child\n\nChild section.\n\n# Second\n\nSecond section.\n';
+  const result = extractProseBlocks(source);
+  const firstOffset = source.indexOf('# First');
+  const secondOffset = source.indexOf('# Second');
+  const childOffset = source.indexOf('## Child');
+
+  assert.deepEqual(result.headings.map(({ paragraphCount }) => paragraphCount), [2, 1, 1]);
+  assert.equal(
+    result.headings[0].bytes,
+    Buffer.byteLength(source.slice(firstOffset, secondOffset), 'utf8'),
+  );
+  assert.equal(
+    result.headings[1].bytes,
+    Buffer.byteLength(source.slice(childOffset, secondOffset), 'utf8'),
+  );
+  assert.equal(result.headings[2].bytes, Buffer.byteLength(source.slice(secondOffset), 'utf8'));
 });
 
 test('CLI rejects paths outside the selected root', () => {

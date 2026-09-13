@@ -50,6 +50,8 @@ node scripts/extract-doc-blocks.mjs --root=. README.md docs/guide.md
 対象が多い場合は、チェックリストのパスを複数指定する。段落の `bytes` はMarkdown
 記法を含む元ソース範囲のサイズである。抽出結果は候補の棚卸しに限り、冗長性や
 安全に削除できるかを判定しない。必ず原文と「守ること」を確認して判断する。
+`headings` の `bytes` は見出し行から次の同階層以上の見出し直前までを含み、子見出しの
+内容も含む。`paragraphCount` も子見出し以下を含むため、親子の値を合算しない。
 
 ### 2. 冗長表現削減
 

@@ -93,6 +93,19 @@ export function extractProseBlocks(
     blocks.push(block);
   }
 
+  for (let index = 0; index < outline.length; index++) {
+    const heading = outline[index];
+    let nextSection = index + 1;
+    while (nextSection < outline.length && outline[nextSection].level > heading.level) nextSection++;
+    const endLine = outline[nextSection]?.sourcepos.start.line ?? Number.POSITIVE_INFINITY;
+    const startOffset = lineStarts[heading.sourcepos.start.line - 1];
+    const endOffset = Number.isFinite(endLine) ? lineStarts[endLine - 1] : source.length;
+    heading.bytes = Buffer.byteLength(source.slice(startOffset, endOffset), 'utf8');
+    heading.paragraphCount = blocks.filter(({ sourcepos }) =>
+      sourcepos.start.line >= heading.sourcepos.start.line && sourcepos.start.line < endLine,
+    ).length;
+  }
+
   return {
     bytes: Buffer.byteLength(source, 'utf8'),
     headings: outline,
