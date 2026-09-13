@@ -19,7 +19,7 @@ verify-docs の検査はサイズ超過という結果のみを見る。冗長�
 ## 前提
 
 対象リポジトリに verify-docs 一式（`scripts/verify-docs.mjs` と
-`.claude/skills/verify-docs/`）が導入済みであること。検査対象・チェックリスト
+`.agents/skills/verify-docs/`）が導入済みであること。検査対象・チェックリスト
 規約は流用する。verify-docs 自体の規約は
 [verify-docs/SKILL.md](../verify-docs/SKILL.md) を参照する。
 

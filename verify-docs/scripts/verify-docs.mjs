@@ -2,7 +2,7 @@
 /**
  * verify-docs —— 文書構造を検査する。
  *
- * 生成AIエージェントに読ませる CLAUDE.md / README.md / docs/ / .claude/skills/ のような
+ * 生成AIエージェントに読ませる CLAUDE.md / README.md / docs/ / .agents/skills/ のような
  * 階層的な文書群は、「必要な時にだけ必要な文書が読まれる」ように作っても、放っておくと
  * 3 つの壊れ方をする。
  *
@@ -15,7 +15,7 @@
  *
  * このスクリプトは3つとも検査する。チェッカー（このスクリプト）と、プレイブック
  * （見つかったものをどう直すか）は分けてある。プレイブックの手順は
- * `.claude/skills/verify-docs/SKILL.md`。
+ * `.agents/skills/verify-docs/SKILL.md`。
  *
  *   node scripts/verify-docs.mjs
  *
@@ -24,7 +24,8 @@
  *   - 断片（`#見出し`）が、その文書の見出しに実在するか
  *   - 本文にバッククォートで書いたリポジトリ内のパスが実在するか
  *   - entryPoints・スキルの SKILL.md 以外の文書のうち、docsDir 配下の文書が
- *     どこかから参照されているか（孤立していないか）。`.claude/` 配下で
+ *     どこかから参照されているか（孤立していないか）。エージェント設定用
+ *     ディレクトリ配下で
  *     docsDir にもスキルディレクトリにも属さない文書（エージェント定義など）は
  *     孤立チェックの対象外（サイズ超過・重複チェックは対象。詳細は下記
  *     「検査対象の集め方」参照）
@@ -41,9 +42,9 @@
  *   出し入れには使わない。**特定のディレクトリだけを見る方式（旧仕様）は、そこに
  *   置き忘れた文書が黙って検査から漏れる事故を招くため採用しない。**
  *
- *   ただし孤立チェックだけは対象の狭め方が異なる。`.claude/` 配下（`skillsDir`
- *   自身の SKILL.md 一式を除く）で `docsDir` にも属さない文書（エージェント定義
- *   など、スキル以外の設定ファイル）は、走査（=リンク切れ・サイズ・重複の検査）
+ *   ただし孤立チェックだけは対象の狭め方が異なる。`agentConfigDirs` 配下
+ *   （`skillsDir` 自身の SKILL.md 一式を除く）で `docsDir` にも属さない文書
+ *   （エージェント定義など、スキル以外の設定ファイル）は、走査（=リンク切れ・サイズ・重複の検査）
  *   には含まれたまま、孤立チェックのみ免除される。README・SKILL.md から参照
  *   されない運用が前提の設定ファイル群まで「孤立」として毎回検出し続けるのを
  *   避けるための意図的な例外であり、見落としではない。
@@ -54,8 +55,9 @@
  *     {
  *       "entryPoints": ["README.md", "CLAUDE.md", "AGENTS.md"],
  *       "docsDir": "docs",
- *       "skillsDir": ".claude/skills",
- *       "pathRoots": ["src/", "docs/", "scripts/", ".claude/", ".github/"],
+ *       "skillsDir": ".agents/skills",
+ *       "pathRoots": ["src/", "docs/", "scripts/", ".agents/", ".claude/", ".kiro/", ".github/"],
+ *       "agentConfigDirs": [".agents", ".claude", ".kiro"],
  *       "excludePaths": ["node_modules/", ".git/", "vendor/", "dist/", "build/", ".verify-docs/"],
  *       "maxDocBytes": 7000,
  *       "minDuplicateChars": 60,
@@ -91,7 +93,7 @@
  *                   すでにファイルがあれば上書きせず失敗する（手で消してから）
  */
 
-import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, lstatSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 
 const args = process.argv.slice(2);
@@ -107,8 +109,9 @@ const AS_JSON = flag('json');
 const DEFAULTS = {
   entryPoints: ['README.md', 'CLAUDE.md', 'AGENTS.md'],
   docsDir: 'docs',
-  skillsDir: '.claude/skills',
-  pathRoots: ['src/', 'docs/', 'scripts/', '.claude/', '.github/'],
+  skillsDir: '.agents/skills',
+  pathRoots: ['src/', 'docs/', 'scripts/', '.agents/', '.claude/', '.kiro/', '.github/'],
+  agentConfigDirs: ['.agents', '.claude', '.kiro'],
   excludePaths: ['node_modules/', '.git/', 'vendor/', 'dist/', 'build/', '.verify-docs/'],
   maxDocBytes: 7000,
   minDuplicateChars: 60,
@@ -119,9 +122,15 @@ const DEFAULTS = {
 
 function loadConfig() {
   const path = option('config', join(ROOT, 'verify-docs.config.json'));
-  if (!existsSync(path)) return DEFAULTS;
+  const detectedSkillsDir = [DEFAULTS.skillsDir, '.claude/skills', '.kiro/skills'].find((dir) =>
+    existsSync(join(ROOT, dir)),
+  );
+  const defaults = detectedSkillsDir
+    ? { ...DEFAULTS, skillsDir: detectedSkillsDir }
+    : DEFAULTS;
+  if (!existsSync(path)) return defaults;
   const user = JSON.parse(readFileSync(path, 'utf8'));
-  return { ...DEFAULTS, ...user };
+  return { ...defaults, ...user };
 }
 
 const config = loadConfig();
@@ -156,7 +165,10 @@ function walk(dir, hits = []) {
   for (const name of readdirSync(dir)) {
     const full = join(dir, name);
     const rel = relative(ROOT, full);
-    if (statSync(full).isDirectory()) {
+    const info = lstatSync(full);
+    // 互換用の別名を二重走査しない。リンク先の正本側を検査する。
+    if (info.isSymbolicLink()) continue;
+    if (info.isDirectory()) {
       if (isExcluded(rel)) continue;
       walk(full, hits);
     } else if (name.endsWith('.md')) {
@@ -317,8 +329,8 @@ for (const doc of documents) {
     continue;
   }
 
-  if (doc.startsWith(`${config.skillsDir.split('/')[0]}/`) && doc !== config.skillsDir) {
-    // .claude/ 配下の SKILL.md 以外の設定ファイルなどは対象外
+  if (config.agentConfigDirs.some((dir) => doc.startsWith(`${dir.replace(/\/$/, '')}/`))) {
+    // エージェント設定ディレクトリ配下の SKILL.md 以外の設定ファイルなどは対象外
     if (!doc.startsWith(config.docsDir)) continue;
   }
   if (referenced.has(doc)) continue;

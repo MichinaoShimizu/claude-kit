@@ -1,40 +1,32 @@
 # claude-kit
 
-Claude Code などの生成AIエージェント向け、リポジトリへ組み込んで使う
-再利用可能パッケージの置き場所。スキル単体のパッケージ・専用サブエージェント
-を伴うパッケージを同一形式で管理する。1パッケージ = 1ディレクトリとし、
-コピー元は本リポジトリの各ディレクトリそのものとする。
+Claude Code・Codex・Kiro などの生成AIエージェント向けパッケージ集。
+対象リポジトリへフォルダ単位で組み込んで使う。
 
-| パッケージ                  | 何をするか                                                                                                                |
-| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| [verify-docs](verify-docs/) | CLAUDE.md・AGENTS.md・README・docs のような階層的な文書群を「必要な時にだけ読まれる」構造に保つ（参照整合性・サイズ予算・重複検知。言い換えによる重複は同梱の dedupe-docs スキル、冗長な言い回しの削減は同梱の tighten-docs スキルが担う） |
+| パッケージ | 何をするか |
+| --- | --- |
+| [verify-docs](verify-docs/) | 階層的な文書群の参照整合性・サイズ・重複を検査する |
 
 ## 使い方
 
-対象リポジトリに、使用するパッケージのディレクトリの中身をそのまま
-コピーする。導入手順・CI への組み込み方は各パッケージの README
-（例: [verify-docs/README.md](verify-docs/README.md)）を参照する。
+使用するパッケージの中身を対象リポジトリの直下へコピーする。導入手順と
+CIへの組み込み方は、各パッケージのREADMEを参照する。
 
-貢献手順（新規パッケージの追加方法など）は
-[CONTRIBUTING.md](CONTRIBUTING.md) を参照する。
+- [verify-docsの導入手順](verify-docs/README.md)
+- [共通の作業指示](AGENTS.md)
+- [Claude Code・Codex・Kiroでスキルを共用する構成](verify-docs/.agents/skills/verify-docs/references/agent-compatibility.md)
+- [パッケージの追加・改修手順](CONTRIBUTING.md)
+
+Claude Codeは[CLAUDE.md](CLAUDE.md)を介して、正本である
+[AGENTS.md](AGENTS.md)を読み込む。
 
 ## 1パッケージ = 1フォルダ
 
-各パッケージは自身のフォルダ内に必要な構成要素（スキル本体・専用
-サブエージェント・付属スクリプト・README など）を全て保持する。
-利用側はフォルダ単位で移設すれば構成要素が揃って移動する。
+1パッケージ = 1フォルダ。スキル本体・専用サブエージェント・付属スクリプト・
+READMEなど、必要な構成要素を同じフォルダに格納する。利用側はフォルダ単位で
+移設できる。
 
 ## 本リポジトリ自身の CI
 
-各パッケージは自身のディレクトリに自身の検査を適用する
-（ドッグフーディング）。加えてリポジトリ直下にも verify-docs を適用する
-（各パッケージのディレクトリは
-[verify-docs.config.json](verify-docs.config.json) の `excludePaths` で
-除外し、二重検査を避ける）。実行主体は
-[.github/workflows/ci.yml](.github/workflows/ci.yml)。
-
-パッケージの自己検査は `ci.yml` を編集せずに追加できる。フォルダ直下に
-実行可能な `ci-selfcheck.sh` を配置すると、CI がリポジトリ直下から
-`*/ci-selfcheck.sh` を自動探索して実行する（例:
-[verify-docs/ci-selfcheck.sh](verify-docs/ci-selfcheck.sh)）。自己検査を
-持たないパッケージには不要。
+本リポジトリでは、各パッケージとリポジトリ直下にverify-docsを適用する。
+自己検査の追加方法とCIの構成は[CONTRIBUTING.md](CONTRIBUTING.md)を参照する。

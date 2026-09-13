@@ -6,7 +6,7 @@ set -euo pipefail
 
 dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "$dir/.." && pwd)"
-rel_dir="$(realpath --relative-to="$repo_root" "$dir")"
+rel_dir="${dir#"$repo_root"/}"
 
 node "$dir/scripts/verify-docs.mjs" --root="$rel_dir"
 node --test "$dir/scripts/verify-docs.test.mjs"
