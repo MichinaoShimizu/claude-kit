@@ -68,13 +68,22 @@ node scripts/extract-doc-blocks.mjs --root=. README.md docs/guide.md
 ```
 
 段落ごとに見出し階層、ソース位置、本文、元ソースのバイト数を返す。見出しごとの
-`bytes` と `paragraphCount` は子見出しを含む集計。親子の値は重複するため合算しない。
+`headingPath`・`bytes`・`paragraphCount`・`endLine` は、チェックリストの対象節と
+TODOの分割候補を特定するために使える。`bytes` と `paragraphCount` は子見出しを
+含む集計であり、親子の値は重複するため合算しない。
 詳しい使い方は各スキルの手順を参照。
 
 既存文書に違反があるリポジトリでは、最初に次を実行する。
 
 ```bash
 node scripts/verify-docs.mjs --init-todo
+```
+
+通常の検査は、JSON出力に違反位置（行・列・見出し階層）、重複箇所、サイズ超過時の
+大きな節を含める。チェックリストや総評を作るときは、この出力を根拠として使う。
+
+```bash
+node scripts/verify-docs.mjs --json
 ```
 
 ### 3スキルの連続実行

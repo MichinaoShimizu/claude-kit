@@ -68,7 +68,12 @@ export function extractProseBlocks(
       const text = markdownText(node).replace(/\s+/g, ' ').trim();
       while (headings.length && headings.at(-1).level >= node.level) headings.pop();
       headings.push({ level: node.level, text });
-      outline.push({ level: node.level, text, sourcepos: sourcePosition(node) });
+      outline.push({
+        level: node.level,
+        text,
+        headingPath: headings.map(({ text: heading }) => heading),
+        sourcepos: sourcePosition(node),
+      });
       continue;
     }
 
@@ -101,6 +106,9 @@ export function extractProseBlocks(
     const startOffset = lineStarts[heading.sourcepos.start.line - 1];
     const endOffset = Number.isFinite(endLine) ? lineStarts[endLine - 1] : source.length;
     heading.bytes = Buffer.byteLength(source.slice(startOffset, endOffset), 'utf8');
+    heading.endLine = Number.isFinite(endLine)
+      ? endLine - 1
+      : source.split(/\r?\n/).length;
     heading.paragraphCount = blocks.filter(({ sourcepos }) =>
       sourcepos.start.line >= heading.sourcepos.start.line && sourcepos.start.line < endLine,
     ).length;
