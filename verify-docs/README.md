@@ -18,8 +18,18 @@
 - **tighten-docsスキル**（`.agents/skills/tighten-docs/SKILL.md`）
   - 意味を変えない冗長な言い回しの削減
 
+## 3スキルの連続実行
+
 3つのスキルは独立しており、自動的には連続実行されない。Claude Code・Codex・
-Kiroのいずれでも、次の共通依頼で連続実行する。
+Kiroで個別に呼び出す場合は次の記法を使う。
+
+| エージェント | 個別呼び出し記法 |
+| --- | --- |
+| Claude Code | `/verify-docs`・`/dedupe-docs`・`/tighten-docs` |
+| Kiro | `/verify-docs`・`/dedupe-docs`・`/tighten-docs` |
+| Codex | `$verify-docs`・`$dedupe-docs`・`$tighten-docs` |
+
+3つを順番に実行する場合は、どのエージェントでも次の共通依頼を使う。
 
 > verify-docs・dedupe-docs・tighten-docsを順番に全部実行して
 
