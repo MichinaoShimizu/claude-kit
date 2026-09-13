@@ -34,6 +34,8 @@ GitHub Actionsのワークフローは自動追加しない。CIへの組み込�
 ```text
 your-repo/
 ├── scripts/verify-docs.mjs
+├── scripts/vendor/commonmark.cjs
+├── scripts/vendor/commonmark-LICENSE.txt
 ├── .agents/skills/verify-docs/
 ├── .agents/skills/dedupe-docs/
 └── .agents/skills/tighten-docs/
@@ -41,6 +43,10 @@ your-repo/
 
 既定値のまま開始し、対象リポジトリと異なる項目だけ
 `verify-docs.config.json`で上書きする。
+
+Markdown構文解析にはCommonMark.js 0.31.2を同梱しているため、導入先で
+追加のnpmインストールは不要。ライセンスは
+`scripts/vendor/commonmark-LICENSE.txt`を参照。
 
 ## 実行方法
 

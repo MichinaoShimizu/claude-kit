@@ -16,6 +16,8 @@ trap 'rm -rf "$install_target"' EXIT
 (cd "$install_target" && bash "$dir/install.sh" --source "$dir")
 (cd "$install_target" && bash "$dir/install.sh" --source "$dir")
 test -f "$install_target/scripts/verify-docs.mjs"
+test -f "$install_target/scripts/vendor/commonmark.cjs"
+node "$install_target/scripts/verify-docs.mjs" --root="$install_target/scripts"
 test -f "$install_target/.agents/skills/verify-docs/SKILL.md"
 test -f "$install_target/.agents/skills/dedupe-docs/SKILL.md"
 test -f "$install_target/.agents/skills/tighten-docs/SKILL.md"

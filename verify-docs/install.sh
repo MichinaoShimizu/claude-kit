@@ -67,6 +67,7 @@ fi
 
 files=(
   scripts/verify-docs.mjs
+  scripts/vendor
   .agents/skills/verify-docs
   .agents/skills/dedupe-docs
   .agents/skills/tighten-docs

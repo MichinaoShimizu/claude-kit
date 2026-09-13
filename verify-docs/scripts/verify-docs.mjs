@@ -95,6 +95,9 @@
 
 import { existsSync, lstatSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
+import { createRequire } from 'node:module';
+
+const commonmark = createRequire(import.meta.url)('./vendor/commonmark.cjs');
 
 const args = process.argv.slice(2);
 const flag = (name) => args.includes(`--${name}`);
@@ -319,106 +322,32 @@ function stripFences(text) {
     .join('\n');
 }
 
-/** コメントとインラインコードを空白化し、通常のMarkdown本文だけを走査する。 */
-function stripNonMarkdown(text) {
-  const blank = (value) => value.replace(/[^\n]/g, ' ');
-  let result = text.replace(/<!--[\s\S]*?-->/g, blank);
-  return result.replace(/(`+)([\s\S]*?)\1/g, (match) => blank(match));
-}
-
-/** インラインリンクと参照リンクを抽出する。 */
-function markdownLinkTargets(text) {
-  const normalizeLabel = (label) => label.replace(/\\([\\[\]])/g, '$1').trim().replace(/\s+/g, ' ').toLowerCase();
-  const definitions = new Map();
-  const definitionPattern = /^ {0,3}\[([^\n\]]+)\]:[ \t]*(?:<([^>\n]*)>|(\S+))(?:[ \t]+.*)?$/gm;
-  let visibleText = text.replace(definitionPattern, (line, label, angleTarget, plainTarget) => {
-    const key = normalizeLabel(label);
-    if (!definitions.has(key)) {
-      definitions.set(key, (angleTarget ?? plainTarget).replace(/\\([()<>\\])/g, '$1'));
-    }
-    return line.replace(/[^\n]/g, ' ');
-  });
-
-  const targets = [];
-  for (let i = 0; i < visibleText.length; i++) {
-    if (visibleText[i] !== '[') continue;
-    let closeLabel = i + 1;
-    while (closeLabel < visibleText.length && visibleText[closeLabel] !== ']' && visibleText[closeLabel] !== '\n') {
-      if (visibleText[closeLabel] === '\\') closeLabel++;
-      closeLabel++;
-    }
-    if (visibleText[closeLabel] !== ']') continue;
-
-    const label = visibleText.slice(i + 1, closeLabel);
-    if (visibleText[closeLabel + 1] === '[') {
-      let closeReference = closeLabel + 2;
-      while (closeReference < visibleText.length && visibleText[closeReference] !== ']' && visibleText[closeReference] !== '\n') {
-        if (visibleText[closeReference] === '\\') closeReference++;
-        closeReference++;
-      }
-      if (visibleText[closeReference] !== ']') continue;
-      const identifier = visibleText.slice(closeLabel + 2, closeReference) || label;
-      const key = normalizeLabel(identifier);
-      if (definitions.has(key)) targets.push({ target: definitions.get(key) });
-      else targets.push({ missingReference: `[${label}][${identifier}]` });
-      i = closeReference;
-      continue;
-    }
-
-    if (visibleText[closeLabel + 1] !== '(') {
-      const target = definitions.get(normalizeLabel(label));
-      if (target !== undefined) targets.push({ target });
-      continue;
-    }
-
-    let cursor = closeLabel + 2;
-    while (/\s/.test(visibleText[cursor] ?? '') && visibleText[cursor] !== '\n') cursor++;
-    const angle = visibleText[cursor] === '<';
-    if (angle) cursor++;
-    const start = cursor;
-    let depth = 0;
-    while (cursor < visibleText.length) {
-      const char = visibleText[cursor];
-      if (char === '\\') {
-        cursor += 2;
-        continue;
-      }
-      if (angle) {
-        if (char === '>') break;
-      } else {
-        if (char === '(') depth++;
-        else if (char === ')') {
-          if (depth === 0) break;
-          depth--;
-        } else if (/\s/.test(char)) break;
-      }
-      cursor++;
-    }
-    if (cursor === start || (angle && visibleText[cursor] !== '>')) continue;
-    const target = visibleText.slice(start, cursor).replace(/\\([()<>\\])/g, '$1');
-    if (angle) cursor++;
-    while (/\s/.test(visibleText[cursor] ?? '') && visibleText[cursor] !== '\n') cursor++;
-    // A destination may be followed by an optional title; accept it only if the
-    // outer closing parenthesis is present on the same line.
-    if (visibleText[cursor] !== ')') {
-      const end = visibleText.indexOf(')', cursor);
-      if (end === -1 || visibleText.slice(cursor, end).includes('\n')) continue;
-    }
-    targets.push({ target });
-    i = closeLabel;
+function headingText(node) {
+  let text = '';
+  for (let child = node.firstChild; child; child = child.next) {
+    if (child.type === 'text' || child.type === 'code') text += child.literal ?? '';
+    else if (child.type === 'softbreak' || child.type === 'linebreak') text += ' ';
+    else if (child.type !== 'html_inline' && child.firstChild) text += headingText(child);
   }
-  return targets;
+  return text;
 }
 
 const bodies = new Map();
+const syntaxTrees = new Map();
 const fragments = new Map();
 
 for (const doc of documents) {
-  const body = stripFences(readFileSync(join(ROOT, doc), 'utf8'));
+  const source = readFileSync(join(ROOT, doc), 'utf8');
+  const tree = new commonmark.Parser().parse(source);
+  syntaxTrees.set(doc, tree);
+  const body = stripFences(source);
   bodies.set(doc, body);
   const ids = new Set();
-  for (const [, heading] of body.matchAll(/^#{1,6}\s+(.+)$/gm)) {
-    const base = slug(heading);
+  const walker = tree.walker();
+  let event;
+  while ((event = walker.next())) {
+    if (!event.entering || event.node.type !== 'heading') continue;
+    const base = slug(headingText(event.node));
     let id = base;
     let suffix = 1;
     while (ids.has(id)) id = `${base}-${suffix++}`;
@@ -440,18 +369,27 @@ function noteReference(target, from) {
   referencedBy.get(normalized).add(from);
 }
 
+function decodeLinkPart(value) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
 for (const doc of documents) {
   const from = dirname(join(ROOT, doc));
+  const walker = syntaxTrees.get(doc).walker();
+  let event;
+  while ((event = walker.next())) {
+    const node = event.node;
+    if (!event.entering || !['link', 'image'].includes(node.type)) continue;
+    const target = node.destination;
+    if (!target || /^[A-Za-z][A-Za-z0-9+.-]*:/.test(target)) continue;
 
-  for (const link of markdownLinkTargets(stripNonMarkdown(bodies.get(doc)))) {
-    if (link.missingReference) {
-      fail('link', doc, link.missingReference, '参照リンクの定義がない');
-      continue;
-    }
-    const { target } = link;
-    if (/^(https?:|mailto:|tel:)/.test(target)) continue;
-
-    const [path, fragment] = target.split('#');
+    const [rawPath, rawFragment] = target.split('#');
+    const path = decodeLinkPart(rawPath);
+    const fragment = rawFragment === undefined ? undefined : decodeLinkPart(rawFragment);
 
     if (path === '') {
       if (fragment && !fragments.get(doc).has(fragment.toLowerCase())) {

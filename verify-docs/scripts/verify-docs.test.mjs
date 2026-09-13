@@ -59,6 +59,17 @@ test('detects broken link', () => {
   rmSync(root, { recursive: true, force: true });
 });
 
+test('checks image destinations and ignores external CommonMark autolinks', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n\n<https://example.com>\n\n![missing image](images/missing.png)\n',
+  });
+  const failures = run(root).failures;
+  assert.equal(failures.length, 1);
+  assert.equal(failures[0].kind, 'link');
+  assert.equal(failures[0].target, 'images/missing.png');
+  rmSync(root, { recursive: true, force: true });
+});
+
 test('ignores link syntax inside inline code and HTML comments', () => {
   const root = makeRepo({
     'README.md': '# Repo\n\n`[example](missing.md)`\n\n<!-- [example](also-missing.md) -->\n',
@@ -101,7 +112,7 @@ test('supports full, collapsed, and shortcut reference links', () => {
   rmSync(root, { recursive: true, force: true });
 });
 
-test('detects unresolved and broken reference links', () => {
+test('treats unresolved references as text and detects broken defined destinations', () => {
   const root = makeRepo({
     'README.md': [
       '# Repo',
@@ -114,8 +125,26 @@ test('detects unresolved and broken reference links', () => {
     ].join('\n'),
   });
   const failures = run(root).failures;
-  assert.ok(failures.some((failure) => failure.kind === 'link' && failure.reason.includes('定義がない')));
+  assert.ok(!failures.some((failure) => failure.kind === 'link' && failure.reason.includes('定義がない')));
   assert.ok(failures.some((failure) => failure.kind === 'link' && failure.target === 'docs/missing.md'));
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('ignores link-like content in CommonMark code blocks and parses setext headings', () => {
+  const root = makeRepo({
+    'README.md': [
+      '# Repo',
+      '',
+      '~~~markdown',
+      '[fake](missing.md)',
+      '~~~',
+      '',
+      '[guide](docs/guide.md#hello-code-world)',
+      '',
+    ].join('\n'),
+    'docs/guide.md': 'Hello *Code* `World`\n---\n',
+  });
+  assert.deepEqual(run(root).failures, []);
   rmSync(root, { recursive: true, force: true });
 });
 
