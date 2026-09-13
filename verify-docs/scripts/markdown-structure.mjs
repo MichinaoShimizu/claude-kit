@@ -22,6 +22,22 @@ export function markdownText(node) {
   return text;
 }
 
+export function markdownInlineSignature(node) {
+  const signature = [];
+  const stack = [node];
+  while (stack.length) {
+    const current = stack.pop();
+    if (current.type === 'code') signature.push(['code', current.literal ?? '']);
+    else if (current.type === 'link' || current.type === 'image') {
+      signature.push([current.type, current.destination ?? '', current.title ?? '']);
+    }
+    const children = [];
+    for (let child = current.firstChild; child; child = child.next) children.push(child);
+    stack.push(...children.reverse());
+  }
+  return JSON.stringify(signature);
+}
+
 export function sourcePosition(node) {
   const [[startLine, startColumn], [endLine, endColumn]] = node.sourcepos;
   return {
@@ -30,8 +46,10 @@ export function sourcePosition(node) {
   };
 }
 
-export function extractProseBlocks(source) {
-  const tree = parseMarkdown(source);
+export function extractProseBlocks(
+  source,
+  { includeSignatures = false, tree = parseMarkdown(source) } = {},
+) {
   const lineStarts = [0];
   for (let index = 0; index < source.length; index++) {
     if (source[index] === '\n') lineStarts.push(index + 1);
@@ -63,14 +81,16 @@ export function extractProseBlocks(source) {
     const nextLineStart = lineStarts[position.end.line];
     const endOffset = nextLineStart === undefined ? source.length : nextLineStart - 1;
     const sourceText = source.slice(startOffset, endOffset);
-    blocks.push({
+    const block = {
       type: 'paragraph',
       headingPath: headings.map(({ text: heading }) => heading),
       sourcepos: position,
       bytes: Buffer.byteLength(sourceText, 'utf8'),
       text,
       source: sourceText,
-    });
+    };
+    if (includeSignatures) block.signature = markdownInlineSignature(node);
+    blocks.push(block);
   }
 
   return {

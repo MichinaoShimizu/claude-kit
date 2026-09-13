@@ -339,6 +339,53 @@ test('detects duplicate paragraphs across docs', () => {
   rmSync(root, { recursive: true, force: true });
 });
 
+test('AST duplicate comparison ignores inline emphasis differences', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n\n[a](docs/a.md)\n[b](docs/b.md)\n',
+    'docs/a.md': '# A\n\nThis sentence contains **important wording** that should count as the same prose.\n',
+    'docs/b.md': '# B\n\nThis sentence contains important wording that should count as the same prose.\n',
+    'verify-docs.config.json': JSON.stringify({ minDuplicateChars: 10 }),
+  });
+  assert.ok(run(root).failures.some((f) => f.kind === 'duplicate'));
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('AST duplicate comparison distinguishes link destinations and code spans', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n\n[a](docs/a.md)\n[b](docs/b.md)\n',
+    'docs/a.md': '# A\n\nThis sentence has a [long linked phrase with matching text](https://one.example/path) and enough prose.\n\nThis sentence keeps `code literal` distinct from plain prose in a paragraph.\n',
+    'docs/b.md': '# B\n\nThis sentence has a [long linked phrase with matching text](https://two.example/path) and enough prose.\n\nThis sentence keeps code literal distinct from plain prose in a paragraph.\n',
+    'verify-docs.config.json': JSON.stringify({ minDuplicateChars: 10, checkNearDuplicates: true }),
+  });
+  const failures = run(root).failures;
+  assert.ok(!failures.some((f) => f.kind === 'duplicate'));
+  assert.ok(!failures.some((f) => f.kind === 'near-duplicate'));
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('AST duplicate comparison finds prose in list and blockquote paragraphs', () => {
+  const shared = 'This paragraph is long enough to identify the same content across block containers.';
+  const root = makeRepo({
+    'README.md': '# Repo\n\n[a](docs/a.md)\n[b](docs/b.md)\n',
+    'docs/a.md': `# A\n\n- ${shared}\n`,
+    'docs/b.md': `# B\n\n> ${shared}\n`,
+  });
+  assert.ok(run(root).failures.some((f) => f.kind === 'duplicate'));
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('AST duplicate extraction continues to exclude pipe-table rows and code blocks', () => {
+  const row = '| This table row is long enough to pass the duplicate detection character limit | Value |';
+  const code = 'This code-only paragraph should never count as prose in duplicate comparisons.';
+  const root = makeRepo({
+    'README.md': '# Repo\n\n[a](docs/a.md)\n[b](docs/b.md)\n',
+    'docs/a.md': `# A\n\n${row}\n\n\n    ${code}\n`,
+    'docs/b.md': `# B\n\n${row}\n\n\n    ${code}\n`,
+  });
+  assert.ok(!run(root).failures.some((f) => f.kind === 'duplicate'));
+  rmSync(root, { recursive: true, force: true });
+});
+
 test('allow-duplicate marker suppresses duplicate check', () => {
   const shared =
     'This paragraph is intentionally long enough to trigger duplicate detection logic here.';

@@ -95,7 +95,7 @@
 
 import { existsSync, lstatSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
-import { markdownText, parseMarkdown } from './markdown-structure.mjs';
+import { extractProseBlocks, markdownText, parseMarkdown } from './markdown-structure.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name) => args.includes(`--${name}`);
@@ -321,12 +321,14 @@ function stripFences(text) {
 }
 
 const bodies = new Map();
+const sources = new Map();
 const syntaxTrees = new Map();
 const fragments = new Map();
 
 for (const doc of documents) {
   const source = readFileSync(join(ROOT, doc), 'utf8');
   const tree = parseMarkdown(source);
+  sources.set(doc, source);
   syntaxTrees.set(doc, tree);
   const body = stripFences(source);
   bodies.set(doc, body);
@@ -484,8 +486,8 @@ for (const path of todo.keys()) {
 
 /* ---------- 5. 文書間の重複 ---------- */
 
-/* コピーしてから片方だけ直すと、矛盾した2つの説明が残る。同じ段落（正規化した
- * 空白を除いて完全一致）が複数の文書に出てきたら、1か所にまとめてリンクするよう促す。
+/* コピーしてから片方だけ直すと、矛盾した説明が残る。ASTから抽出した段落本文が
+ * 完全一致する組（強調などの書式差は無視）を見つけ、1か所にまとめるよう促す。
  * 短い共通の言い回しまで拾うと誤検知だらけになるので、`minDuplicateChars` 未満の
  * 段落・見出し・表の行は見ない。 */
 
@@ -495,19 +497,23 @@ const ALLOW_MARKER = '<!-- verify-docs:allow-duplicate -->';
 function collectParagraphs() {
   const hits = [];
   for (const doc of documents) {
-    const blocks = bodies.get(doc).split(/\n\s*\n/);
-    for (let i = 0; i < blocks.length; i++) {
-      const raw = blocks[i].trim();
-      if (raw === '') continue;
-      if (raw.startsWith('#') || raw.startsWith('|')) continue;
+    const source = sources.get(doc);
+    const lines = source.split(/\r?\n/);
+    const { blocks } = extractProseBlocks(source, {
+      includeSignatures: true,
+      tree: syntaxTrees.get(doc),
+    });
+    for (const block of blocks) {
+      if (block.source.trimStart().startsWith('|')) continue;
 
-      const previous = blocks[i - 1]?.trim();
-      if (previous === ALLOW_MARKER) continue;
+      let previousLine = block.sourcepos.start.line - 2;
+      while (previousLine >= 0 && lines[previousLine].trim() === '') previousLine--;
+      if (previousLine >= 0 && lines[previousLine].trim() === ALLOW_MARKER) continue;
 
-      const normalized = raw.replace(/\s+/g, ' ').trim();
+      const normalized = block.text.replace(/\s+/g, ' ').trim();
       if (normalized.length < config.minDuplicateChars) continue;
 
-      hits.push({ doc, normalized });
+      hits.push({ doc, normalized, signature: block.signature });
     }
   }
   return hits;
@@ -516,16 +522,17 @@ function collectParagraphs() {
 const paragraphs = config.checkDuplicates || config.checkNearDuplicates ? collectParagraphs() : [];
 
 if (config.checkDuplicates) {
-  const paragraphLocations = new Map();
-  for (const { doc, normalized } of paragraphs) {
-    if (!paragraphLocations.has(normalized)) paragraphLocations.set(normalized, new Set());
-    paragraphLocations.get(normalized).add(doc);
+  const paragraphGroups = new Map();
+  for (const { doc, normalized, signature } of paragraphs) {
+    const identity = JSON.stringify([normalized, signature]);
+    if (!paragraphGroups.has(identity)) paragraphGroups.set(identity, { normalized, docs: new Set() });
+    paragraphGroups.get(identity).docs.add(doc);
   }
 
-  for (const [paragraph, docs] of paragraphLocations) {
+  for (const { normalized, docs } of paragraphGroups.values()) {
     if (docs.size < 2) continue;
     const [first, ...rest] = [...docs].sort();
-    const snippet = paragraph.length > 50 ? `${paragraph.slice(0, 50)}…` : paragraph;
+    const snippet = normalized.length > 50 ? `${normalized.slice(0, 50)}…` : normalized;
     fail(
       'duplicate',
       first,
@@ -568,12 +575,13 @@ function fuzzyNormalize(text) {
 
 if (config.checkNearDuplicates) {
   const fuzzyGroups = new Map();
-  for (const { doc, normalized } of paragraphs) {
+  for (const { doc, normalized, signature } of paragraphs) {
     const fuzzy = fuzzyNormalize(normalized);
     if (fuzzy.length < config.minDuplicateChars) continue;
 
-    if (!fuzzyGroups.has(fuzzy)) fuzzyGroups.set(fuzzy, { texts: new Set(), docs: new Map() });
-    const group = fuzzyGroups.get(fuzzy);
+    const identity = JSON.stringify([fuzzy, signature]);
+    if (!fuzzyGroups.has(identity)) fuzzyGroups.set(identity, { texts: new Set(), docs: new Map() });
+    const group = fuzzyGroups.get(identity);
     group.texts.add(normalized);
     if (!group.docs.has(doc)) group.docs.set(doc, normalized);
   }

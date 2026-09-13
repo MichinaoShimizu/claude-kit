@@ -10,7 +10,7 @@
 - **チェッカー**（`scripts/verify-docs.mjs`）
   - 参照切れと孤立文書
   - 文書のサイズ超過
-  - 同一説明の重複
+  - AST抽出した段落本文の重複（強調などの書式差は無視）
 - **verify-docsスキル**（`.agents/skills/verify-docs/SKILL.md`）
   - 検出事項の是正手順
 - **dedupe-docsスキル**（`.agents/skills/dedupe-docs/SKILL.md`）
