@@ -1,4 +1,4 @@
 {
-  "excludePaths": ["node_modules/", ".git/", "vendor/", "dist/", "build/", "verify-docs/", "agent-layout/", ".verify-docs/"],
+  "excludePaths": ["node_modules/", ".git/", "vendor/", "dist/", "build/", "packages/", ".verify-docs/"],
   "maxDocBytes": 7000
 }
