@@ -11,6 +11,7 @@ rel_dir="${dir#"$repo_root"/}"
 node "$dir/scripts/verify-docs.mjs" --root="$rel_dir"
 node --test "$dir/scripts/verify-docs.test.mjs"
 node --test "$dir/scripts/extract-doc-blocks.test.mjs"
+node --test "$dir/scripts/skill-contracts.test.mjs"
 
 install_target="$(mktemp -d)"
 trap 'rm -rf "$install_target"' EXIT
