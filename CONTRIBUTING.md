@@ -5,9 +5,8 @@
 
 ## 新規パッケージの追加
 
-[AGENTS.md「MUST」](AGENTS.md#must)に従う。構成とCIの詳細:
-[README.md「1パッケージ = 1フォルダ」](README.md#1パッケージ-1フォルダ)・
-[README.md「本リポジトリ自身の CI」](README.md#本リポジトリ自身の-ci)。
+[AGENTS.md「MUST」](AGENTS.md#must)に従う。構成要素は追加するパッケージの
+フォルダに収め、自己検査を持つ場合は直下に `ci-selfcheck.sh` を配置する。
 
 ## 既存パッケージの改修
 

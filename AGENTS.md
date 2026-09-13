@@ -6,11 +6,10 @@
 ## MUST
 
 - 1パッケージ = 1フォルダ。新規パッケージ（skill・agent）の構成要素は
-  全て同一フォルダ内に格納する。一部を他所へ切り出すのは禁止
-  （詳細: README.md「1パッケージ = 1フォルダ」）。
+  全て同一フォルダ内に格納する。一部を他所へ切り出すのは禁止。
 - 新規パッケージ追加時は [README.md](README.md) の一覧表に1行追加する。
 - 自己検査を持つパッケージは、フォルダ直下に実行可能な `ci-selfcheck.sh`
-  を配置する（詳細: README.md「本リポジトリ自身の CI」）。
+  を配置する。
 - ClaudeまたはKiro固有の場所にスキルやカスタムエージェントを追加した場合は、
   `node agent-layout/scripts/sync-agent-layout.mjs --write`で補正する
   （詳細: [agent-layout/README.md](agent-layout/README.md)）。

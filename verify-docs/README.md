@@ -1,22 +1,21 @@
 # verify-docs
 
-生成AIエージェントが読むCLAUDE.md・AGENTS.md・README・docs・
-`.agents/skills/`などの文書群を、「必要な時にだけ必要な文書が読まれる」構造に
-保つためのパッケージ。入口文書は話題と参照先だけを持つルーティングテーブル
-として扱う。
+生成AIエージェントと人が保守する Markdown 文書群の検査・改善パッケージ。
+CommonMark ASTを基盤に、参照整合性、文書と節の構造情報、ファイルサイズ、
+機械的な重複を扱い、意味的な重複の解消と意味を変えない簡潔化も支援する。
 
-## 構成
+## 機能
 
-- **チェッカー**（`scripts/verify-docs.mjs`）
-  - 参照切れと孤立文書
-  - 文書のサイズ超過
-  - AST抽出した段落本文の重複（強調などの書式差は無視）
-- **verify-docsスキル**（`.agents/skills/verify-docs/SKILL.md`）
-  - 検出事項の是正手順
-- **dedupe-docsスキル**（`.agents/skills/dedupe-docs/SKILL.md`）
-  - 言い換えによる重複の是正
-- **tighten-docsスキル**（`.agents/skills/tighten-docs/SKILL.md`）
-  - 意味を変えない冗長な言い回しの削減
+| 機能 | 課題 | 内容 | 対象外 |
+| --- | --- | --- | --- |
+| [チェッカー](#文書構造を検査する) | リンク切れ、孤立文書、サイズ超過、同一段落 | CommonMark ASTで構造違反を検出 | 意味の近さや文章の良し悪しの判断 |
+| [`verify-docs` スキル](.agents/skills/verify-docs/SKILL.md) | 検出した構造違反 | 文書の置き場所と参照関係を整える | 内容の要約・言い換え・文章の推敲 |
+| [`dedupe-docs` スキル](.agents/skills/dedupe-docs/SKILL.md) | 言い換えた同じ説明 | 意味的重複を正本へ集約し、他方を案内にする | 文脈や読者が異なる説明の強制統合 |
+| [`tighten-docs` スキル](.agents/skills/tighten-docs/SKILL.md) | 冗長な文章 | 意味を保った冗長表現を削る | 文書の分割、重複の集約、意味の変更 |
+| [構造抽出CLI](#ast情報をjsonで取得する) | 文書構造の確認・記録 | 見出し・段落・位置・バイト数をJSON出力 | 意味的な重複や冗長性の自動判定 |
+
+CommonMark ASTによる構造解析、検査の出力、TODO初期化の技術的な詳細は
+[構造解析と機械検査](docs/structure.md)を参照する。
 
 ## 導入
 
@@ -52,13 +51,13 @@ Markdown構文解析にはCommonMark.js 0.31.2を同梱しているため、導�
 
 ## 実行方法
 
-### 文書構造の検査
+### 文書構造を検査する
 
 ```bash
 node scripts/verify-docs.mjs
 ```
 
-### 段落の構造・位置・サイズを一覧化
+### AST情報をJSONで取得する
 
 dedupe-docs / tighten-docs で対象文書を調べるときは、次のコマンドでCommonMarkの
 見出し階層と段落をJSON出力できる。意味的な重複や冗長性は判定しない。
@@ -68,8 +67,12 @@ node scripts/extract-doc-blocks.mjs --root=. README.md docs/guide.md
 ```
 
 段落ごとに見出し階層、ソース位置、本文、元ソースのバイト数を返す。見出しごとの
-`bytes` と `paragraphCount` は子見出しを含む集計。親子の値は重複するため合算しない。
+`headingPath`・`bytes`・`paragraphCount`・`endLine` は、チェックリストの対象節と
+TODOの分割候補を特定するために使える。`bytes` と `paragraphCount` は子見出しを
+含む集計であり、親子の値は重複するため合算しない。
 詳しい使い方は各スキルの手順を参照。
+
+### 既存のサイズ超過をTODOに記録する
 
 既存文書に違反があるリポジトリでは、最初に次を実行する。
 
@@ -77,7 +80,17 @@ node scripts/extract-doc-blocks.mjs --root=. README.md docs/guide.md
 node scripts/verify-docs.mjs --init-todo
 ```
 
-### 3スキルの連続実行
+通常の検査は、標準出力に最大5件の末端節とTODOの対象節を、JSON出力に
+`summary.documents`（文書数・構造集計）、`summary.violations`（種別ごとの件数）、
+`summary.largestSections`、`summary.todo` を含める。違反には行・列・見出し階層、
+重複箇所、サイズ超過時の大きな節も含める。チェックリストの実行結果や完了レコードを作るときは、
+この出力を根拠として使う。
+
+```bash
+node scripts/verify-docs.mjs --json
+```
+
+### スキルを実行する
 
 3つのスキルは独立しており、自動的には連続実行されない。Claude Code・Codex・
 Kiroで個別に呼び出す場合は次の記法を使う。
@@ -92,13 +105,15 @@ Kiroで個別に呼び出す場合は次の記法を使う。
 
 > verify-docs・dedupe-docs・tighten-docsを順番に全部実行して
 
-エージェントがスキルを実行すると、対象文書・判断理由・総評を
-`.verify-docs/dist/checklist.md`に記録する。チェッカーコマンド単独では
+エージェントがスキルを実行すると、対象文書・判断理由・スキル別の実行結果を
+`.verify-docs/dist/checklist.md`に記録する。3スキルを連続実行した回だけ、同ファイルに
+統合した完了レコードも記録する。チェッカーコマンド単独では
 チェックリストを作成しない。
 
 ## 詳細
 
 - [既存リポジトリへの導入、CI、TODOの運用](docs/adoption.md)
+- [CommonMark ASTによる構造解析と機械検査](docs/structure.md)
 - [エージェント間の互換構成](.agents/skills/verify-docs/references/agent-compatibility.md)
 - [設定項目](.agents/skills/verify-docs/references/config.md)
 - [TODOファイルの記述形式](.agents/skills/verify-docs/references/todo.md)

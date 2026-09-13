@@ -95,7 +95,7 @@
 
 import { existsSync, lstatSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
-import { extractProseBlocks, markdownText, parseMarkdown } from './markdown-structure.mjs';
+import { extractProseBlocks, markdownText, parseMarkdown, sourcePosition } from './markdown-structure.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name) => args.includes(`--${name}`);
@@ -207,12 +207,34 @@ function loadTodo(config) {
       throw new Error(`${config.todoFile}[${index}] はオブジェクトである必要があります`);
     }
     const keys = Object.keys(entry);
-    if (keys.some((key) => !['path', 'reason'].includes(key))) {
-      throw new Error(`${config.todoFile}[${index}] は path と reason だけを指定できます`);
+    if (keys.some((key) => !['path', 'reason', 'section'].includes(key))) {
+      throw new Error(`${config.todoFile}[${index}] は path・reason・section だけを指定できます`);
     }
     validateRelativePath(entry.path, `${config.todoFile}[${index}].path`);
     if (typeof entry.reason !== 'string' || entry.reason.trim() === '') {
       throw new Error(`${config.todoFile}[${index}].reason は空でない文字列にしてください`);
+    }
+    if (entry.section !== undefined) {
+      const section = entry.section;
+      if (!section || typeof section !== 'object' || Array.isArray(section)) {
+        throw new Error(`${config.todoFile}[${index}].section はオブジェクトにしてください`);
+      }
+      const sectionKeys = Object.keys(section);
+      if (sectionKeys.some((key) => !['headingPath', 'startLine', 'endLine', 'bytes'].includes(key))) {
+        throw new Error(`${config.todoFile}[${index}].section に未対応の項目があります`);
+      }
+      if (!Array.isArray(section.headingPath) || section.headingPath.length === 0 ||
+          section.headingPath.some((heading) => typeof heading !== 'string' || heading.trim() === '')) {
+        throw new Error(`${config.todoFile}[${index}].section.headingPath は空でない見出し文字列の配列にしてください`);
+      }
+      for (const key of ['startLine', 'endLine', 'bytes']) {
+        if (!Number.isSafeInteger(section[key]) || section[key] <= 0) {
+          throw new Error(`${config.todoFile}[${index}].section.${key} は正の整数にしてください`);
+        }
+      }
+      if (section.endLine < section.startLine) {
+        throw new Error(`${config.todoFile}[${index}].section.endLine は startLine 以降にしてください`);
+      }
     }
     if (entries.has(entry.path)) throw new Error(`${config.todoFile} に重複した path があります: ${entry.path}`);
     entries.set(entry.path, entry);
@@ -234,7 +256,8 @@ try {
 const PLACEHOLDER = /[<>*…]|\.\.\./;
 
 const failures = [];
-const fail = (kind, from, target, reason) => failures.push({ kind, from, target, reason });
+const fail = (kind, from, target, reason, detail = {}) =>
+  failures.push({ kind, from, target, reason, ...detail });
 
 /* ---------- 対象の文書を集める ---------- */
 
@@ -266,6 +289,27 @@ function walk(dir, hits = []) {
 
 const documents = [...new Set(walk(ROOT))].sort();
 
+function todoSection(source) {
+  const { headings } = extractProseBlocks(source);
+  if (headings.length === 0) return undefined;
+  // 文書全体を表す先頭の見出しより、分割の単位になりやすい末端節を優先する。
+  const leaves = headings.filter((heading) =>
+    !headings.some((other) =>
+      other.headingPath.length > heading.headingPath.length
+      && other.headingPath.slice(0, heading.headingPath.length).every((part, index) =>
+        part === heading.headingPath[index],
+      ),
+    ),
+  );
+  const section = [...leaves].sort((a, b) => b.bytes - a.bytes || a.sourcepos.start.line - b.sourcepos.start.line)[0];
+  return {
+    headingPath: section.headingPath,
+    startLine: section.sourcepos.start.line,
+    endLine: section.endLine,
+    bytes: section.bytes,
+  };
+}
+
 /* ---------- --init-todo: 既存リポジトリへの導入 ---------- */
 
 if (flag('init-todo')) {
@@ -281,10 +325,14 @@ if (flag('init-todo')) {
       bytes: Buffer.byteLength(readFileSync(join(ROOT, doc), 'utf8'), 'utf8'),
     }))
     .filter(({ bytes }) => bytes > config.maxDocBytes)
-    .map(({ path, bytes }) => ({
-      path,
-      reason: `導入時点ですでに上限超過（${bytes} バイト）。分割するかここに理由を書き直す`,
-    }));
+    .map(({ path, bytes }) => {
+      const section = todoSection(readFileSync(join(ROOT, path), 'utf8'));
+      return {
+        path,
+        reason: `導入時点ですでに上限超過（${bytes} バイト）。分割するかここに理由を書き直す`,
+        ...(section ? { section } : {}),
+      };
+    });
 
   writeFileSync(todoPath, JSON.stringify(overSize, null, 2) + '\n');
   console.log(
@@ -323,6 +371,7 @@ function stripFences(text) {
 const bodies = new Map();
 const sources = new Map();
 const syntaxTrees = new Map();
+const structures = new Map();
 const fragments = new Map();
 
 for (const doc of documents) {
@@ -330,6 +379,7 @@ for (const doc of documents) {
   const tree = parseMarkdown(source);
   sources.set(doc, source);
   syntaxTrees.set(doc, tree);
+  structures.set(doc, extractProseBlocks(source, { tree }));
   const body = stripFences(source);
   bodies.set(doc, body);
   const ids = new Set();
@@ -344,6 +394,27 @@ for (const doc of documents) {
     ids.add(id);
   }
   fragments.set(doc, ids);
+}
+
+function locationFor(doc, position) {
+  if (!position) return undefined;
+  const heading = structures.get(doc).headings
+    .filter(({ sourcepos }) => sourcepos.start.line <= position.start.line)
+    .at(-1);
+  return {
+    path: doc,
+    ...position,
+    ...(heading ? { headingPath: heading.headingPath } : {}),
+  };
+}
+
+// CommonMark のインラインノード（link / image）は sourcepos を持たないため、
+// 位置を持つ親の段落・見出しまで遡る。
+function nodePosition(node) {
+  for (let current = node; current; current = current.parent) {
+    if (current.sourcepos) return sourcePosition(current);
+  }
+  return undefined;
 }
 
 /* ---------- 1. マークダウンリンクと断片 ---------- */
@@ -383,14 +454,18 @@ for (const doc of documents) {
 
     if (path === '') {
       if (fragment && !fragments.get(doc).has(fragment.toLowerCase())) {
-        fail('fragment', doc, target, `この文書に見出し「${fragment}」がない`);
+        fail('fragment', doc, target, `この文書に見出し「${fragment}」がない`, {
+          location: locationFor(doc, nodePosition(node)),
+        });
       }
       continue;
     }
 
     const full = resolve(from, path);
     if (!existsSync(full)) {
-      fail('link', doc, target, '飛び先のファイルがない');
+      fail('link', doc, target, '飛び先のファイルがない', {
+        location: locationFor(doc, nodePosition(node)),
+      });
       continue;
     }
     noteReference(relative(ROOT, full), doc);
@@ -399,7 +474,9 @@ for (const doc of documents) {
     const targetDoc = relative(ROOT, full);
     if (!fragments.has(targetDoc)) continue;
     if (!fragments.get(targetDoc).has(fragment.toLowerCase())) {
-      fail('fragment', doc, target, `${targetDoc} に見出し「${fragment}」がない`);
+      fail('fragment', doc, target, `${targetDoc} に見出し「${fragment}」がない`, {
+        location: locationFor(doc, nodePosition(node)),
+      });
     }
   }
 }
@@ -459,12 +536,23 @@ for (const doc of documents) {
   const exempt = todo.get(doc);
 
   if (bytes > config.maxDocBytes && !exempt) {
+    const sections = structures.get(doc).headings
+      .filter(({ headingPath }) => headingPath.length > 1)
+      .sort((a, b) => b.bytes - a.bytes || a.sourcepos.start.line - b.sourcepos.start.line)
+      .slice(0, 3)
+      .map(({ headingPath, sourcepos, endLine, bytes: sectionBytes }) => ({
+        headingPath,
+        startLine: sourcepos.start.line,
+        endLine,
+        bytes: sectionBytes,
+      }));
     fail(
       'size',
       doc,
       doc,
       `${bytes} バイト（上限 ${config.maxDocBytes}）。話題ごとに分けて互いにリンクするか、` +
         `${config.todoFile} に理由つきで書いて明示的に借金にする`,
+      { bytes, limit: config.maxDocBytes, sections },
     );
   }
 
@@ -513,7 +601,7 @@ function collectParagraphs() {
       const normalized = block.text.replace(/\s+/g, ' ').trim();
       if (normalized.length < config.minDuplicateChars) continue;
 
-      hits.push({ doc, normalized, signature: block.signature });
+      hits.push({ doc, normalized, signature: block.signature, block });
     }
   }
   return hits;
@@ -523,22 +611,30 @@ const paragraphs = config.checkDuplicates || config.checkNearDuplicates ? collec
 
 if (config.checkDuplicates) {
   const paragraphGroups = new Map();
-  for (const { doc, normalized, signature } of paragraphs) {
+  for (const { doc, normalized, signature, block } of paragraphs) {
     const identity = JSON.stringify([normalized, signature]);
-    if (!paragraphGroups.has(identity)) paragraphGroups.set(identity, { normalized, docs: new Set() });
-    paragraphGroups.get(identity).docs.add(doc);
+    if (!paragraphGroups.has(identity)) paragraphGroups.set(identity, { normalized, occurrences: [] });
+    paragraphGroups.get(identity).occurrences.push({ doc, block });
   }
 
-  for (const { normalized, docs } of paragraphGroups.values()) {
-    if (docs.size < 2) continue;
-    const [first, ...rest] = [...docs].sort();
+  for (const { normalized, occurrences } of paragraphGroups.values()) {
+    const uniqueDocs = [...new Set(occurrences.map(({ doc }) => doc))].sort();
+    if (uniqueDocs.length < 2) continue;
+    const [first, ...rest] = uniqueDocs;
     const snippet = normalized.length > 50 ? `${normalized.slice(0, 50)}…` : normalized;
+    const firstOccurrence = occurrences.find(({ doc }) => doc === first);
     fail(
       'duplicate',
       first,
       rest.join(', '),
       `同じ説明が重複している（「${snippet}」）。1か所にまとめて他方からリンクする。` +
         `意図した重複なら段落の前に ${ALLOW_MARKER} を置く`,
+      {
+        location: locationFor(first, firstOccurrence.block.sourcepos),
+        occurrences: occurrences.map(({ doc, block }) => ({
+          location: locationFor(doc, block.sourcepos),
+        })),
+      },
     );
   }
 }
@@ -575,7 +671,7 @@ function fuzzyNormalize(text) {
 
 if (config.checkNearDuplicates) {
   const fuzzyGroups = new Map();
-  for (const { doc, normalized, signature } of paragraphs) {
+  for (const { doc, normalized, signature, block } of paragraphs) {
     const fuzzy = fuzzyNormalize(normalized);
     if (fuzzy.length < config.minDuplicateChars) continue;
 
@@ -583,7 +679,7 @@ if (config.checkNearDuplicates) {
     if (!fuzzyGroups.has(identity)) fuzzyGroups.set(identity, { texts: new Set(), docs: new Map() });
     const group = fuzzyGroups.get(identity);
     group.texts.add(normalized);
-    if (!group.docs.has(doc)) group.docs.set(doc, normalized);
+    if (!group.docs.has(doc)) group.docs.set(doc, { normalized, block });
   }
 
   for (const [fuzzy, group] of fuzzyGroups) {
@@ -598,20 +694,66 @@ if (config.checkNearDuplicates) {
       rest.join(', '),
       `句読点・敬体/常体だけが違う、ほぼ同じ説明が複数の文書にある（正規化後: 「${snippet}」）。` +
         `1か所にまとめて他方からリンクするか、意図した表記差なら段落の前に ${ALLOW_MARKER} を置く`,
+      { location: locationFor(first, group.docs.get(first).block.sourcepos) },
     );
   }
 }
 
 /* ---------- 報告 ---------- */
 
+const documentMetrics = [...structures.entries()].map(([path, structure]) => ({
+  path,
+  bytes: structure.bytes,
+  headings: structure.headings.length,
+  paragraphs: structure.blocks.length,
+}));
+const leafSections = [...structures.entries()].flatMap(([path, structure]) => {
+  const headings = structure.headings;
+  return headings
+    .filter((heading) => !headings.some((other) =>
+      other.headingPath.length > heading.headingPath.length
+      && other.headingPath.slice(0, heading.headingPath.length).every((part, index) =>
+        part === heading.headingPath[index],
+      ),
+    ))
+    .map(({ headingPath, sourcepos, endLine, bytes, paragraphCount }) => ({
+      path,
+      headingPath,
+      startLine: sourcepos.start.line,
+      endLine,
+      bytes,
+      paragraphCount,
+    }));
+});
+const failuresByKind = Object.fromEntries(
+  [...new Set(failures.map(({ kind }) => kind))]
+    .sort()
+    .map((kind) => [kind, failures.filter((failure) => failure.kind === kind).length]),
+);
 const summary = {
-  documents: documents.length,
-  todoEntries: todo.size,
-  failures,
+  documents: {
+    count: documentMetrics.length,
+    bytes: documentMetrics.reduce((sum, document) => sum + document.bytes, 0),
+    headings: documentMetrics.reduce((sum, document) => sum + document.headings, 0),
+    paragraphs: documentMetrics.reduce((sum, document) => sum + document.paragraphs, 0),
+  },
+  todo: {
+    count: todo.size,
+    entries: [...todo.values()],
+  },
+  violations: {
+    count: failures.length,
+    byKind: failuresByKind,
+  },
+  largestSections: leafSections
+    .sort((a, b) => b.bytes - a.bytes || a.path.localeCompare(b.path) || a.startLine - b.startLine)
+    .slice(0, 5),
 };
 
+const report = { summary, failures };
+
 if (AS_JSON) {
-  console.log(JSON.stringify(summary, null, 2));
+  console.log(JSON.stringify(report, null, 2));
 } else {
   const label = {
     link: 'リンク切れ',
@@ -623,11 +765,39 @@ if (AS_JSON) {
     'near-duplicate': '準一致重複',
     'stale-todo': 'TODO の掃除',
   };
-  console.log(`文書 ${documents.length} 件（TODO 例外 ${todo.size} 件）を検査`);
+  console.log(
+    `文書 ${summary.documents.count} 件（見出し ${summary.documents.headings} 件・` +
+    `段落 ${summary.documents.paragraphs} 件・${summary.documents.bytes} バイト、TODO ${summary.todo.count} 件）を検査`,
+  );
+  if (summary.largestSections.length > 0) {
+    console.log('\n大きい節（末端節・上位5件）:');
+    for (const section of summary.largestSections) {
+      console.log(
+        `  - ${section.path}:${section.startLine}-${section.endLine} / ` +
+        `${section.headingPath.join(' > ')} — ${section.bytes} バイト、${section.paragraphCount} 段落`,
+      );
+    }
+  }
+  if (summary.todo.entries.length > 0) {
+    console.log('\nTODO:');
+    for (const entry of summary.todo.entries) {
+      const section = entry.section
+        ? ` / ${entry.section.headingPath.join(' > ')} (${entry.section.startLine}-${entry.section.endLine}行、${entry.section.bytes} バイト)`
+        : '';
+      console.log(`  - ${entry.path}${section} — ${entry.reason}`);
+    }
+  }
   if (failures.length > 0) {
-    console.error(`\n文書構造の検査に失敗（${failures.length}件）:`);
+    const kinds = Object.entries(summary.violations.byKind)
+      .map(([kind, count]) => `${label[kind]} ${count}件`)
+      .join('・');
+    console.error(`\n文書構造の検査に失敗（${failures.length}件: ${kinds}）:`);
     for (const f of failures) {
-      console.error(`  - [${label[f.kind]}] ${f.from} → ${f.target} — ${f.reason}`);
+      const where = f.location
+        ? ` (${f.location.path}:${f.location.start.line}:${f.location.start.column}` +
+          `${f.location.headingPath?.length ? ` / ${f.location.headingPath.join(' > ')}` : ''})`
+        : '';
+      console.error(`  - [${label[f.kind]}] ${f.from} → ${f.target}${where} — ${f.reason}`);
     }
   } else {
     console.log('\n文書構造: すべて通過');

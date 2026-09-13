@@ -49,13 +49,20 @@ test('clean repo passes', () => {
     'README.md': '# Repo\n\n[docs](docs/guide.md)\n',
     'docs/guide.md': '# Guide\n\nSome content.\n',
   });
-  assert.deepEqual(run(root).failures, []);
+  const result = run(root);
+  assert.deepEqual(result.failures, []);
+  assert.deepEqual(result.summary.documents, { count: 2, bytes: 53, headings: 2, paragraphs: 2 });
+  assert.deepEqual(result.summary.violations, { count: 0, byKind: {} });
+  assert.equal(result.summary.largestSections[0].path, 'README.md');
   rmSync(root, { recursive: true, force: true });
 });
 
 test('detects broken link', () => {
   const root = makeRepo({ 'README.md': '# Repo\n\n[missing](docs/missing.md)\n' });
-  assert.ok(run(root).failures.some((f) => f.kind === 'link'));
+  const failure = run(root).failures.find((f) => f.kind === 'link');
+  assert.equal(failure.location.path, 'README.md');
+  assert.equal(failure.location.start.line, 3);
+  assert.deepEqual(failure.location.headingPath, ['Repo']);
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -256,7 +263,9 @@ test('flags oversized doc and honors todo exemption', () => {
     'README.md': '# Repo\n\n[big](docs/big.md)\n',
     'docs/big.md': big,
   });
-  assert.ok(run(root).failures.some((f) => f.kind === 'size'));
+  const failure = run(root).failures.find((f) => f.kind === 'size');
+  assert.equal(failure.bytes, Buffer.byteLength(big, 'utf8'));
+  assert.equal(failure.limit, 7000);
 
   writeFileSync(
     join(root, 'verify-docs.todo.json'),
@@ -335,7 +344,13 @@ test('detects duplicate paragraphs across docs', () => {
     'docs/a.md': `# A\n\n${shared}\n`,
     'docs/b.md': `# B\n\n${shared}\n`,
   });
-  assert.ok(run(root).failures.some((f) => f.kind === 'duplicate'));
+  const failure = run(root).failures.find((f) => f.kind === 'duplicate');
+  assert.deepEqual(failure.location.headingPath, ['A']);
+  assert.equal(failure.location.start.line, 3);
+  assert.deepEqual(
+    failure.occurrences.map(({ location }) => location.path).sort(),
+    ['docs/a.md', 'docs/b.md'],
+  );
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -462,7 +477,7 @@ test('every DEFAULTS key is documented in config.md (prevents doc drift when a k
 });
 
 test('--init-todo writes todo file for oversized docs and refuses to overwrite', () => {
-  const big = '# Big\n\n' + 'x'.repeat(40000) + '\n';
+  const big = '# Big\n\n## Split here\n\n' + 'x'.repeat(40000) + '\n';
   const root = makeRepo({
     'README.md': '# Repo\n\n[big](docs/big.md)\n',
     'docs/big.md': big,
@@ -471,6 +486,9 @@ test('--init-todo writes todo file for oversized docs and refuses to overwrite',
   const written = JSON.parse(readFileSync(join(root, 'verify-docs.todo.json'), 'utf8'));
   assert.equal(written.length, 1);
   assert.equal(written[0].path, 'docs/big.md');
+  assert.deepEqual(written[0].section.headingPath, ['Big', 'Split here']);
+  assert.equal(written[0].section.startLine, 3);
+  assert.ok(written[0].section.bytes > 40000);
 
   assert.throws(() =>
     execFileSync('node', [SCRIPT, `--root=${root}`, '--init-todo'], { stdio: 'pipe' }),

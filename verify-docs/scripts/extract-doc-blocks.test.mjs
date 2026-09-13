@@ -25,6 +25,8 @@ test('extracts CommonMark prose with heading context, source positions, and raw 
     { level: 1, text: 'はじめに' },
     { level: 2, text: '詳細' },
   ]);
+  assert.deepEqual(result.headings[1].headingPath, ['はじめに', '詳細']);
+  assert.equal(result.headings[1].endLine, 18);
   const firstHeadingOffset = source.indexOf('# はじめに');
   const secondHeadingOffset = source.indexOf('## 詳細');
   assert.equal(result.headings[0].bytes, Buffer.byteLength(source.slice(firstHeadingOffset), 'utf8'));
