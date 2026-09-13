@@ -38,4 +38,4 @@
   対応する）
 - `verify-docs.todo.json` への期限・優先度等のフィールド追加（`path` と
   `reason` のみに限定し、運用上の TODO 自体の肥大化を防止する。
-  [README.md「TODO の管理方法」](README.md#todo-の管理方法)参照）
+  [導入と運用「TODOの管理」](docs/adoption.md#todoの管理)参照）
