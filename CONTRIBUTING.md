@@ -5,8 +5,7 @@
 
 ## 新規パッケージの追加
 
-AGENTS.md の MUST 3項目（1パッケージ = 1フォルダ、README.md の一覧表に
-1行追加、自己検査があれば `ci-selfcheck.sh` を配置）に従う。詳細:
+[AGENTS.md「MUST」](AGENTS.md#must)に従う。構成とCIの詳細:
 [README.md「1パッケージ = 1フォルダ」](README.md#1パッケージ-1フォルダ)・
 [README.md「本リポジトリ自身の CI」](README.md#本リポジトリ自身の-ci)。
 

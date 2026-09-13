@@ -5,7 +5,7 @@
 保つためのパッケージ。入口文書は話題と参照先だけを持つルーティングテーブル
 として扱う。
 
-## チェッカー・プレイブック
+## 構成
 
 - **チェッカー**（`scripts/verify-docs.mjs`）
   - 参照切れと孤立文書
@@ -18,28 +18,33 @@
 - **tighten-docsスキル**（`.agents/skills/tighten-docs/SKILL.md`）
   - 意味を変えない冗長な言い回しの削減
 
-3つのスキルは独立しており、自動的には連続実行されない。まとめて使う場合は、
-エージェントに「verify-docs・dedupe-docs・tighten-docsを順番に全部実行して」
-と依頼する。
-
 ## 導入
 
-このディレクトリの中身を、対象リポジトリの直下へコピーする。
-`verify-docs/`という入れ子は作らない。
+対象リポジトリのルートで次の一行を実行する。
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/MichinaoShimizu/claude-kit/main/verify-docs/install.sh | bash
+```
+
+GitHub Actionsのワークフローは自動追加しない。CIへの組み込みは
+[導入と運用](docs/adoption.md#ciへの組み込み)を参照。
+
+インストール後の構成は次のとおり。設定ファイルは必要な場合だけ作成する。
 
 ```text
 your-repo/
 ├── scripts/verify-docs.mjs
 ├── .agents/skills/verify-docs/
 ├── .agents/skills/dedupe-docs/
-├── .agents/skills/tighten-docs/
-├── .claude/skills -> ../.agents/skills
-├── .kiro/skills -> ../.agents/skills
-└── verify-docs.config.json               # 必要な場合のみ
+└── .agents/skills/tighten-docs/
 ```
 
 既定値のまま開始し、対象リポジトリと異なる項目だけ
 `verify-docs.config.json`で上書きする。
+
+## 実行方法
+
+### 文書構造の検査
 
 ```bash
 node scripts/verify-docs.mjs
@@ -50,6 +55,25 @@ node scripts/verify-docs.mjs
 ```bash
 node scripts/verify-docs.mjs --init-todo
 ```
+
+### 3スキルの連続実行
+
+3つのスキルは独立しており、自動的には連続実行されない。Claude Code・Codex・
+Kiroで個別に呼び出す場合は次の記法を使う。
+
+| エージェント | 個別呼び出し記法 |
+| --- | --- |
+| Claude Code | `/verify-docs`・`/dedupe-docs`・`/tighten-docs` |
+| Kiro | `/verify-docs`・`/dedupe-docs`・`/tighten-docs` |
+| Codex | `$verify-docs`・`$dedupe-docs`・`$tighten-docs` |
+
+3つを順番に実行する場合は、どのエージェントでも次の共通依頼を使う。
+
+> verify-docs・dedupe-docs・tighten-docsを順番に全部実行して
+
+エージェントがスキルを実行すると、対象文書・判断理由・総評を
+`.verify-docs/dist/checklist.md`に記録する。チェッカーコマンド単独では
+チェックリストを作成しない。
 
 ## 詳細
 
