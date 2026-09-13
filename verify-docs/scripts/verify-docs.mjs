@@ -288,6 +288,7 @@ function walk(dir, hits = []) {
 }
 
 const documents = [...new Set(walk(ROOT))].sort();
+const documentSet = new Set(documents);
 
 function todoSection(source) {
   const { headings } = extractProseBlocks(source);
@@ -424,7 +425,7 @@ const referencedBy = new Map();
 
 function noteReference(target, from) {
   const normalized = target.replace(/\/$/, '');
-  if (!documents.includes(normalized)) return;
+  if (!documentSet.has(normalized)) return;
   referenced.add(normalized);
   if (!referencedBy.has(normalized)) referencedBy.set(normalized, new Set());
   referencedBy.get(normalized).add(from);
@@ -567,7 +568,7 @@ for (const doc of documents) {
 }
 
 for (const path of todo.keys()) {
-  if (!documents.includes(path)) {
+  if (!documentSet.has(path)) {
     fail('stale-todo', config.todoFile, path, 'この文書がもう無い。エントリを消す');
   }
 }
@@ -709,21 +710,17 @@ const documentMetrics = [...structures.entries()].map(([path, structure]) => ({
 }));
 const leafSections = [...structures.entries()].flatMap(([path, structure]) => {
   const headings = structure.headings;
-  return headings
-    .filter((heading) => !headings.some((other) =>
-      other.headingPath.length > heading.headingPath.length
-      && other.headingPath.slice(0, heading.headingPath.length).every((part, index) =>
-        part === heading.headingPath[index],
-      ),
-    ))
-    .map(({ headingPath, sourcepos, endLine, bytes, paragraphCount }) => ({
+  return headings.flatMap((heading, index) => {
+    if (headings[index + 1]?.level > heading.level) return [];
+    return [{
       path,
-      headingPath,
-      startLine: sourcepos.start.line,
-      endLine,
-      bytes,
-      paragraphCount,
-    }));
+      headingPath: heading.headingPath,
+      startLine: heading.sourcepos.start.line,
+      endLine: heading.endLine,
+      bytes: heading.bytes,
+      paragraphCount: heading.paragraphCount,
+    }];
+  });
 });
 const failuresByKind = Object.fromEntries(
   [...new Set(failures.map(({ kind }) => kind))]
