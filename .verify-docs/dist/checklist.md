@@ -7,7 +7,7 @@
 - [x] CLAUDE.md — 2026-09-13 / AGENTS.mdへの入口のみ、構造違反なし
 - [x] CONTRIBUTING.md — 2026-09-13 / README・AGENTS.mdへの参照に違反なし
 - [x] agent-layout/README.md — 2026-09-13 / 参照先とサイズを手動確認、違反なし
-- [x] verify-docs/README.md — 2026-09-13 / 参照・サイズ・重複に違反なし
+- [x] verify-docs/README.md — 2026-09-13 / 導入後に実行方法を読む順序へ再構成、参照・サイズ・重複に違反なし
 - [x] verify-docs/CONTRIBUTING.md — 2026-09-13 / 参照・サイズ・重複に違反なし
 - [x] verify-docs/docs/adoption.md — 2026-09-13 / 参照・サイズ・重複に違反なし
 - [x] verify-docs/.agents/skills/verify-docs/SKILL.md — 2026-09-13 / サイズ超過は既存TODOで明示、その他違反なし
