@@ -1,6 +1,6 @@
-# `verify-docs.todo.json` の書き方
+# `verify-docs.todo.json` の形式と運用
 
-[SKILL.md「4. 分割不可時の TODO 記載」](../SKILL.md#4-分割不可時の-todo-記載)・
+[文書構造の是正手順「4. 分割不可時の TODO 記載」](remediation.md#4-分割不可時の-todo-記載)・
 [config.md](config.md)から参照される。TODO ファイルの記述形式・運用ルールを
 確認する際に参照する。
 

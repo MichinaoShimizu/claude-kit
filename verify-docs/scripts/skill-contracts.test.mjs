@@ -20,14 +20,14 @@ function makeRepo(files) {
 }
 
 function checklist(section, details) {
-  return `# verify-docs-checklist\n\n## verify-docs\n\n（未実施）\n\n## dedupe-docs\n\n${section === 'dedupe-docs' ? details : '（未実施）'}\n\n## tighten-docs\n\n${section === 'tighten-docs' ? details : '（未実施）'}\n\n## 完了レコード\n\n（未作成）\n`;
+  return `# verify-docs-checklist\n\n## verify-docs\n\n（未実施）\n\n## dedupe-docs\n\n${section === 'dedupe-docs' ? details : '（未実施）'}\n\n## tighten-docs\n\n${section === 'tighten-docs' ? details : '（未実施）'}\n`;
 }
 
-function assertCompletedChecklist(source, section) {
+function assertCompletedSection(source, section) {
   const sectionMatch = source.match(new RegExp(`## ${section}\\n\\n([\\s\\S]*?)(?=\\n## |$)`));
   assert.ok(sectionMatch, `${section} section is missing`);
   assert.doesNotMatch(sectionMatch[1], /- \[ \]/, `${section} has unchecked items`);
-  assert.match(sectionMatch[1], /### 実行結果/, `${section} has no execution result`);
+  assert.match(sectionMatch[1], /### 最終検査結果/, `${section} has no execution result`);
 }
 
 function assertRequiredFacts(source, facts) {
@@ -41,7 +41,7 @@ function compressionRecord(before, after) {
   return `${beforeBytes}B → ${afterBytes}B（${reduction}%減）`;
 }
 
-test('dedupe-docs contract keeps one canonical explanation, a pointer, and a completion record', () => {
+test('dedupe-docs contract keeps one canonical explanation, a pointer, and an execution result', () => {
   const root = makeRepo({
     'README.md': '# Home\n\n[guide](docs/guide.md)\n',
     'docs/guide.md': '# Guide\n\nThe canonical setup procedure is in [setup](setup.md).\n',
@@ -50,7 +50,7 @@ test('dedupe-docs contract keeps one canonical explanation, a pointer, and a com
       '- [x] README.md — 2026-09-13 / 内容なし',
       '- [x] docs/guide.md — 2026-09-13 / docs/setup.mdへポインタ化',
       '',
-      '### 実行結果',
+      '### 最終検査結果',
       '',
       '- node scripts/verify-docs.mjs: 文書構造: すべて通過',
     ].join('\n')),
@@ -63,7 +63,7 @@ test('dedupe-docs contract keeps one canonical explanation, a pointer, and a com
     assertRequiredFacts(canonical, [/Install the package, then run the checker/]);
     assert.match(pointer, /\[setup\]\(setup\.md\)/);
     assert.doesNotMatch(pointer, /Install the package, then run the checker/);
-    assertCompletedChecklist(readFileSync(join(root, '.verify-docs/dist/checklist.md'), 'utf8'), 'dedupe-docs');
+    assertCompletedSection(readFileSync(join(root, '.verify-docs/dist/checklist.md'), 'utf8'), 'dedupe-docs');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -77,7 +77,7 @@ test('dedupe-docs contract rejects a broken canonical pointer and incomplete che
   });
   try {
     assert.ok(verifyDocs(root).failures.some((failure) => failure.kind === 'link'));
-    assert.throws(() => assertCompletedChecklist(
+    assert.throws(() => assertCompletedSection(
       readFileSync(join(root, '.verify-docs/dist/checklist.md'), 'utf8'),
       'dedupe-docs',
     ));
@@ -86,7 +86,7 @@ test('dedupe-docs contract rejects a broken canonical pointer and incomplete che
   }
 });
 
-test('tighten-docs contract reduces bytes while preserving required facts and a completion record', () => {
+test('tighten-docs contract reduces bytes while preserving required facts and an execution result', () => {
   const before = '# Deploy\n\nBefore deploying, you must use production mode. The timeout is 30 seconds. Do not change the retry order.\n';
   const after = '# Deploy\n\nUse production mode. Timeout: 30 seconds. Do not change the retry order.\n';
   const root = makeRepo({
@@ -95,7 +95,7 @@ test('tighten-docs contract reduces bytes while preserving required facts and a 
     '.verify-docs/dist/checklist.md': checklist('tighten-docs', [
       `- [x] docs/deploy.md — 2026-09-13 / ${compressionRecord(before, after)}`,
       '',
-      '### 実行結果',
+      '### 最終検査結果',
       '',
       '- node scripts/verify-docs.mjs: 文書構造: すべて通過',
     ].join('\n')),
@@ -109,7 +109,7 @@ test('tighten-docs contract reduces bytes while preserving required facts and a 
     assert.equal(structure.headings[0].text, 'Deploy');
     const checklistSource = readFileSync(join(root, '.verify-docs/dist/checklist.md'), 'utf8');
     assert.match(checklistSource, new RegExp(compressionRecord(before, after)));
-    assertCompletedChecklist(checklistSource, 'tighten-docs');
+    assertCompletedSection(checklistSource, 'tighten-docs');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -127,7 +127,7 @@ test('skill instructions keep deterministic contracts separate from semantic jud
   const tighten = readFileSync(skillPath('tighten-docs'), 'utf8');
   for (const skill of [dedupe, tighten]) {
     assert.match(skill, /node scripts\/verify-docs\.mjs/);
-    assert.match(skill, /### 実行結果/);
+    assert.match(skill, /### 最終検査結果/);
     assert.match(skill, /checklist/);
   }
   assert.match(dedupe, /CI の pass\/fail には使わない/);

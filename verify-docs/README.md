@@ -16,7 +16,7 @@ CommonMark ASTを基盤に、参照整合性・文書構造・サイズ・重複
 curl -fsSL https://raw.githubusercontent.com/MichinaoShimizu/claude-kit/main/verify-docs/install.sh | bash
 ```
 
-## 実行
+## 実行方法
 
 ### スキルの実行
 
@@ -26,15 +26,16 @@ curl -fsSL https://raw.githubusercontent.com/MichinaoShimizu/claude-kit/main/ver
 | --- | --- |
 | Claude Code | `/verify-docs`・`/dedupe-docs`・`/tighten-docs` |
 | Kiro | `/verify-docs`・`/dedupe-docs`・`/tighten-docs` |
-| Codex | `$verify-docs`・`$dedupe-docs`・`$tighten-docs` |
+| Codex App | `@verify-docs`・`@dedupe-docs`・`@tighten-docs` |
+| Codex CLI／IDE拡張 | `$verify-docs`・`$dedupe-docs`・`$tighten-docs` |
 
 3つを順番に実行する場合は、どのエージェントでも次の共通依頼を使う。
 
 > verify-docs・dedupe-docs・tighten-docsを順番に全部実行して
 
-CLIを使うその他の操作は[高度な使い方](docs/advanced-usage.md)を参照。
+CLIの詳細は[CLIリファレンス](docs/advanced-usage.md)を参照。
 
-## 出力
+## 生成物と標準出力
 
 ### 改善後のMarkdown文書
 
@@ -42,10 +43,10 @@ CLIを使うその他の操作は[高度な使い方](docs/advanced-usage.md)を
 
 ### チェックリスト
 
-スキルは対象文書・判断理由・実行結果を`.verify-docs/dist/checklist.md`に記録する
-（[チェックリストの形式](.agents/skills/verify-docs/references/checklist.md)）。
-3スキルを連続実行した回だけ、統合した完了レコードも記録する。
-チェッカーコマンド単独ではチェックリストを作成しない。
+作業中はスキル別の一時記録を `.verify-docs/dist/` に置き、完了後に
+`.verify-docs/dist/checklist.md` へ統合する。形式は
+[作業記録とチェックリスト](.agents/skills/verify-docs/references/checklist.md)を参照。
+単独のチェッカーは作業記録を作成しない。
 
 ### 契約テスト
 
@@ -68,19 +69,19 @@ Markdown文書やチェックリストを変更しない。
 `node scripts/verify-docs.mjs --json`のように実行すると、文書数・構造集計、違反種別ごとの件数、
 大きな節、TODO候補（[TODOファイルの記述形式](.agents/skills/verify-docs/references/todo.md)）に加え、
 違反箇所の行・列・見出し階層や重複箇所をJSON形式で標準出力に出力する。詳しい例は
-[高度な使い方「検査結果をJSONで取得する」](docs/advanced-usage.md#検査結果をjsonで取得する)を参照。
+[CLIリファレンス「検査結果のJSON出力」](docs/advanced-usage.md#検査結果のjson出力)を参照。
 
-## 機能
+## 機能と責務
 
 | 機能 | 課題 | 内容 | 対象外 |
 | --- | --- | --- | --- |
-| [チェッカー](docs/advanced-usage.md#文書構造を検査する) | リンク切れ、孤立文書、サイズ超過、同一段落 | CommonMark ASTで構造違反を検出 | 意味の近さや文章の良し悪しの判断 |
+| [チェッカー](docs/advanced-usage.md#文書構造の検査) | リンク切れ、孤立文書、サイズ超過、同一段落 | CommonMark ASTで構造違反を検出 | 意味の近さや文章の良し悪しの判断 |
 | [`verify-docs` スキル](.agents/skills/verify-docs/SKILL.md) | 検出した構造違反 | 文書の置き場所と参照関係を整える | 内容の要約・言い換え・文章の推敲 |
 | [`dedupe-docs` スキル](.agents/skills/dedupe-docs/SKILL.md) | 言い換えた同じ説明 | 意味的重複を正本へ集約し、他方を案内にする | 文脈や読者が異なる説明の強制統合 |
 | [`tighten-docs` スキル](.agents/skills/tighten-docs/SKILL.md) | 冗長な文章 | 意味を保った冗長表現を削る | 文書の分割、重複の集約、意味の変更 |
-| [構造抽出CLI](docs/advanced-usage.md#ast情報をjsonで取得する) | 文書構造の確認・記録 | 見出し・段落・位置・バイト数をJSON出力 | 意味的な重複や冗長性の自動判定 |
+| [構造抽出CLI](docs/advanced-usage.md#ast情報のjson出力) | 文書構造の確認・記録 | 見出し・段落・位置・バイト数をJSON出力 | 意味的な重複や冗長性の自動判定 |
 
-## 構造
+## 処理構成
 
 ```mermaid
 flowchart TD
@@ -96,7 +97,8 @@ flowchart TD
     Dedupe[dedupe-docs スキル]
     Tighten[tighten-docs スキル]
     UpdatedDocs[改善後のMarkdown文書]
-    Checklist[.verify-docs/dist/checklist.md<br/>対象・判断理由・実行結果]
+    WorkRecords[作業記録]
+    Checklist[チェックリスト]
 
     Docs --> AST
     Config -.設定.-> Checker
@@ -105,26 +107,27 @@ flowchart TD
     Checker --> CheckJSON
     Checker -->|--init-todo| Todo
     CheckJSON -->|対象節・違反の根拠| VerifySkill
-    VerifySkill --> Checklist
+    VerifySkill --> WorkRecords
     VerifySkill --> UpdatedDocs
 
     AST --> Extractor
     Extractor --> ASTJSON
     ASTJSON --> Dedupe
     ASTJSON --> Tighten
-    Dedupe --> Checklist
-    Tighten --> Checklist
+    Dedupe --> WorkRecords
+    Tighten --> WorkRecords
+    WorkRecords -->|完了後に統合| Checklist
     Dedupe --> UpdatedDocs
     Tighten --> UpdatedDocs
 ```
 
-## 設定
+## 設定ファイル
 
 既定の設定で足りる場合、設定ファイルは不要。対象リポジトリで検査の動作を変えるときは、
 ルートに`verify-docs.config.json`を作り、変更する項目だけを指定する。
 設定項目と入力制約は[設定ファイルの説明](.agents/skills/verify-docs/references/config.md)を参照。
 
-## 参考
+## 関連文書
 
 - [既存リポジトリへの導入、CI、TODOの運用](docs/adoption.md)
 - [CommonMark ASTによる構造解析と機械検査](docs/structure.md)
