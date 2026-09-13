@@ -5,7 +5,7 @@ Claude Code・Codex・Kiro などの生成AIエージェント向けパッケー
 
 | パッケージ | 何をするか |
 | --- | --- |
-| [verify-docs](verify-docs/) | 階層的な文書群の参照整合性・サイズ・重複を検査する |
+| [verify-docs](verify-docs/) | CommonMark対応の文書チェッカーと、dedupe・tighten向けの段落一覧を提供する |
 | [agent-layout](agent-layout/) | スキルとカスタムエージェントをClaude Code・Codex・Kiro向けに補正・同期する |
 
 ## 使い方
