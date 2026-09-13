@@ -125,6 +125,22 @@ test('detects missing fragment', () => {
   rmSync(root, { recursive: true, force: true });
 });
 
+test('recognizes GitHub-style fragment IDs for duplicate headings', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n\n[second duplicate](docs/guide.md#section-2)\n',
+    'docs/guide.md': [
+      '# Guide',
+      '## Section',
+      '## Section',
+      '## Section-1',
+      '## Section',
+      '',
+    ].join('\n'),
+  });
+  assert.deepEqual(run(root).failures, []);
+  rmSync(root, { recursive: true, force: true });
+});
+
 test('detects bad backtick path', () => {
   const root = makeRepo({ 'README.md': '# Repo\n\nSee `scripts/missing.mjs`.\n' });
   assert.ok(run(root).failures.some((f) => f.kind === 'path'));

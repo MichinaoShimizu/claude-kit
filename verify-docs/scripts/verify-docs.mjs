@@ -417,7 +417,13 @@ for (const doc of documents) {
   const body = stripFences(readFileSync(join(ROOT, doc), 'utf8'));
   bodies.set(doc, body);
   const ids = new Set();
-  for (const [, heading] of body.matchAll(/^#{1,6}\s+(.+)$/gm)) ids.add(slug(heading));
+  for (const [, heading] of body.matchAll(/^#{1,6}\s+(.+)$/gm)) {
+    const base = slug(heading);
+    let id = base;
+    let suffix = 1;
+    while (ids.has(id)) id = `${base}-${suffix++}`;
+    ids.add(id);
+  }
   fragments.set(doc, ids);
 }
 
