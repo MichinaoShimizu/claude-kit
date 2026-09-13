@@ -46,6 +46,7 @@ CLIの詳細は[CLIリファレンス](docs/advanced-usage.md)を参照。
 作業中はスキル別の一時記録を `.verify-docs/dist/` に置き、完了後に
 `.verify-docs/dist/checklist.md` へ統合する。形式は
 [作業記録とチェックリスト](.agents/skills/verify-docs/references/checklist.md)を参照。
+導入時に `*.work.md` を無視し、`checklist.md` は追跡する。
 単独のチェッカーは作業記録を作成しない。
 
 ### 契約テスト

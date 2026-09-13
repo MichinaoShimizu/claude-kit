@@ -4,7 +4,7 @@
 
 作業単位: リポジトリ Markdown の文章補正と検証記録の整備
 開始: 2026-09-13T18:50:12+0900
-最終更新: 2026-09-13T23:15:58+0900
+最終更新: 2026-09-13T23:24:26+0900
 
 ## 実行履歴
 
@@ -17,14 +17,15 @@
 | 5 | 22:55 | verify-docs・dedupe-docs・tighten-docs | レビュー指摘を是正し、最終値を再計測 | 構造違反0件 |
 | 6 | 23:07 | verify-docs・dedupe-docs・tighten-docs | 重複説明と旧形式例を削除し、参照先を正本へ集約 | 構造違反0件 |
 | 7 | 23:15 | verify-docs・dedupe-docs・tighten-docs | タスク管理機能の記述を削除し、一時作業記録を正本化 | 構造違反0件 |
+| 8 | 23:24 | verify-docs・dedupe-docs・tighten-docs | インストーラーで一時作業記録を除外し、自己検査を追加 | 構造違反0件 |
 
 ## verify-docs
 
-最終実行: 2026-09-13T23:15:58+0900
+最終実行: 2026-09-13T23:24:26+0900
 
 - [x] リポジトリルート: [AGENTS.md](../../AGENTS.md)、[CLAUDE.md](../../CLAUDE.md)、[CONTRIBUTING.md](../../CONTRIBUTING.md)、[README.md](../../README.md) — 2026-09-13 / 構造検査を完了
 - [x] [agent-layout/README.md](../../agent-layout/README.md) — 2026-09-13 / 構造検査を完了
-- [x] [verify-docs/](../../verify-docs/) の20文書 — 2026-09-13 / タスク管理機能の説明を削除し、構造検査を完了
+- [x] [verify-docs/](../../verify-docs/) の20文書 — 2026-09-13 / 導入先の一時作業記録の除外規則と自己検査を追加
 
 ### 最終検査結果
 
@@ -39,7 +40,7 @@
 
 ## dedupe-docs
 
-最終実行: 2026-09-13T23:15:58+0900
+最終実行: 2026-09-13T23:24:26+0900
 
 - [x] リポジトリルート: [AGENTS.md](../../AGENTS.md)、[CLAUDE.md](../../CLAUDE.md)、[CONTRIBUTING.md](../../CONTRIBUTING.md)、[README.md](../../README.md) — 2026-09-13 / 意味的重複なし
 - [x] [agent-layout/README.md](../../agent-layout/README.md) — 2026-09-13 / 意味的重複なし
@@ -59,7 +60,7 @@
 
 ## tighten-docs
 
-最終実行: 2026-09-13T23:15:58+0900
+最終実行: 2026-09-13T23:24:26+0900
 
 - [x] リポジトリルート: [AGENTS.md](../../AGENTS.md)、[CLAUDE.md](../../CLAUDE.md)、[CONTRIBUTING.md](../../CONTRIBUTING.md)、[README.md](../../README.md) — 2026-09-13 / 安全に削れる表現なし
 - [x] [agent-layout/README.md](../../agent-layout/README.md) — 2026-09-13 / 安全に削れる表現なし
@@ -98,7 +99,7 @@
 | [verify-docs/.agents/skills/verify-docs/references/remediation.md](../../verify-docs/.agents/skills/verify-docs/references/remediation.md) | 4,105B | 4,119B | -0.3% | 0B | 継続的な検査を明確化 |
 | [verify-docs/.agents/skills/verify-docs/references/todo.md](../../verify-docs/.agents/skills/verify-docs/references/todo.md) | 2,261B | 2,289B | -1.2% | +22B | TODO手順の参照先を是正手順へ変更 |
 | [verify-docs/CONTRIBUTING.md](../../verify-docs/CONTRIBUTING.md) | 2,954B | 2,948B | 0.2% | 0B | 見出しを補正 |
-| [verify-docs/README.md](../../verify-docs/README.md) | 6,851B | 6,922B | -1.0% | +9B | 図中の名称をチェックリストへ統一 |
+| [verify-docs/README.md](../../verify-docs/README.md) | 6,851B | 6,996B | -2.1% | +74B | 導入時の一時作業記録の除外を明記 |
 | [verify-docs/docs/adoption.md](../../verify-docs/docs/adoption.md) | 2,836B | 2,835B | 0.0% | +72B | 導入時の参照先を是正手順へ変更 |
 | [verify-docs/docs/advanced-usage.md](../../verify-docs/docs/advanced-usage.md) | 1,348B | 1,303B | 3.3% | 0B | 見出しを具体化 |
 | [verify-docs/docs/structure.md](../../verify-docs/docs/structure.md) | 1,902B | 1,889B | 0.7% | -21B | 完了レコードを廃止 |
