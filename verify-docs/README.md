@@ -1,7 +1,7 @@
 # verify-docs
 
 生成AIエージェント（Claude Code など）が読む CLAUDE.md・AGENTS.md・README・
-docs ディレクトリ・`.claude/skills/` のような階層的な文書群を、「必要な時に
+docs ディレクトリ・`.agents/skills/` のような階層的な文書群を、「必要な時に
 だけ必要な文書が読まれる」構造に是正し、機械検査で維持し続けるための一式。
 CLAUDE.md・AGENTS.md はルーティングテーブルに徹する（話題と行き先の対応表
 のみを持ち、理由・手順は持たない）ことを前提とする。
@@ -16,12 +16,12 @@ CLAUDE.md・AGENTS.md はルーティングテーブルに徹する（話題と�
    - 文書のサイズ超過（読む量の予算）
    - 複数の文書に同一説明がそのまま重複していないか（コピー後の片側修正で
      矛盾した説明が残留する事故を防止する）
-2. **プレイブック**（`.claude/skills/verify-docs/SKILL.md`）—— 検出事項の
+2. **プレイブック**（`.agents/skills/verify-docs/SKILL.md`）—— 検出事項の
    是正手順（太った文書の分割方法、重複の解消方法、TODO の記述方法）。
    言い回しが異なる言い換えによる重複（チェッカーでは検出できない）は
-   同梱の [dedupe-docs スキル](.claude/skills/dedupe-docs/SKILL.md)、
+   同梱の [dedupe-docs スキル](.agents/skills/dedupe-docs/SKILL.md)、
    意味を変えない冗長な言い回しの削減は同梱の
-   [tighten-docs スキル](.claude/skills/tighten-docs/SKILL.md) を参照する
+   [tighten-docs スキル](.agents/skills/tighten-docs/SKILL.md) を参照する
 
 verify-docs・dedupe-docs・tighten-docsは独立したスキルであり、いずれかを
 実行しても他は自動実行されない（dedupe-docs・tighten-docsはverify-docsの
@@ -33,7 +33,7 @@ verify-docs・dedupe-docs・tighten-docsは独立したスキルであり、い�
 エージェント・フックへの依存は無い。検査スクリプトを CI と push 前検証に
 組み込むことで機能する。遵守事項（是正対象は構造のみとし、内容は変更しない）
 の詳細は
-[SKILL.md「守ること」](.claude/skills/verify-docs/SKILL.md#守ること)を
+[SKILL.md「守ること」](.agents/skills/verify-docs/SKILL.md#守ること)を
 参照する。
 
 ## 導入
@@ -44,14 +44,20 @@ verify-docs・dedupe-docs・tighten-docsは独立したスキルであり、い�
 ```
 your-repo/
 ├── scripts/verify-docs.mjs               ← このディレクトリの scripts/ をコピー
-├── .claude/skills/verify-docs/           ← このディレクトリの .claude/ をコピー（SKILL.md と references/）
-├── .claude/skills/dedupe-docs/           ← 同上（言い換えによる重複の是正。任意だが同梱を推奨）
-├── .claude/skills/tighten-docs/          ← 同上（冗長な言い回しの削減。任意だが同梱を推奨）
+├── .agents/skills/verify-docs/           ← このディレクトリの .agents/ をコピー（SKILL.md と references/）
+├── .agents/skills/dedupe-docs/           ← 同上（言い換えによる重複の是正。任意だが同梱を推奨）
+├── .agents/skills/tighten-docs/          ← 同上（冗長な言い回しの削減。任意だが同梱を推奨）
+├── .claude/skills -> ../.agents/skills   ← Claude Code 用の互換入口
+├── .kiro/skills -> ../.agents/skills     ← Kiro 用の互換入口
 └── verify-docs.config.json               ← 必要な場合のみ作成する（無くても動作する）
 ```
 
+エージェントごとの入口文書とスキルディレクトリの共用方法は
+[agent-compatibility.md](.agents/skills/verify-docs/references/agent-compatibility.md)
+を参照する。
+
 設定項目名と意味の正本は
-[references/config.md](.claude/skills/verify-docs/references/config.md)
+[references/config.md](.agents/skills/verify-docs/references/config.md)
 の表であり、本ファイルでは個々のキー名を列挙しない。既定値のまま運用を
 開始し、対象リポジトリの構成と異なる項目（`docsDir` の場所が違う、監視
 対象から外したいディレクトリがある、など）のみ `verify-docs.config.json`
@@ -85,7 +91,7 @@ node scripts/verify-docs.mjs --init-todo
 
 **2. CI に組み込む。** 以降、新規に書く文書・追記する文書は上限を遵守する。
 TODO に記載された文書は任意のタイミングで分割し、是正後にエントリを削除する。
-分割手順は [SKILL.md](.claude/skills/verify-docs/SKILL.md)
+分割手順は [SKILL.md](.agents/skills/verify-docs/SKILL.md)
 「2. 肥大化文書の特定」を参照する。
 
 この2段階を経ない場合、導入は「初日に全て分割する」か「検査を無効化する」の
@@ -94,7 +100,7 @@ TODO に記載された文書は任意のタイミングで分割し、是正後
 重複はサイズ超過と異なり TODO 化の対象としない。導入時点で重複が検出された
 場合は、その場でいずれか一方に統合してポインタに置換するか、意図した重複
 であれば `<!-- verify-docs:allow-duplicate -->` を付与する
-（[SKILL.md](.claude/skills/verify-docs/SKILL.md)「3. 重複特定」）。
+（[SKILL.md](.agents/skills/verify-docs/SKILL.md)「3. 重複特定」）。
 サイズ超過と異なり「後で是正する」を許容すると矛盾した説明が残り続ける。
 
 ## CI への組み込み
@@ -132,7 +138,7 @@ typecheck・test など）に `node scripts/verify-docs.mjs` を1本追加する
 **`verify-docs.todo.json`（本ツールが読み込む、運用上の TODO）。**
 記述方法・運用ルール（削減する方向にのみ運用する、重複はここには
 記載できない、等）は
-[references/todo.md](.claude/skills/verify-docs/references/todo.md)
+[references/todo.md](.agents/skills/verify-docs/references/todo.md)
 を参照する（正本は todo.md 側とし、本ファイルでは再掲しない）。
 
 これを「後で是正する一覧」として際限なく積み増すと導入の意義が失われる

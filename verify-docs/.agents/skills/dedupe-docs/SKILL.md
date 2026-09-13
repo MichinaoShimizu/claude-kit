@@ -22,7 +22,7 @@ verify-docs の重複検査は「段落がそのまま一致するか」しか�
 ## 前提
 
 対象リポジトリに verify-docs 一式（`scripts/verify-docs.mjs` と
-`.claude/skills/verify-docs/`）が導入済みであること。検査対象・設定・
+`.agents/skills/verify-docs/`）が導入済みであること。検査対象・設定・
 規約（`allow-duplicate` マーカーなど）は流用する。verify-docs 自体の規約は
 [verify-docs/SKILL.md](../verify-docs/SKILL.md) を参照する。
 

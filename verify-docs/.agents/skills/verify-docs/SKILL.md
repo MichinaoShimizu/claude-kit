@@ -1,7 +1,7 @@
 ---
 name: verify-docs
 description: >
-  CLAUDE.md・README・docs・.claude/skills のような階層的な文書群を、
+  CLAUDE.md・README・docs・.agents/skills のような階層的な文書群を、
   「必要な時にだけ必要な文書が読まれる」構造に是正・維持する際に参照する。
   検査対象は3点: 参照切れ・孤立文書（参照整合性）、文書のサイズ超過
   （読む量の予算）、複数の文書に同じ説明がそのまま重複していないか（コピーして
@@ -17,7 +17,7 @@ description: >
 # verify-docs —— 必要な時にだけ必要な文書を読ませる
 
 生成AIエージェントはセッション開始時に CLAUDE.md・AGENTS.md・README を読み、
-作業中に関連する docs や `.claude/skills/*/SKILL.md` を参照する。この設計が
+作業中に関連する docs や `.agents/skills/*/SKILL.md` を参照する。この設計が
 崩れると、関係ない決め事まで毎回トークンを消費する。崩れ方は3種類。
 
 1. **入口の肥大化。** CLAUDE.md・AGENTS.md・README に不要な詳細が残ると、
@@ -52,6 +52,8 @@ description: >
 `scripts/verify-docs.mjs` を対象リポジトリに配置する（本スキル一式を
 まるごとコピーすれば含まれる）。設定は `verify-docs.config.json`
 （無ければ既定値。[references/config.md](references/config.md)を参照）。
+複数エージェントで入口文書とスキルを共用する構成は
+[references/agent-compatibility.md](references/agent-compatibility.md) を参照する。
 
 **実行する前に、必ず対象文書（またはこの回で確認する観点）の一覧を
 チェックリストとして先に作る。**「簡単な確認だから」「1回実行するだけ

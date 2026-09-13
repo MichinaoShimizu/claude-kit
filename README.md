@@ -1,6 +1,6 @@
 # claude-kit
 
-Claude Code などの生成AIエージェント向け、リポジトリへ組み込んで使う
+Claude Code・Codex・Kiro などの生成AIエージェント向け、リポジトリへ組み込んで使う
 再利用可能パッケージの置き場所。スキル単体のパッケージ・専用サブエージェント
 を伴うパッケージを同一形式で管理する。1パッケージ = 1ディレクトリとし、
 コピー元は本リポジトリの各ディレクトリそのものとする。
@@ -14,6 +14,11 @@ Claude Code などの生成AIエージェント向け、リポジトリへ組み
 対象リポジトリに、使用するパッケージのディレクトリの中身をそのまま
 コピーする。導入手順・CI への組み込み方は各パッケージの README
 （例: [verify-docs/README.md](verify-docs/README.md)）を参照する。
+
+共通の作業指示は [AGENTS.md](AGENTS.md) を正本とする。Claude Code は
+[CLAUDE.md](CLAUDE.md) から同じ指示を読み込む。スキルの共用方法は
+[verify-docs の互換構成](verify-docs/.agents/skills/verify-docs/references/agent-compatibility.md)
+を参照する。
 
 貢献手順（新規パッケージの追加方法など）は
 [CONTRIBUTING.md](CONTRIBUTING.md) を参照する。

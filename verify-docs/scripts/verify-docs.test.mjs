@@ -1,7 +1,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
+import {
+  mkdtempSync,
+  mkdirSync,
+  writeFileSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -79,6 +86,51 @@ test('excludePaths keeps excluded directories out of the scan entirely', () => {
   const root = makeRepo({
     'README.md': '# Repo\n',
     'node_modules/some-lib/README.md': '# Some lib\n[missing](missing.md)\n',
+  });
+  assert.deepEqual(run(root).failures, []);
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('uses legacy .claude/skills when .agents/skills is absent', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n',
+    '.claude/skills/example/SKILL.md': '# Example\n\n[reference](references/guide.md)\n',
+    '.claude/skills/example/references/guide.md': '# Guide\n',
+  });
+  assert.deepEqual(run(root).failures, []);
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('uses .kiro/skills when other skill directories are absent', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n',
+    '.kiro/skills/example/SKILL.md': '# Example\n\n[reference](references/guide.md)\n',
+    '.kiro/skills/example/references/guide.md': '# Guide\n',
+  });
+  assert.deepEqual(run(root).failures, []);
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('does not scan a symlinked compatibility skill directory twice', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n',
+    '.agents/skills/example/SKILL.md': '# Example\n\n[reference](references/guide.md)\n',
+    '.agents/skills/example/references/guide.md': '# Guide\n',
+  });
+  mkdirSync(join(root, '.claude'), { recursive: true });
+  symlinkSync('../.agents/skills', join(root, '.claude/skills'), 'dir');
+  mkdirSync(join(root, '.kiro'), { recursive: true });
+  symlinkSync('../.agents/skills', join(root, '.kiro/skills'), 'dir');
+  assert.deepEqual(run(root).failures, []);
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('agent configuration docs are exempt from orphan checks', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n',
+    '.agents/rules/local.md': '# Local agent rule\n',
+    '.claude/rules/local.md': '# Local Claude rule\n',
+    '.kiro/steering/local.md': '# Local Kiro rule\n',
   });
   assert.deepEqual(run(root).failures, []);
   rmSync(root, { recursive: true, force: true });
@@ -189,7 +241,7 @@ test('every DEFAULTS key is documented in config.md (prevents doc drift when a k
   assert.ok(keys.length > 0, 'failed to extract DEFAULTS keys from verify-docs.mjs');
 
   const configMd = readFileSync(
-    join(import.meta.dirname, '../.claude/skills/verify-docs/references/config.md'),
+    join(import.meta.dirname, '../.agents/skills/verify-docs/references/config.md'),
     'utf8',
   );
   for (const key of keys) {

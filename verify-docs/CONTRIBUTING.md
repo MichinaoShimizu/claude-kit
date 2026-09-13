@@ -14,10 +14,10 @@
   追加した場合、正本である `references/config.md` の表への追記を
   `verify-docs.test.mjs`（「every DEFAULTS key is documented in
   config.md」）が機械的に検査する。README.md 側は個々のキー名を列挙しない
-  （正本は [config.md](.claude/skills/verify-docs/references/config.md)）
+  （正本は [config.md](.agents/skills/verify-docs/references/config.md)）
 - 「機械的に真偽が判定できるか」を超える判断（表記ゆれの許容、意味的な
   類似判定など）はチェッカーに組み込まない。必要なら
-  [dedupe-docs スキル](.claude/skills/dedupe-docs/SKILL.md) のような
+  [dedupe-docs スキル](.agents/skills/dedupe-docs/SKILL.md) のような
   別スキルに切り出す
 - 「守ること」は本一式自体にも適用する。既存説明の書き直しでも、意味を
   変える書き換えと構造のみの是正は別コミットとする
@@ -29,10 +29,10 @@
   介入は行わない）
 - 文章を機械的に簡潔化する提案（冗長性の判定は主観を伴うため自動化しない。
   判断は執筆者本人、または対象リポジトリの原則審査に委ねる。
-  [SKILL.md](.claude/skills/verify-docs/SKILL.md)「1. 入口を軽くする」参照）
+  [SKILL.md](.agents/skills/verify-docs/SKILL.md)「1. 入口を軽くする」参照）
 - Markdown 以外（`.mdx`・`.rst` など）の検査（対象読者が読む文書は Markdown
   への統一を前提とする構成のため、他形式への対応はスコープ外）
-- CLAUDE.md のような「索引の表」と実体（`.claude/skills/` 配下のスキルや
+- CLAUDE.md のような「索引の表」と実体（`.agents/skills/` 配下のスキルや
   サブエージェント定義など）の突合（見出し名がリポジトリ固有になりやすく
   汎用検査への適用が困難。個別リポジトリで必要な場合は専用スクリプトで
   対応する）

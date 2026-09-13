@@ -1,43 +1,20 @@
 # verify-docs-checklist
 
-## verify-docs — 2026-09-13T01:30:00+0900
+## verify-docs — 2026-09-13T09:30:43+0900
 
-既定上限を20000→7000バイトに変更後、TODO化した4文書のうち2件を分割で
-是正した回。
-
-### リポジトリ直下（node scripts/verify-docs.mjs, 3件）
-
-- [x] README.md — 2026-09-13 / 違反なし
-- [x] CLAUDE.md — 2026-09-13 / 違反なし
-- [x] CONTRIBUTING.md — 2026-09-13 / 違反なし
-
-### verify-docs パッケージ単体（ci-selfcheck.sh 経由, 11件）
-
-- [x] verify-docs/README.md — 2026-09-13 / TODO残置（7508B、既定上限変更に伴う超過。分割は次回検討）
-- [x] verify-docs/CONTRIBUTING.md — 2026-09-13 / 違反なし
-- [x] verify-docs/.claude/skills/verify-docs/SKILL.md — 2026-09-13 / TODO残置（9291B、手順1〜6は線形手順で分割候補が薄いため次回検討）
-- [x] verify-docs/.claude/skills/verify-docs/references/config.md — 2026-09-13 / 分割で是正 → `references/todo.md`・`references/duplicate-handling.md`を切り出し、さらに「作業チェックリストの保管先」をchecklist.mdへ統合し6,816Bに縮小。TODOから削除
-- [x] verify-docs/.claude/skills/verify-docs/references/todo.md（新規） — 2026-09-13 / config.mdから切り出し。1,607B
-- [x] verify-docs/.claude/skills/verify-docs/references/duplicate-handling.md（新規） — 2026-09-13 / config.mdから切り出し。1,764B
-- [x] verify-docs/.claude/skills/verify-docs/references/checklist.md — 2026-09-13 / config.mdの「作業チェックリストの保管先」の内容を吸収し5,600Bに増加も上限内
-- [x] verify-docs/.claude/skills/verify-docs/references/checklist-summary.md — 2026-09-13 / 違反なし
-- [x] verify-docs/.claude/skills/tighten-docs/SKILL.md — 2026-09-13 / 分割で是正 → `references/patterns.md`へ23パターンの一覧を切り出し3,481Bに縮小。TODOから削除
-- [x] verify-docs/.claude/skills/tighten-docs/references/patterns.md（新規） — 2026-09-13 / SKILL.mdから切り出し。4,760B
-- [x] verify-docs/.claude/skills/dedupe-docs/SKILL.md — 2026-09-13 / 違反なし
+- [x] README.md — 2026-09-13 / 対応エージェントにKiroを追記。2,943B → 2,950B（0.2%増）
+- [x] AGENTS.md — 2026-09-13 / Kiroが直接読み込む共通指示として変更不要。1,457B → 1,457B
+- [x] verify-docs/README.md — 2026-09-13 / `.kiro/skills` 互換入口を導入構成へ追加。7,786B → 7,862B（1.0%増、既存TODO範囲内）
+- [x] verify-docs/.agents/skills/verify-docs/references/agent-compatibility.md — 2026-09-13 / KiroのAGENTS.md・スキル読込経路とWindows代替手順を追加。1,347B → 1,692B（25.6%増）
+- [x] verify-docs/.agents/skills/verify-docs/references/config.md — 2026-09-13 / `.kiro/skills` 自動検出と `.kiro` 設定文書の扱いを追加。6,534B → 6,546B（0.2%増）
 
 ### 総評
 
-- 検査したファイル数: リポジトリ直下 3件 + verify-docsパッケージ単体 11件（重複無しの別スコープ、合計14件）
-- 検出した違反・重複の件数: 0件（両スコープとも「文書構造: すべて通過」）。TODOは4件→2件に削減
-- 作業にかかった時間: 2026-09-13 01:26 〜 01:30（所要4分程度）
-- 全体のサイズ変化: config.md 9,782B→6,816B（2,966B減、30.3%減）、tighten-docs/SKILL.md
-  7,874B→3,481B（4,393B減、55.8%減）。新規ファイル3件（todo.md 1,607B・
-  duplicate-handling.md 1,764B・patterns.md 4,760B）を追加、checklist.md
-  5,579B→5,600B（21B増）
-- 常時読み込み→オンデマンド化: tighten-docs/SKILL.mdの23パターン一覧
-  （約4,760B）をreferences/patterns.mdへ、config.mdのTODO形式・重複検査
-  細目（約3,371B）をreferences/todo.md・duplicate-handling.mdへ、それぞれ
-  常時読み込みからオンデマンドへ移動
+- 検査したファイル数: リポジトリ直下4件 + verify-docsパッケージ単体12件（合計16件）
+- 検出した違反・重複の件数: 0件（両スコープとも「文書構造: すべて通過」）
+- 作業にかかった時間: 2026-09-13 09:30:43 〜 09:32:11（所要1分28秒）
+- 全体のサイズ変化: 61,238B → 61,678B（440B増、0.7%増）
+- 常時読み込み→オンデマンド化: 該当なし
 
 ## dedupe-docs — 2026-09-13T01:15:56+0900
 

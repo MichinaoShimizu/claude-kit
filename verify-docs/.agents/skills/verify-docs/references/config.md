@@ -1,6 +1,6 @@
 # 設定ファイルの中身
 
-`.claude/skills/verify-docs/SKILL.md` から参照される。検査スクリプトの設定を
+`.agents/skills/verify-docs/SKILL.md` から参照される。検査スクリプトの設定を
 変更する場合に参照する。TODO ファイルの記述形式は
 [references/todo.md](todo.md)、準一致重複・意図した重複の許可方法は
 [references/duplicate-handling.md](duplicate-handling.md) を参照する。
@@ -17,8 +17,9 @@
 {
   "entryPoints": ["README.md", "CLAUDE.md", "AGENTS.md"],
   "docsDir": "docs",
-  "skillsDir": ".claude/skills",
-  "pathRoots": ["src/", "docs/", "scripts/", ".claude/", ".github/"],
+  "skillsDir": ".agents/skills",
+  "pathRoots": ["src/", "docs/", "scripts/", ".agents/", ".claude/", ".kiro/", ".github/"],
+  "agentConfigDirs": [".agents", ".claude", ".kiro"],
   "excludePaths": ["node_modules/", ".git/", "vendor/", "dist/", "build/", ".verify-docs/"],
   "maxDocBytes": 7000,
   "minDuplicateChars": 60,
@@ -30,10 +31,11 @@
 
 | キー                  | 意味                                                                 |
 | --------------------- | ---------------------------------------------------------------------- |
-| `entryPoints`         | 索引となる文書。他から参照されていなくてよい起点（CLAUDE.md・AGENTS.md はルーティングテーブルに徹する。下記「入口の既定値」を参照） |
+| `entryPoints`         | 索引となる文書。他から参照されていなくてよい起点（CLAUDE.md・AGENTS.md はルーティングテーブルに徹する。[agent-compatibility.md](agent-compatibility.md)を参照） |
 | `docsDir`             | 話題ごとの詳細文書を配置するディレクトリ                             |
-| `skillsDir`           | スキル定義を配置するディレクトリ（`<skillsDir>/<name>/SKILL.md` を想定） |
+| `skillsDir`           | スキル定義を配置するディレクトリ（`<skillsDir>/<name>/SKILL.md` を想定）。既定は `.agents/skills`。存在しなければ `.claude/skills`、`.kiro/skills` の順に自動検出する |
 | `pathRoots`           | 本文中のバッククォート表記をパスとして検査する接頭辞                 |
+| `agentConfigDirs`     | スキル以外のエージェント設定文書を孤立チェックから除外するディレクトリ |
 | `excludePaths`        | 検査対象から除外するディレクトリ（下記「検査対象の集め方」を参照）。既定に含まれる `.verify-docs/` は作業チェックリストの保管先（[checklist.md「物理ファイル作成」](checklist.md#物理ファイル作成必須)を参照） |
 | `maxDocBytes`         | 1文書あたりの上限（バイト数）。超過時は分割するか TODO に記載する    |
 | `minDuplicateChars`   | 重複検査の対象とする段落の最小文字数。値が小さいほど誤検知が増加する |
@@ -61,8 +63,8 @@
 ディレクトリを `excludePaths` で除外し二重検査を避ける。
 
 孤立チェックだけは、この「走査対象」よりさらに狭い範囲にしか適用されない。
-`.claude/` 配下（`skillsDir` 自身の SKILL.md 一式を除く）で `docsDir` にも
-属さない文書（エージェント定義など、スキル以外の設定ファイル）は、走査
+`agentConfigDirs` 配下（`skillsDir` 自身の SKILL.md 一式を除く）で
+`docsDir` にも属さない文書（エージェント定義など、スキル以外の設定ファイル）は、走査
 （リンク切れ・サイズ超過・重複の検査）には含まれたまま、孤立チェックのみ
 免除される。README・SKILL.md から参照されない運用が前提の設定ファイルまで
 「孤立」として毎回検出し続けるのを避けるための意図的な例外であり、実装漏れ
@@ -81,17 +83,8 @@
 挙動詳細は [references/duplicate-handling.md](duplicate-handling.md) を
 参照する。
 
-### 入口の既定値
-
-`entryPoints` の既定値には `CLAUDE.md` と `AGENTS.md` の両方を含める。
-いずれもエージェント向け入口ファイルという同一の役割を持ち、使用する
-CLI・エージェントによって名称が異なるだけである。片方しか無いリポジトリ
-でも既定値のまま動作する（存在しない側は `entryPoints.filter(existsSync)`
-により自然に除外される）。
-
-共通する原則の詳細は [SKILL.md](../SKILL.md)「1. 入口軽量化」を
-参照する。本検査はサイズと重複のみを検査するため、「ルーティングテーブル
-に徹しているか」自体は機械では判定できず、人が検出する。
+入口文書とスキルの共用方法は
+[agent-compatibility.md](agent-compatibility.md) を参照する。
 
 `excludePaths` の既定値に `.verify-docs/` を含めている理由（作業チェック
 リストの保管先であること）は
