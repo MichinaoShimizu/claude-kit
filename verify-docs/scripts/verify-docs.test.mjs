@@ -510,6 +510,29 @@ test('changed-base reports only violations related to changed paths', () => {
   rmSync(root, { recursive: true, force: true });
 });
 
+test('changed-base reports unchanged links to a renamed document', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n\n[guide](docs/guide.md)\n',
+    'docs/guide.md': '# Guide\n',
+  });
+  execFileSync('git', ['init', '-q', root]);
+  execFileSync('git', ['-C', root, 'add', '.']);
+  execFileSync('git', ['-C', root, '-c', 'commit.gpgsign=false', '-c', 'user.name=test', '-c', 'user.email=test@example.com', 'commit', '-qm', 'initial']);
+  execFileSync('git', ['-C', root, 'mv', 'docs/guide.md', 'docs/getting-started.md']);
+  execFileSync('git', ['-C', root, '-c', 'commit.gpgsign=false', '-c', 'user.name=test', '-c', 'user.email=test@example.com', 'commit', '-am', 'rename']);
+
+  const result = verifyDocs(root, { changedBase: 'HEAD~1' });
+  assert.deepEqual(result.changed.paths, ['docs/getting-started.md', 'docs/guide.md']);
+  assert.deepEqual(result.changed.renames, [{ from: 'docs/guide.md', to: 'docs/getting-started.md' }]);
+  const linkFailure = result.failures.find((failure) => failure.kind === 'link');
+  assert.equal(linkFailure.from, 'README.md');
+  assert.equal(linkFailure.target, 'docs/guide.md');
+  assert.ok(result.failures.some((failure) =>
+    failure.kind === 'orphan' && failure.from === 'docs/getting-started.md',
+  ));
+  rmSync(root, { recursive: true, force: true });
+});
+
 test('CLI prints JSON and preserves the failure exit code', () => {
   const root = makeRepo({ 'README.md': '# Repo\n\n[missing](docs/missing.md)\n' });
   try {
