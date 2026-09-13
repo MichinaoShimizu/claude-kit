@@ -20,17 +20,17 @@
 | 最終検査 | `node verify-docs/scripts/verify-docs.mjs --root=.` — 違反 0 件 |
 | 判断保留 | なし |
 
-## dedupe-docs — 2026-09-13T13:44:29+0900
+## dedupe-docs — 2026-09-13T13:54:21+0900
 
-- [x] README.md・AGENTS.md・CLAUDE.md・CONTRIBUTING.md の意味的重複候補
+- [x] README.md・verify-docs/README.md・verify-docs/docs/structure.md の意味的重複候補
 
 ### 実行結果
 
 | 項目 | 結果 |
 | --- | --- |
-| 対象 | README.md、AGENTS.md、CLAUDE.md、CONTRIBUTING.md |
-| 実施 | AST段落一覧で、同義の重複と重複箇所の役割を照合 |
-| 最終検査 | 統合対象 0 件。AGENTS.mdの共通規則とCONTRIBUTING.mdの貢献時の案内は用途が異なる |
+| 対象 | README.md、verify-docs/README.md、verify-docs/docs/structure.md |
+| 実施 | AST段落一覧で、AST解析・チェッカー・構造抽出CLI・スキルの説明を照合 |
+| 最終検査 | 統合対象 0 件。入口の要約・READMEの利用案内・詳細文書の技術仕様は役割が異なる |
 | 判断保留 | なし |
 
 ## tighten-docs — 2026-09-13T13:44:29+0900
