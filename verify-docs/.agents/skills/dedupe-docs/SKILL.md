@@ -52,6 +52,17 @@ node scripts/verify-docs.mjs
 を参照する。全項目にチェックが入るまで「3. 確信度別の対応」には
 進まない。
 
+チェックリストの対象文書を調べるときは、共通抽出コマンドで段落の見出し階層・
+元位置・本文を一覧化する。
+
+```bash
+node scripts/extract-doc-blocks.mjs --root=. README.md docs/guide.md
+```
+
+対象が多い場合は、チェックリストのパスを複数指定する。出力の `headingPath`・
+`sourcepos`・`text` を使って同じ主張の比較候補を整理し、必ず原文も確認する。
+この一覧は候補の棚卸しに限り、意味的な重複の判定や統合可否は自動決定しない。
+
 よくあるパターン:
 
 - 入口文書（README・CLAUDE.md など）の一文を、詳細文書（docs・SKILL.md

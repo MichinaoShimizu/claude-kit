@@ -67,6 +67,8 @@ fi
 
 files=(
   scripts/verify-docs.mjs
+  scripts/markdown-structure.mjs
+  scripts/extract-doc-blocks.mjs
   scripts/vendor
   .agents/skills/verify-docs
   .agents/skills/dedupe-docs

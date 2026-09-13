@@ -40,6 +40,17 @@ verify-docs の検査はサイズ超過という結果のみを見る。冗長�
 [verify-docs/references/checklist.md](../verify-docs/references/checklist.md)
 を参照する。
 
+チェックリストに載せた対象文書は、共通抽出コマンドで段落の見出し階層・元位置・
+本文・バイト数を一覧化し、確認する箇所を整理する。
+
+```bash
+node scripts/extract-doc-blocks.mjs --root=. README.md docs/guide.md
+```
+
+対象が多い場合は、チェックリストのパスを複数指定する。段落の `bytes` はMarkdown
+記法を含む元ソース範囲のサイズである。抽出結果は候補の棚卸しに限り、冗長性や
+安全に削除できるかを判定しない。必ず原文と「守ること」を確認して判断する。
+
 ### 2. 冗長表現削減
 
 典型パターンの一覧は

@@ -34,6 +34,8 @@ GitHub Actionsのワークフローは自動追加しない。CIへの組み込�
 ```text
 your-repo/
 ├── scripts/verify-docs.mjs
+├── scripts/markdown-structure.mjs
+├── scripts/extract-doc-blocks.mjs
 ├── scripts/vendor/commonmark.cjs
 ├── scripts/vendor/commonmark-LICENSE.txt
 ├── .agents/skills/verify-docs/
@@ -55,6 +57,18 @@ Markdown構文解析にはCommonMark.js 0.31.2を同梱しているため、導�
 ```bash
 node scripts/verify-docs.mjs
 ```
+
+### 段落の構造・位置・サイズを一覧化
+
+dedupe-docs / tighten-docs で対象文書を調べるときは、次のコマンドでCommonMarkの
+見出し階層と段落をJSON出力できる。意味的な重複や冗長性は判定しない。
+
+```bash
+node scripts/extract-doc-blocks.mjs --root=. README.md docs/guide.md
+```
+
+段落ごとに見出し階層、ソース位置、本文、Markdown記法を含む元ソースのバイト数を
+返す。詳しい使い方は各スキルの手順を参照。
 
 既存文書に違反があるリポジトリでは、最初に次を実行する。
 

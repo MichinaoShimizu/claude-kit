@@ -10,14 +10,19 @@ rel_dir="${dir#"$repo_root"/}"
 
 node "$dir/scripts/verify-docs.mjs" --root="$rel_dir"
 node --test "$dir/scripts/verify-docs.test.mjs"
+node --test "$dir/scripts/extract-doc-blocks.test.mjs"
 
 install_target="$(mktemp -d)"
 trap 'rm -rf "$install_target"' EXIT
 (cd "$install_target" && bash "$dir/install.sh" --source "$dir")
 (cd "$install_target" && bash "$dir/install.sh" --source "$dir")
 test -f "$install_target/scripts/verify-docs.mjs"
+test -f "$install_target/scripts/markdown-structure.mjs"
+test -f "$install_target/scripts/extract-doc-blocks.mjs"
 test -f "$install_target/scripts/vendor/commonmark.cjs"
 node "$install_target/scripts/verify-docs.mjs" --root="$install_target/scripts"
+node "$install_target/scripts/extract-doc-blocks.mjs" \
+  --root="$install_target" .agents/skills/verify-docs/SKILL.md >/dev/null
 test -f "$install_target/.agents/skills/verify-docs/SKILL.md"
 test -f "$install_target/.agents/skills/dedupe-docs/SKILL.md"
 test -f "$install_target/.agents/skills/tighten-docs/SKILL.md"

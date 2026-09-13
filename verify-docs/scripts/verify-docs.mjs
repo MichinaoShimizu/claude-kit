@@ -95,9 +95,7 @@
 
 import { existsSync, lstatSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
-import { createRequire } from 'node:module';
-
-const commonmark = createRequire(import.meta.url)('./vendor/commonmark.cjs');
+import { markdownText, parseMarkdown } from './markdown-structure.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name) => args.includes(`--${name}`);
@@ -322,23 +320,13 @@ function stripFences(text) {
     .join('\n');
 }
 
-function headingText(node) {
-  let text = '';
-  for (let child = node.firstChild; child; child = child.next) {
-    if (child.type === 'text' || child.type === 'code') text += child.literal ?? '';
-    else if (child.type === 'softbreak' || child.type === 'linebreak') text += ' ';
-    else if (child.type !== 'html_inline' && child.firstChild) text += headingText(child);
-  }
-  return text;
-}
-
 const bodies = new Map();
 const syntaxTrees = new Map();
 const fragments = new Map();
 
 for (const doc of documents) {
   const source = readFileSync(join(ROOT, doc), 'utf8');
-  const tree = new commonmark.Parser().parse(source);
+  const tree = parseMarkdown(source);
   syntaxTrees.set(doc, tree);
   const body = stripFences(source);
   bodies.set(doc, body);
@@ -347,7 +335,7 @@ for (const doc of documents) {
   let event;
   while ((event = walker.next())) {
     if (!event.entering || event.node.type !== 'heading') continue;
-    const base = slug(headingText(event.node));
+    const base = slug(markdownText(event.node));
     let id = base;
     let suffix = 1;
     while (ids.has(id)) id = `${base}-${suffix++}`;
