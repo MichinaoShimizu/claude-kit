@@ -1,7 +1,10 @@
 # verify-docs
 
 Markdown文書群の検査・改善パッケージ。[文書構造検証器](docs/structure.md#文書構造検証器)・
-[文書構造抽出器](docs/structure.md#文書構造抽出器)と3つのスキルを同梱する。
+[文書構造抽出器](docs/structure.md#文書構造抽出器)・
+[文書構造是正スキル](.agents/skills/verify-docs/SKILL.md#文書構造是正スキル)・
+[文書重複解消スキル](.agents/skills/dedupe-docs/SKILL.md#文書重複解消スキル)・
+[文書簡潔化スキル](.agents/skills/tighten-docs/SKILL.md#文書簡潔化スキル)を同梱する。
 CommonMark ASTを基盤に、参照整合性・文書構造・サイズ・重複を検査し、
 文書構造の是正、意味的重複の解消、意味を保った簡潔化を支援する。
 
