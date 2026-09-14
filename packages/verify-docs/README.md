@@ -16,7 +16,7 @@ CommonMark ASTを基盤に、参照整合性・文書構造・サイズ・重複
 curl -fsSL https://raw.githubusercontent.com/MichinaoShimizu/claude-kit/main/packages/verify-docs/install.sh | bash
 ```
 
-既存スキルがある導入先の扱いは[互換構成](.agents/skills/verify-docs/references/agent-compatibility.md)を参照。
+既存スキルがある導入先の扱いは[互換構成](docs/agent-compatibility.md)を参照。
 
 ## 実行方法
 
@@ -31,9 +31,7 @@ curl -fsSL https://raw.githubusercontent.com/MichinaoShimizu/claude-kit/main/pac
 | Codex App | `@verify-docs`・`@dedupe-docs`・`@tighten-docs` |
 | Codex CLI／IDE拡張 | `$verify-docs`・`$dedupe-docs`・`$tighten-docs` |
 
-3つを順番に実行する場合は、どのエージェントでも次の共通依頼を使う。
-
-> 文書構造是正スキル・文書重複解消スキル・文書簡潔化スキルを順番に全部実行して
+[推奨フロー](docs/workflow.md)を参照し、対象文書と導入済みスキルに合う順序で実行する。
 
 CLIの詳細は[CLIリファレンス](docs/advanced-usage.md)を参照。
 
@@ -43,10 +41,10 @@ CLIの詳細は[CLIリファレンス](docs/advanced-usage.md)を参照。
 
 スキルが対象文書を改善し、変更をリポジトリ内のMarkdown文書に反映する。
 
-### [保守報告](.agents/skills/verify-docs/references/work-records-and-report.md#保守報告)
+### [保守報告](docs/work-records-and-report.md#保守報告)
 
 スキル別の一時記録を `.verify-docs/dist/` に置き、完了後に保守報告へ統合する。形式は
-[作業記録と保守報告](.agents/skills/verify-docs/references/work-records-and-report.md)を参照。
+[作業記録と保守報告](docs/work-records-and-report.md)を参照。
 
 作業単位の継続・切替は
 [導入と運用「保守報告の作業単位」](docs/adoption.md#保守報告の作業単位)
@@ -116,7 +114,7 @@ flowchart TD
 ## 設定ファイル
 
 既定の設定で足りる場合、設定ファイルは不要。対象リポジトリで検査の動作を変えるときは、
-ルートに[文書構造検証設定](.agents/skills/verify-docs/references/config.md#文書構造検証設定)を作り、変更する項目だけを指定する。
+ルートに[文書構造検証設定](docs/config.md#文書構造検証設定)を作り、変更する項目だけを指定する。
 設定項目と入力制約は同設定の説明を参照。
 
 ## 関連文書
@@ -124,10 +122,11 @@ flowchart TD
 - [既存リポジトリへの導入、CI、文書サイズ例外の運用](docs/adoption.md)
 - [CommonMark ASTによる構造解析と機械検査](docs/structure.md)
 - [導入・検査・CI の運用オブジェクト](docs/operations.md)
-- [エージェント間の互換構成](.agents/skills/verify-docs/references/agent-compatibility.md)
-- [文書構造検証設定](.agents/skills/verify-docs/references/config.md#文書構造検証設定)
-- [オブジェクトの名称・参照規約](.agents/skills/verify-docs/references/object-naming.md)
-- [文書サイズ例外一覧の形式](.agents/skills/verify-docs/references/document-size-exceptions.md)
+- [エージェント間の互換構成](docs/agent-compatibility.md)
+- [文書構造検証設定](docs/config.md#文書構造検証設定)
+- [オブジェクトの名称・参照規約](docs/object-naming.md)
+- [文書サイズ例外一覧の形式](docs/document-size-exceptions.md)
+- [スキル補助文書の正本](docs/skill-references.md)
 - [検出事項の是正手順](.agents/skills/verify-docs/SKILL.md)
 - [この一式の改修作法](CONTRIBUTING.md)
 

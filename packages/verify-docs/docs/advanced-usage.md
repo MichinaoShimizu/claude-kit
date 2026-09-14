@@ -60,7 +60,7 @@ node scripts/benchmark-document-structure.mjs --documents=1000 --paragraphs=20 -
 
 ## 正本候補の機械判定
 
-[正本候補の選定規約](../.agents/skills/dedupe-docs/references/canonical-selection.md)に従い、比較した二つの候補をJSONで渡す。`facts`は、候補から人またはエージェントが取り出した事実であり、判定器が意味を推測して作るものではない。
+[正本候補の選定規約](canonical-selection.md)に従い、比較した二つの候補をJSONで渡す。`facts`は、候補から人またはエージェントが取り出した事実であり、判定器が意味を推測して作るものではない。
 
 ```bash
 node scripts/select-canonical.mjs candidate-pair.json

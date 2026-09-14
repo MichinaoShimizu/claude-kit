@@ -87,7 +87,7 @@
 設定方針: 既定値60は短い定型句レベルの一致を検出
 しないための下限。誤検知が多ければ上げ、見逃しが多ければ下げる。
 `checkNearDuplicates` を有効化した場合も同一の値が適用される。準一致重複の
-挙動詳細は [references/duplicate-handling.md](duplicate-handling.md) を
+挙動詳細は [重複の扱い](duplicate-handling.md) を
 参照する。
 
 入口文書とスキルの共用方法は

@@ -462,7 +462,7 @@ test('every DEFAULTS key is documented in config.md (prevents doc drift when a k
   assert.ok(keys.length > 0, 'failed to extract DEFAULTS keys from document-structure-verifier.mjs');
 
   const configMd = readFileSync(
-    join(import.meta.dirname, '../.agents/skills/verify-docs/references/config.md'),
+    join(import.meta.dirname, '../docs/config.md'),
     'utf8',
   );
   for (const key of keys) {

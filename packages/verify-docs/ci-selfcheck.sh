@@ -13,7 +13,7 @@ for skill in verify-docs dedupe-docs tighten-docs; do
   test -f "$repo_root/.agents/skills/$skill/SKILL.md"
 done
 
-node "$dir/scripts/sync-shared-references.mjs"
+node "$dir/scripts/sync-skill-references.mjs"
 node "$dir/scripts/check-skill-local-links.mjs"
 node "$dir/scripts/document-structure-verifier.mjs" --root="$rel_dir" --config="$dir/selfcheck.config.json"
 node --test "$dir/scripts/document-structure-verifier.test.mjs"
@@ -33,7 +33,7 @@ trap 'rm -rf "$install_target" "$ignore_target" "$existing_skills_target" "$conf
 tar -cf "$distribution_archive" -C "$(dirname "$dir")" "$(basename "$dir")"
 tar -xf "$distribution_archive" -C "$distribution_root"
 distribution_dir="$distribution_root/$(basename "$dir")"
-node "$distribution_dir/scripts/sync-shared-references.mjs"
+node "$distribution_dir/scripts/sync-skill-references.mjs"
 node "$distribution_dir/scripts/check-skill-local-links.mjs"
 while IFS= read -r -d '' link; do
   if [[ ! -e "$link" ]]; then
@@ -67,6 +67,14 @@ node "$dir/scripts/check-skill-local-links.mjs" --skills-root="$install_target/.
 test -f "$install_target/.agents/skills/verify-docs/SKILL.md"
 test -f "$install_target/.agents/skills/dedupe-docs/SKILL.md"
 test -f "$install_target/.agents/skills/tighten-docs/SKILL.md"
+test -f "$install_target/.agents/skills/verify-docs/references/config.md"
+test ! -e "$install_target/.agents/skills/verify-docs/references/canonical-selection.md"
+test -f "$install_target/.agents/skills/dedupe-docs/references/canonical-selection.md"
+test ! -e "$install_target/.agents/skills/dedupe-docs/references/object-naming.md"
+test -f "$install_target/.agents/skills/tighten-docs/references/work-records-and-report.md"
+test -f "$install_target/.agents/skills/tighten-docs/references/maintenance-report-format.md"
+test -f "$install_target/.agents/skills/tighten-docs/references/work-record-lifecycle.md"
+test ! -e "$install_target/.agents/skills/tighten-docs/references/config.md"
 for agent_dir in .claude .kiro; do
   test "$(readlink "$install_target/$agent_dir/skills/verify-docs")" = "../../.agents/skills/verify-docs"
   test "$(readlink "$install_target/$agent_dir/skills/dedupe-docs")" = "../../.agents/skills/dedupe-docs"

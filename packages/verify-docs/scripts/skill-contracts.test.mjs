@@ -9,7 +9,7 @@ import { verifyDocumentStructure } from './document-structure-verifier.mjs';
 const packageRoot = join(import.meta.dirname, '..');
 const skillPath = (name) => join(packageRoot, '.agents', 'skills', name, 'SKILL.md');
 const skillReferencePath = (name, reference) => join(packageRoot, '.agents', 'skills', name, 'references', reference);
-const sharedReferencePath = (reference) => join(packageRoot, 'shared-references', reference);
+const sharedReferencePath = (reference) => join(packageRoot, 'docs', reference);
 
 function makeRepo(files) {
   const root = mkdtempSync(join(tmpdir(), 'skill-contract-'));
