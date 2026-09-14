@@ -11,9 +11,9 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { verifyDocs } from './verify-docs.mjs';
+import { verifyDocumentStructure } from './document-structure-verifier.mjs';
 
-const SCRIPT = join(import.meta.dirname, 'verify-docs.mjs');
+const SCRIPT = join(import.meta.dirname, 'document-structure-verifier.mjs');
 
 function makeRepo(files) {
   const root = mkdtempSync(join(tmpdir(), 'verify-docs-test-'));
@@ -26,12 +26,12 @@ function makeRepo(files) {
 }
 
 function run(root, extraArgs = []) {
-  return verifyDocs(root, { configPath: extraArgs.find((arg) => arg.startsWith('--config='))?.slice(9) });
+  return verifyDocumentStructure(root, { configPath: extraArgs.find((arg) => arg.startsWith('--config='))?.slice(9) });
 }
 
 function runError(root) {
   try {
-    verifyDocs(root);
+    verifyDocumentStructure(root);
     assert.fail('expected verify-docs to fail');
   } catch (error) {
     return `設定エラー: ${error.message}`;
@@ -44,7 +44,7 @@ test('clean repo passes', () => {
     'docs/guide.md': '# Guide\n\nSome content.\n',
   });
   const result = run(root);
-  assert.deepEqual(result.failures, []);
+  assert.deepEqual(result.violations, []);
   assert.deepEqual(result.summary.documents, { count: 2, bytes: 53, headings: 2, paragraphs: 2 });
   assert.deepEqual(result.summary.violations, { count: 0, byKind: {} });
   assert.equal(result.summary.largestSections[0].path, 'README.md');
@@ -53,10 +53,10 @@ test('clean repo passes', () => {
 
 test('detects broken link', () => {
   const root = makeRepo({ 'README.md': '# Repo\n\n[missing](docs/missing.md)\n' });
-  const failure = run(root).failures.find((f) => f.kind === 'link');
-  assert.equal(failure.location.path, 'README.md');
-  assert.equal(failure.location.start.line, 3);
-  assert.deepEqual(failure.location.headingPath, ['Repo']);
+  const violation = run(root).violations.find((f) => f.kind === 'link');
+  assert.equal(violation.location.path, 'README.md');
+  assert.equal(violation.location.start.line, 3);
+  assert.deepEqual(violation.location.headingPath, ['Repo']);
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -64,10 +64,10 @@ test('checks image destinations and ignores external CommonMark autolinks', () =
   const root = makeRepo({
     'README.md': '# Repo\n\n<https://example.com>\n\n![missing image](images/missing.png)\n',
   });
-  const failures = run(root).failures;
-  assert.equal(failures.length, 1);
-  assert.equal(failures[0].kind, 'link');
-  assert.equal(failures[0].target, 'images/missing.png');
+  const violations = run(root).violations;
+  assert.equal(violations.length, 1);
+  assert.equal(violations[0].kind, 'link');
+  assert.equal(violations[0].target, 'images/missing.png');
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -75,7 +75,7 @@ test('ignores link syntax inside inline code and HTML comments', () => {
   const root = makeRepo({
     'README.md': '# Repo\n\n`[example](missing.md)`\n\n<!-- [example](also-missing.md) -->\n',
   });
-  assert.deepEqual(run(root).failures, []);
+  assert.deepEqual(run(root).violations, []);
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -84,7 +84,7 @@ test('supports balanced parentheses in inline link destinations', () => {
     'README.md': '# Repo\n\n[guide](docs/guide_(draft).md)\n',
     'docs/guide_(draft).md': '# Guide\n',
   });
-  assert.deepEqual(run(root).failures, []);
+  assert.deepEqual(run(root).violations, []);
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -93,7 +93,7 @@ test('supports angle-bracket destinations with spaces and an optional title', ()
     'README.md': '# Repo\n\n[guide](<docs/guide draft.md> "Guide")\n',
     'docs/guide draft.md': '# Guide\n',
   });
-  assert.deepEqual(run(root).failures, []);
+  assert.deepEqual(run(root).violations, []);
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -109,7 +109,7 @@ test('supports full, collapsed, and shortcut reference links', () => {
     ].join('\n'),
     'docs/guide.md': '# Guide\n',
   });
-  assert.deepEqual(run(root).failures, []);
+  assert.deepEqual(run(root).violations, []);
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -125,9 +125,9 @@ test('treats unresolved references as text and detects broken defined destinatio
       '',
     ].join('\n'),
   });
-  const failures = run(root).failures;
-  assert.ok(!failures.some((failure) => failure.kind === 'link' && failure.reason.includes('定義がない')));
-  assert.ok(failures.some((failure) => failure.kind === 'link' && failure.target === 'docs/missing.md'));
+  const violations = run(root).violations;
+  assert.ok(!violations.some((violation) => violation.kind === 'link' && violation.reason.includes('定義がない')));
+  assert.ok(violations.some((violation) => violation.kind === 'link' && violation.target === 'docs/missing.md'));
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -145,13 +145,13 @@ test('ignores link-like content in CommonMark code blocks and parses setext head
     ].join('\n'),
     'docs/guide.md': 'Hello *Code* `World`\n---\n',
   });
-  assert.deepEqual(run(root).failures, []);
+  assert.deepEqual(run(root).violations, []);
   rmSync(root, { recursive: true, force: true });
 });
 
 test('detects missing fragment', () => {
   const root = makeRepo({ 'README.md': '# Repo\n\n[section](#nope)\n' });
-  assert.ok(run(root).failures.some((f) => f.kind === 'fragment'));
+  assert.ok(run(root).violations.some((f) => f.kind === 'fragment'));
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -167,13 +167,13 @@ test('recognizes GitHub-style fragment IDs for duplicate headings', () => {
       '',
     ].join('\n'),
   });
-  assert.deepEqual(run(root).failures, []);
+  assert.deepEqual(run(root).violations, []);
   rmSync(root, { recursive: true, force: true });
 });
 
 test('detects bad backtick path', () => {
   const root = makeRepo({ 'README.md': '# Repo\n\nSee `scripts/missing.mjs`.\n' });
-  assert.ok(run(root).failures.some((f) => f.kind === 'path'));
+  assert.ok(run(root).violations.some((f) => f.kind === 'path'));
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -183,7 +183,7 @@ test('detects orphan doc under docsDir', () => {
     'docs/orphan.md': '# Orphan\n',
   });
   const result = run(root);
-  assert.ok(result.failures.some((f) => f.kind === 'orphan' && f.from === 'docs/orphan.md'));
+  assert.ok(result.violations.some((f) => f.kind === 'orphan' && f.from === 'docs/orphan.md'));
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -193,7 +193,7 @@ test('scans the whole repo, not just entryPoints/docsDir/skillsDir (detects orph
     'CONTRIBUTING.md': '# Contributing\n',
   });
   const result = run(root);
-  assert.ok(result.failures.some((f) => f.kind === 'orphan' && f.from === 'CONTRIBUTING.md'));
+  assert.ok(result.violations.some((f) => f.kind === 'orphan' && f.from === 'CONTRIBUTING.md'));
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -202,7 +202,7 @@ test('excludePaths keeps excluded directories out of the scan entirely', () => {
     'README.md': '# Repo\n',
     'node_modules/some-lib/README.md': '# Some lib\n[missing](missing.md)\n',
   });
-  assert.deepEqual(run(root).failures, []);
+  assert.deepEqual(run(root).violations, []);
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -212,7 +212,7 @@ test('uses legacy .claude/skills when .agents/skills is absent', () => {
     '.claude/skills/example/SKILL.md': '# Example\n\n[reference](references/guide.md)\n',
     '.claude/skills/example/references/guide.md': '# Guide\n',
   });
-  assert.deepEqual(run(root).failures, []);
+  assert.deepEqual(run(root).violations, []);
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -222,7 +222,7 @@ test('uses .kiro/skills when other skill directories are absent', () => {
     '.kiro/skills/example/SKILL.md': '# Example\n\n[reference](references/guide.md)\n',
     '.kiro/skills/example/references/guide.md': '# Guide\n',
   });
-  assert.deepEqual(run(root).failures, []);
+  assert.deepEqual(run(root).violations, []);
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -236,7 +236,7 @@ test('does not scan a symlinked compatibility skill directory twice', () => {
   symlinkSync('../.agents/skills', join(root, '.claude/skills'), 'dir');
   mkdirSync(join(root, '.kiro'), { recursive: true });
   symlinkSync('../.agents/skills', join(root, '.kiro/skills'), 'dir');
-  assert.deepEqual(run(root).failures, []);
+  assert.deepEqual(run(root).violations, []);
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -247,35 +247,35 @@ test('agent configuration docs are exempt from orphan checks', () => {
     '.claude/rules/local.md': '# Local Claude rule\n',
     '.kiro/steering/local.md': '# Local Kiro rule\n',
   });
-  assert.deepEqual(run(root).failures, []);
+  assert.deepEqual(run(root).violations, []);
   rmSync(root, { recursive: true, force: true });
 });
 
-test('flags oversized doc and honors todo exemption', () => {
+test('flags oversized doc and honors sizeExceptions exemption', () => {
   const big = '# Big\n\n' + 'x'.repeat(40000) + '\n';
   const root = makeRepo({
     'README.md': '# Repo\n\n[big](docs/big.md)\n',
     'docs/big.md': big,
   });
-  const failure = run(root).failures.find((f) => f.kind === 'size');
-  assert.equal(failure.bytes, Buffer.byteLength(big, 'utf8'));
-  assert.equal(failure.limit, 7000);
+  const violation = run(root).violations.find((f) => f.kind === 'size');
+  assert.equal(violation.bytes, Buffer.byteLength(big, 'utf8'));
+  assert.equal(violation.limit, 7000);
 
   writeFileSync(
-    join(root, 'verify-docs.todo.json'),
+    join(root, 'document-size-exceptions.json'),
     JSON.stringify([{ path: 'docs/big.md', reason: 'test' }]),
   );
-  assert.ok(!run(root).failures.some((f) => f.kind === 'size'));
+  assert.ok(!run(root).violations.some((f) => f.kind === 'size'));
   rmSync(root, { recursive: true, force: true });
 });
 
-test('flags stale todo entries', () => {
+test('flags stale sizeExceptions entries', () => {
   const root = makeRepo({
     'README.md': '# Repo\n\n[small](docs/small.md)\n',
     'docs/small.md': '# Small\n',
-    'verify-docs.todo.json': JSON.stringify([{ path: 'docs/small.md', reason: 'stale' }]),
+    'document-size-exceptions.json': JSON.stringify([{ path: 'docs/small.md', reason: 'stale' }]),
   });
-  assert.ok(run(root).failures.some((f) => f.kind === 'stale-todo'));
+  assert.ok(run(root).violations.some((f) => f.kind === 'stale-size-exception'));
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -304,10 +304,10 @@ test('reports invalid config values without a stack trace', () => {
   rmSync(malformed, { recursive: true, force: true });
 });
 
-test('validates TODO fields and duplicate paths', () => {
+test('validates document-size-exception fields and duplicate paths', () => {
   const root = makeRepo({
     'README.md': '# Repo\n',
-    'verify-docs.todo.json': JSON.stringify([
+    'document-size-exceptions.json': JSON.stringify([
       { path: 'docs/large.md', reason: 'legacy' },
       { path: 'docs/large.md', reason: 'duplicate' },
     ]),
@@ -317,14 +317,14 @@ test('validates TODO fields and duplicate paths', () => {
 
   const invalid = makeRepo({
     'README.md': '# Repo\n',
-    'verify-docs.todo.json': JSON.stringify([{ path: '../outside.md', reason: 'unsafe' }]),
+    'document-size-exceptions.json': JSON.stringify([{ path: '../outside.md', reason: 'unsafe' }]),
   });
   assert.match(runError(invalid), /相対パス/);
   rmSync(invalid, { recursive: true, force: true });
 
   const missingReason = makeRepo({
     'README.md': '# Repo\n',
-    'verify-docs.todo.json': JSON.stringify([{ path: 'docs/large.md' }]),
+    'document-size-exceptions.json': JSON.stringify([{ path: 'docs/large.md' }]),
   });
   assert.match(runError(missingReason), /reason は空でない文字列/);
   rmSync(missingReason, { recursive: true, force: true });
@@ -338,11 +338,11 @@ test('detects duplicate paragraphs across docs', () => {
     'docs/a.md': `# A\n\n${shared}\n`,
     'docs/b.md': `# B\n\n${shared}\n`,
   });
-  const failure = run(root).failures.find((f) => f.kind === 'duplicate');
-  assert.deepEqual(failure.location.headingPath, ['A']);
-  assert.equal(failure.location.start.line, 3);
+  const violation = run(root).violations.find((f) => f.kind === 'duplicate');
+  assert.deepEqual(violation.location.headingPath, ['A']);
+  assert.equal(violation.location.start.line, 3);
   assert.deepEqual(
-    failure.occurrences.map(({ location }) => location.path).sort(),
+    violation.occurrences.map(({ location }) => location.path).sort(),
     ['docs/a.md', 'docs/b.md'],
   );
   rmSync(root, { recursive: true, force: true });
@@ -355,7 +355,7 @@ test('AST duplicate comparison ignores inline emphasis differences', () => {
     'docs/b.md': '# B\n\nThis sentence contains important wording that should count as the same prose.\n',
     'verify-docs.config.json': JSON.stringify({ minDuplicateChars: 10 }),
   });
-  assert.ok(run(root).failures.some((f) => f.kind === 'duplicate'));
+  assert.ok(run(root).violations.some((f) => f.kind === 'duplicate'));
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -366,9 +366,9 @@ test('AST duplicate comparison distinguishes link destinations and code spans', 
     'docs/b.md': '# B\n\nThis sentence has a [long linked phrase with matching text](https://two.example/path) and enough prose.\n\nThis sentence keeps code literal distinct from plain prose in a paragraph.\n',
     'verify-docs.config.json': JSON.stringify({ minDuplicateChars: 10, checkNearDuplicates: true }),
   });
-  const failures = run(root).failures;
-  assert.ok(!failures.some((f) => f.kind === 'duplicate'));
-  assert.ok(!failures.some((f) => f.kind === 'near-duplicate'));
+  const violations = run(root).violations;
+  assert.ok(!violations.some((f) => f.kind === 'duplicate'));
+  assert.ok(!violations.some((f) => f.kind === 'near-duplicate'));
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -379,7 +379,7 @@ test('AST duplicate comparison finds prose in list and blockquote paragraphs', (
     'docs/a.md': `# A\n\n- ${shared}\n`,
     'docs/b.md': `# B\n\n> ${shared}\n`,
   });
-  assert.ok(run(root).failures.some((f) => f.kind === 'duplicate'));
+  assert.ok(run(root).violations.some((f) => f.kind === 'duplicate'));
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -391,7 +391,7 @@ test('AST duplicate extraction continues to exclude pipe-table rows and code blo
     'docs/a.md': `# A\n\n${row}\n\n\n    ${code}\n`,
     'docs/b.md': `# B\n\n${row}\n\n\n    ${code}\n`,
   });
-  assert.ok(!run(root).failures.some((f) => f.kind === 'duplicate'));
+  assert.ok(!run(root).violations.some((f) => f.kind === 'duplicate'));
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -403,7 +403,7 @@ test('allow-duplicate marker suppresses duplicate check', () => {
     'docs/a.md': `# A\n\n${shared}\n`,
     'docs/b.md': `# B\n\n<!-- verify-docs:allow-duplicate -->\n\n${shared}\n`,
   });
-  assert.ok(!run(root).failures.some((f) => f.kind === 'duplicate'));
+  assert.ok(!run(root).violations.some((f) => f.kind === 'duplicate'));
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -413,7 +413,7 @@ test('near-duplicate check is opt-in and off by default', () => {
     'docs/a.md': '# A\n\nこのツールは文書の構造を検査します。参照切れとサイズ超過を見ます。\n',
     'docs/b.md': '# B\n\nこのツールは文書の構造を検査する。参照切れとサイズ超過を見る。\n',
   });
-  assert.ok(!run(root).failures.some((f) => f.kind === 'near-duplicate'));
+  assert.ok(!run(root).violations.some((f) => f.kind === 'near-duplicate'));
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -424,7 +424,7 @@ test('near-duplicate check catches punctuation and register (敬体/常体) vari
     'docs/b.md': '# B\n\nこのツールは文書の構造を検査する。参照切れとサイズ超過を見る。\n',
     'verify-docs.config.json': JSON.stringify({ checkNearDuplicates: true, minDuplicateChars: 10 }),
   });
-  assert.ok(run(root).failures.some((f) => f.kind === 'near-duplicate'));
+  assert.ok(run(root).violations.some((f) => f.kind === 'near-duplicate'));
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -437,9 +437,9 @@ test('near-duplicate check does not double-report exact duplicates', () => {
     'docs/b.md': `# B\n\n${shared}\n`,
     'verify-docs.config.json': JSON.stringify({ checkNearDuplicates: true }),
   });
-  const failures = run(root).failures;
-  assert.ok(failures.some((f) => f.kind === 'duplicate'));
-  assert.ok(!failures.some((f) => f.kind === 'near-duplicate'));
+  const violations = run(root).violations;
+  assert.ok(violations.some((f) => f.kind === 'duplicate'));
+  assert.ok(!violations.some((f) => f.kind === 'near-duplicate'));
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -451,7 +451,7 @@ test('near-duplicate check respects allow-duplicate marker', () => {
       '# B\n\n<!-- verify-docs:allow-duplicate -->\n\nこのツールは文書の構造を検査する。参照切れとサイズ超過を見る。\n',
     'verify-docs.config.json': JSON.stringify({ checkNearDuplicates: true, minDuplicateChars: 10 }),
   });
-  assert.ok(!run(root).failures.some((f) => f.kind === 'near-duplicate'));
+  assert.ok(!run(root).violations.some((f) => f.kind === 'near-duplicate'));
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -459,7 +459,7 @@ test('every DEFAULTS key is documented in config.md (prevents doc drift when a k
   const script = readFileSync(SCRIPT, 'utf8');
   const defaultsBlock = script.match(/const DEFAULTS = \{([\s\S]*?)\n\};/)[1];
   const keys = [...defaultsBlock.matchAll(/^\s*(\w+):/gm)].map((m) => m[1]);
-  assert.ok(keys.length > 0, 'failed to extract DEFAULTS keys from verify-docs.mjs');
+  assert.ok(keys.length > 0, 'failed to extract DEFAULTS keys from document-structure-verifier.mjs');
 
   const configMd = readFileSync(
     join(import.meta.dirname, '../.agents/skills/verify-docs/references/config.md'),
@@ -470,14 +470,14 @@ test('every DEFAULTS key is documented in config.md (prevents doc drift when a k
   }
 });
 
-test('--init-todo writes todo file for oversized docs and refuses to overwrite', () => {
+test('--init-size-exceptions writes sizeExceptions file for oversized docs and refuses to overwrite', () => {
   const big = '# Big\n\n## Split here\n\n' + 'x'.repeat(40000) + '\n';
   const root = makeRepo({
     'README.md': '# Repo\n\n[big](docs/big.md)\n',
     'docs/big.md': big,
   });
-  verifyDocs(root, { initTodo: true });
-  const written = JSON.parse(readFileSync(join(root, 'verify-docs.todo.json'), 'utf8'));
+  verifyDocumentStructure(root, { initSizeExceptions: true });
+  const written = JSON.parse(readFileSync(join(root, 'document-size-exceptions.json'), 'utf8'));
   assert.equal(written.length, 1);
   assert.equal(written[0].path, 'docs/big.md');
   assert.deepEqual(written[0].section.headingPath, ['Big', 'Split here']);
@@ -485,7 +485,7 @@ test('--init-todo writes todo file for oversized docs and refuses to overwrite',
   assert.ok(written[0].section.bytes > 40000);
 
   assert.throws(() =>
-    verifyDocs(root, { initTodo: true }),
+    verifyDocumentStructure(root, { initSizeExceptions: true }),
   );
   rmSync(root, { recursive: true, force: true });
 });
@@ -502,11 +502,12 @@ test('changed-base reports only violations related to changed paths', () => {
   execFileSync('git', ['-C', root, 'add', '.']);
   execFileSync('git', ['-C', root, '-c', 'commit.gpgsign=false', '-c', 'user.name=test', '-c', 'user.email=test@example.com', 'commit', '-qm', 'change']);
 
-  const result = verifyDocs(root, { changedBase: 'HEAD~1' });
+  const result = verifyDocumentStructure(root, { changedBase: 'HEAD~1' });
   assert.deepEqual(result.changed.paths, ['docs/current.md']);
-  assert.equal(result.failures.length, 1);
-  assert.equal(result.failures[0].from, 'docs/current.md');
-  assert.equal(result.failures[0].kind, 'link');
+    assert.equal(result.kind, 'DocumentStructureVerificationReport');
+    assert.equal(result.violations.length, 1);
+  assert.equal(result.violations[0].from, 'docs/current.md');
+  assert.equal(result.violations[0].kind, 'link');
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -521,19 +522,19 @@ test('changed-base reports unchanged links to a renamed document', () => {
   execFileSync('git', ['-C', root, 'mv', 'docs/guide.md', 'docs/getting-started.md']);
   execFileSync('git', ['-C', root, '-c', 'commit.gpgsign=false', '-c', 'user.name=test', '-c', 'user.email=test@example.com', 'commit', '-am', 'rename']);
 
-  const result = verifyDocs(root, { changedBase: 'HEAD~1' });
+  const result = verifyDocumentStructure(root, { changedBase: 'HEAD~1' });
   assert.deepEqual(result.changed.paths, ['docs/getting-started.md', 'docs/guide.md']);
   assert.deepEqual(result.changed.renames, [{ from: 'docs/guide.md', to: 'docs/getting-started.md' }]);
-  const linkFailure = result.failures.find((failure) => failure.kind === 'link');
-  assert.equal(linkFailure.from, 'README.md');
-  assert.equal(linkFailure.target, 'docs/guide.md');
-  assert.ok(result.failures.some((failure) =>
-    failure.kind === 'orphan' && failure.from === 'docs/getting-started.md',
+  const linkViolation = result.violations.find((violation) => violation.kind === 'link');
+  assert.equal(linkViolation.from, 'README.md');
+  assert.equal(linkViolation.target, 'docs/guide.md');
+  assert.ok(result.violations.some((violation) =>
+    violation.kind === 'orphan' && violation.from === 'docs/getting-started.md',
   ));
   rmSync(root, { recursive: true, force: true });
 });
 
-test('CLI prints JSON and preserves the failure exit code', () => {
+test('CLI prints JSON and preserves the violation exit code', () => {
   const root = makeRepo({ 'README.md': '# Repo\n\n[missing](docs/missing.md)\n' });
   try {
     execFileSync('node', [SCRIPT, `--root=${root}`, '--json'], { encoding: 'utf8', stdio: 'pipe' });
@@ -541,7 +542,7 @@ test('CLI prints JSON and preserves the failure exit code', () => {
   } catch (error) {
     assert.equal(error.status, 1);
     const report = JSON.parse(error.stdout);
-    assert.equal(report.failures[0].kind, 'link');
+    assert.equal(report.violations[0].kind, 'link');
   }
   rmSync(root, { recursive: true, force: true });
 });

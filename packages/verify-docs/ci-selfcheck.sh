@@ -8,9 +8,9 @@ dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "$dir/../.." && pwd)"
 rel_dir="${dir#"$repo_root"/}"
 
-node "$dir/scripts/verify-docs.mjs" --root="$rel_dir"
-node --test "$dir/scripts/verify-docs.test.mjs"
-node --test "$dir/scripts/extract-doc-blocks.test.mjs"
+node "$dir/scripts/document-structure-verifier.mjs" --root="$rel_dir"
+node --test "$dir/scripts/document-structure-verifier.test.mjs"
+node --test "$dir/scripts/document-structure-extractor.test.mjs"
 node --test "$dir/scripts/skill-contracts.test.mjs"
 node --test "$dir/scripts/skill-evals.test.mjs"
 
@@ -22,18 +22,18 @@ git -C "$install_target" init -q
 (cd "$install_target" && bash "$dir/install.sh" --source "$dir")
 test "$(grep -Fxc '.verify-docs/dist/*.work.md' "$install_target/.gitignore")" = "1"
 git -C "$install_target" check-ignore -q --no-index -- .verify-docs/dist/verify-docs.work.md
-if git -C "$install_target" check-ignore -q --no-index -- .verify-docs/dist/checklist.md; then
-  echo "installer must keep checklist.md tracked" >&2
+if git -C "$install_target" check-ignore -q --no-index -- .verify-docs/dist/maintenance-report.md; then
+  echo "installer must keep maintenance-report.md tracked" >&2
   exit 1
 fi
-test -f "$install_target/scripts/verify-docs.mjs"
+test -f "$install_target/scripts/document-structure-verifier.mjs"
 test -f "$install_target/scripts/markdown-structure.mjs"
-test -f "$install_target/scripts/extract-doc-blocks.mjs"
+test -f "$install_target/scripts/document-structure-extractor.mjs"
 test -f "$install_target/scripts/vendor/commonmark.cjs"
 test -f "$install_target/evals/skill-judgement-cases.json"
 test -f "$install_target/evals/README.md"
-node "$install_target/scripts/verify-docs.mjs" --root="$install_target/scripts"
-node "$install_target/scripts/extract-doc-blocks.mjs" \
+node "$install_target/scripts/document-structure-verifier.mjs" --root="$install_target/scripts"
+node "$install_target/scripts/document-structure-extractor.mjs" \
   --root="$install_target" .agents/skills/verify-docs/SKILL.md >/dev/null
 test -f "$install_target/.agents/skills/verify-docs/SKILL.md"
 test -f "$install_target/.agents/skills/dedupe-docs/SKILL.md"
@@ -48,7 +48,7 @@ if grep -Fxq '.verify-docs/dist/*.work.md' "$ignore_target/.gitignore"; then
   exit 1
 fi
 
-printf 'conflict\n' > "$install_target/scripts/verify-docs.mjs"
+printf 'conflict\n' > "$install_target/scripts/document-structure-verifier.mjs"
 if (cd "$install_target" && bash "$dir/install.sh" --source "$dir" >/dev/null 2>&1); then
   echo "installer must not overwrite a conflicting file" >&2
   exit 1

@@ -1,17 +1,20 @@
 # 設定ファイル
 
-`.agents/skills/verify-docs/SKILL.md` から参照される。検査スクリプトの設定を
-変更する場合に参照する。TODO ファイルの記述形式は
-[references/todo.md](todo.md)、準一致重複・意図した重複の許可方法は
-[references/duplicate-handling.md](duplicate-handling.md) を参照する。
+`.agents/skills/verify-docs/SKILL.md` から参照される。検査スクリプトの設定を変更するときに参照する。
+文書サイズ例外一覧の形式は[文書サイズ例外一覧](document-size-exceptions.md)、準一致重複・意図した重複の許可方法は
+[重複の扱い](duplicate-handling.md)を参照する。
 
-## `verify-docs.config.json`
+## 文書構造検証設定
+
+| 項目 | 値 |
+| --- | --- |
+| 和名 | 文書構造検証設定 |
+| 英名 | DocumentStructureVerificationConfiguration |
+| ファイル名 | `verify-docs.config.json` |
 
 リポジトリ直下に配置する。存在しない場合は全項目が既定値で動作する。
-設定項目名と意味は下表を正本とする。README.md・CONTRIBUTING.md など
-他の文書では個々のキー名を列挙せず本表を指すだけにとどめる（キー追加時の
-更新漏れを防ぐ。追加時は本表への追記漏れを `verify-docs.test.mjs` が
-機械的に検査する）。
+設定項目名と意味は下表を正本とする。個別キーは他文書で列挙せず、キー追加時の
+表への追記漏れは `document-structure-verifier.test.mjs` が機械的に検査する。
 
 ```json
 {
@@ -25,7 +28,7 @@
   "minDuplicateChars": 60,
   "checkDuplicates": true,
   "checkNearDuplicates": false,
-  "todoFile": "verify-docs.todo.json"
+  "sizeExceptionFile": "document-size-exceptions.json"
 }
 ```
 
@@ -36,12 +39,12 @@
 | `skillsDir`           | スキル定義を配置するディレクトリ（`<skillsDir>/<name>/SKILL.md` を想定）。既定は `.agents/skills`。存在しなければ `.claude/skills`、`.kiro/skills` の順に自動検出する |
 | `pathRoots`           | 本文中のバッククォート表記をパスとして検査する接頭辞                 |
 | `agentConfigDirs`     | スキル以外のエージェント設定文書を孤立チェックから除外するディレクトリ |
-| `excludePaths`        | 検査対象から除外するディレクトリ（下記「検査対象の集め方」を参照）。既定に含まれる `.verify-docs/` は作業記録とチェックリストの保管先（[checklist.md「作業記録」](checklist.md#作業記録)を参照） |
-| `maxDocBytes`         | 1文書あたりの上限（バイト数）。超過時は分割するか TODO に記載する    |
+| `excludePaths`        | 検査対象から除外するディレクトリ（下記「検査対象の集め方」を参照）。既定に含まれる `.verify-docs/` は作業記録と保守報告の保管先（[作業記録と保守報告「作業記録」](work-records-and-report.md#作業記録)を参照） |
+| `maxDocBytes`         | 1文書あたりの上限（バイト数）。超過時は分割するか文書サイズ例外一覧に記載する    |
 | `minDuplicateChars`   | AST抽出した段落本文の最小文字数。値が小さいほど誤検知が増加する |
 | `checkDuplicates`     | 完全一致の重複検査の有効・無効。既定は有効                           |
 | `checkNearDuplicates` | 準一致の重複検査の有効・無効。既定は無効（下記「準一致重複」を参照） |
-| `todoFile`            | 例外リストの配置先                                                   |
+| `sizeExceptionFile`   | 文書サイズ例外一覧の配置先                                           |
 
 入力値の制約は[設定ファイルの入力検証](config-validation.md)を参照。
 
@@ -60,8 +63,8 @@
 使う。
 
 モノレポで各パッケージを個別に `--root=packages/<name>`（詳細は
-[verify-docs.mjs](../../../../scripts/verify-docs.mjs) の `--root` オプション
-説明を参照）で検査する場合は、リポジトリ直下の検査からパッケージの
+[文書構造検証器](../../../../docs/structure.md#文書構造検証器)の `--root` オプションを
+参照）で検査する場合は、リポジトリ直下の検査からパッケージの
 ディレクトリを `excludePaths` で除外し二重検査を避ける。
 
 孤立チェックだけは、この「走査対象」よりさらに狭い範囲にしか適用されない。
@@ -70,10 +73,9 @@
 （リンク切れ・サイズ超過・重複の検査）には含まれたまま、孤立チェックのみ
 免除される。README・SKILL.md から参照されない運用が前提の設定ファイルまで
 「孤立」として毎回検出し続けるのを避けるための意図的な例外であり、実装漏れ
-ではない。チェックリストを作る際は、孤立チェックの結果と照合する前提の
-項目からはこの種の文書を除いて考える（詳細な判定ロジックは
-[verify-docs.mjs](../../../../scripts/verify-docs.mjs)「検査対象の集め方」の
-コメントを正本とする）。
+ではない。保守報告を作る際は、孤立チェックの結果と照合する前提の項目からは
+この種の文書を除いて考える（詳細な判定ロジックは
+[文書構造検証器](../../../../docs/structure.md#文書構造検証器)の実装コメントを正本とする）。
 
 `maxDocBytes` の設定方針: 初期段階から厳格にしない。まず上限なしで検査し、
 現存する文書の最大サイズで「問題ない」と判断できるものより1〜2割大きい
@@ -90,6 +92,4 @@
 [agent-compatibility.md](agent-compatibility.md) を参照する。
 
 `excludePaths` の既定値に `.verify-docs/` を含めている理由（作業記録と
-チェックリストの保管先であること）は
-[checklist.md「作業記録」](checklist.md#作業記録)
-を参照する。
+保守報告の保管先であること）は[作業記録と保守報告「作業記録」](work-records-and-report.md#作業記録)を参照する。

@@ -5,7 +5,7 @@ on:
     paths:
       - '**/*.md'
       - 'verify-docs.config.json'
-      - 'verify-docs.todo.json'
+      - 'document-size-exceptions.json'
       - 'scripts/**'
 
 jobs:
@@ -13,4 +13,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: node scripts/verify-docs.mjs
+      - run: node scripts/document-structure-verifier.mjs

@@ -10,7 +10,7 @@ const ROOT = resolve(process.cwd(), rootOption?.slice('--root='.length) ?? '.');
 const paths = args.filter((arg) => !arg.startsWith('--'));
 
 if (args.includes('--help') || args.includes('-h')) {
-  console.log('Usage: node scripts/extract-doc-blocks.mjs [--root=<dir>] <file.md>...');
+  console.log('Usage: node scripts/document-structure-extractor.mjs [--root=<dir>] <file.md>...');
   console.log('Extract CommonMark headings and prose paragraphs as JSON with source lines and byte counts.');
   process.exit(0);
 }
@@ -38,7 +38,11 @@ for (const path of paths) {
   }
 
   const source = readFileSync(absolute, 'utf8');
-  documents.push({ path: relativePath, ...extractProseBlocks(source) });
+  documents.push({
+    kind: 'DocumentStructureSnapshot',
+    path: relativePath,
+    ...extractProseBlocks(source),
+  });
 }
 
 console.log(JSON.stringify(documents, null, 2));

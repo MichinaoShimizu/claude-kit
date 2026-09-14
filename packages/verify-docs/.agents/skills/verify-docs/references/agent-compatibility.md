@@ -21,9 +21,9 @@
 `.claude/skills` はそこを指すシンボリックリンクである。Windows でシンボリック
 リンクを利用できない場合は、`.agents/skills/` の内容を `.claude/skills/` に
 コピーして Claude Code 用の互換入口を作る。既存の `.claude/skills` 構成も
-チェッカーが自動認識する。
+[文書構造検証器](../../../../docs/structure.md#文書構造検証器)が自動認識する。
 
 Kiro は `AGENTS.md` を直接読み、スキルは `.kiro/skills/` から読み込む。
 同梱の `.kiro/skills` は `.agents/skills/` を指す。シンボリックリンクを
 利用できない場合は、同じ内容を `.kiro/skills/` にコピーする。既存の
-`.kiro/skills` 構成もチェッカーが自動認識する。
+`.kiro/skills` 構成も[文書構造検証器](../../../../docs/structure.md#文書構造検証器)が自動認識する。
