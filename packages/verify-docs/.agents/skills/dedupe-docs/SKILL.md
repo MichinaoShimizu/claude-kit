@@ -16,11 +16,11 @@ description: >
 
 ## 目的
 
-チェッカーでは検出できない言い換えによる重複を、人・エージェントの判断で扱う。
+文書構造検証器では検出できない言い換えによる重複を、人・エージェントの判断で扱う。
 
 ## 前提条件
 
-対象リポジトリに verify-docs 一式（`scripts/verify-docs.mjs` と
+対象リポジトリに verify-docs 一式（`scripts/document-structure-verifier.mjs` と
 `.agents/skills/verify-docs/`）が導入済みであること。検査対象・設定・
 規約（`allow-duplicate` マーカーなど）は流用する。verify-docs 自体の規約は
 [verify-docs/SKILL.md](../verify-docs/SKILL.md) を参照する。
@@ -30,7 +30,7 @@ description: >
 ### 1. 機械的重複の解消
 
 ```bash
-node scripts/verify-docs.mjs
+node scripts/document-structure-verifier.mjs
 ```
 
 `[重複]`・`[準一致重複]` が出たら、まず
@@ -45,7 +45,7 @@ node scripts/verify-docs.mjs
 文字列が一致しなくても、同じ主張・手順・判断基準を説明する段落が複数ないかを確認する。
 
 開始前に対象文書を一時作業記録へ列挙する。作り方は
-[作業記録とチェックリスト](../verify-docs/references/checklist.md)を参照する。
+[作業記録とMaintenance Report](../verify-docs/references/work-records-and-report.md)を参照する。
 全項目を確認するまで「3. 判定と対応」には進まない。
 
 一時作業記録の対象文書を調べるときは、共通抽出コマンドで段落の見出し階層・
@@ -84,13 +84,13 @@ node scripts/extract-doc-blocks.mjs --root=. README.md docs/guide.md
   [duplicate-handling.md「意図した重複の許可」](../verify-docs/references/duplicate-handling.md#意図した重複の許可)
   の `allow-duplicate` マーカーを使う。統合の対象からも外す
 
-本手順の判定はチェッカーと異なり再現性を持たない（同じ入力でも見落とし・
+本手順の判定は文書構造検証器と異なり再現性を持たない（同じ入力でも見落とし・
 過検知が起こりうる）。誤った統合を単独で確定させない。
 
 ### 4. 是正後再検査
 
 ```bash
-node scripts/verify-docs.mjs
+node scripts/document-structure-verifier.mjs
 ```
 
 ポインタ化に伴うリンク切れ・断片リンク切れ・サイズ超過が発生していないか
@@ -104,14 +104,14 @@ node scripts/verify-docs.mjs
   文書が無い）
 - 確信できた重複は是正済み、確信が持てなかったものは検出内容・根拠と
   ともに人へ報告済みである
-- 「4. 是正後再検査」の `node scripts/verify-docs.mjs` が
+- 「4. 是正後再検査」の `node scripts/document-structure-verifier.mjs` が
   「文書構造: すべて通過」で終わっている
-- 自分の一時作業記録に `### 最終検査結果` を記載し、`checklist.md` へ統合している
+- 自分の一時作業記録に `### 最終検査結果` を記載し、`maintenance-report.md` へ統合している
 
 ## 制約と対象外
 
 - **重複の判定を自動化・機械化すること。** LLM 判定は再現性を持たないため、
-  CI の pass/fail には使わない（verify-docs のチェッカーには組み込まない）
+  CI の pass/fail には使わない（DocumentStructureVerifierには組み込まない）
 - **文章の品質・正確性の判断。** verify-docs 本体と同じく、判定するのは
   「同じ内容が重複しているか」のみであり、内容の正否・簡潔さは対象外
 - **意味的な類似度のしきい値の数値化。** 「何%似ていたら重複とみなすか」

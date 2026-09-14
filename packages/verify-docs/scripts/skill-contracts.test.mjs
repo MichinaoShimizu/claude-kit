@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { extractProseBlocks } from './markdown-structure.mjs';
-import { verifyDocs } from './verify-docs.mjs';
+import { verifyDocs } from './document-structure-verifier.mjs';
 
 const packageRoot = join(import.meta.dirname, '..');
 const skillPath = (name) => join(packageRoot, '.agents', 'skills', name, 'SKILL.md');
@@ -19,8 +19,8 @@ function makeRepo(files) {
   return root;
 }
 
-function checklist(section, details) {
-  return `# verify-docs-checklist\n\n## verify-docs\n\n（未実施）\n\n## dedupe-docs\n\n${section === 'dedupe-docs' ? details : '（未実施）'}\n\n## tighten-docs\n\n${section === 'tighten-docs' ? details : '（未実施）'}\n`;
+function maintenanceReport(section, details) {
+  return `# Maintenance Report\n\n## verify-docs\n\n（未実施）\n\n## dedupe-docs\n\n${section === 'dedupe-docs' ? details : '（未実施）'}\n\n## tighten-docs\n\n${section === 'tighten-docs' ? details : '（未実施）'}\n`;
 }
 
 function assertCompletedSection(source, section) {
@@ -45,14 +45,14 @@ test('dedupe-docs contract keeps one canonical explanation, a pointer, and an ex
   const root = makeRepo({
     'README.md': '# Home\n\n[guide](docs/guide.md)\n',
     'docs/guide.md': '# Guide\n\nThe canonical setup procedure is in [setup](setup.md).\n',
-    'docs/setup.md': '# Setup\n\nInstall the package, then run the checker from the repository root.\n',
-    '.verify-docs/dist/checklist.md': checklist('dedupe-docs', [
+    'docs/setup.md': '# Setup\n\nInstall the package, then run DocumentStructureVerifier from the repository root.\n',
+    '.verify-docs/dist/maintenance-report.md': maintenanceReport('dedupe-docs', [
       '- [x] README.md — 2026-09-13 / 内容なし',
       '- [x] docs/guide.md — 2026-09-13 / docs/setup.mdへポインタ化',
       '',
       '### 最終検査結果',
       '',
-      '- node scripts/verify-docs.mjs: 文書構造: すべて通過',
+      '- node scripts/document-structure-verifier.mjs: 文書構造: すべて通過',
     ].join('\n')),
   });
   try {
@@ -60,25 +60,25 @@ test('dedupe-docs contract keeps one canonical explanation, a pointer, and an ex
     assert.deepEqual(report.failures, []);
     const canonical = readFileSync(join(root, 'docs/setup.md'), 'utf8');
     const pointer = readFileSync(join(root, 'docs/guide.md'), 'utf8');
-    assertRequiredFacts(canonical, [/Install the package, then run the checker/]);
+    assertRequiredFacts(canonical, [/Install the package, then run DocumentStructureVerifier/]);
     assert.match(pointer, /\[setup\]\(setup\.md\)/);
-    assert.doesNotMatch(pointer, /Install the package, then run the checker/);
-    assertCompletedSection(readFileSync(join(root, '.verify-docs/dist/checklist.md'), 'utf8'), 'dedupe-docs');
+    assert.doesNotMatch(pointer, /Install the package, then run DocumentStructureVerifier/);
+    assertCompletedSection(readFileSync(join(root, '.verify-docs/dist/maintenance-report.md'), 'utf8'), 'dedupe-docs');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
 });
 
-test('dedupe-docs contract rejects a broken canonical pointer and incomplete checklist', () => {
+test('dedupe-docs contract rejects a broken canonical pointer and incomplete maintenance report', () => {
   const root = makeRepo({
     'README.md': '# Home\n\n[guide](docs/guide.md)\n',
     'docs/guide.md': '# Guide\n\nThe canonical setup procedure is in [setup](missing.md).\n',
-    '.verify-docs/dist/checklist.md': checklist('dedupe-docs', '- [ ] docs/guide.md'),
+    '.verify-docs/dist/maintenance-report.md': maintenanceReport('dedupe-docs', '- [ ] docs/guide.md'),
   });
   try {
     assert.ok(verifyDocs(root).failures.some((failure) => failure.kind === 'link'));
     assert.throws(() => assertCompletedSection(
-      readFileSync(join(root, '.verify-docs/dist/checklist.md'), 'utf8'),
+      readFileSync(join(root, '.verify-docs/dist/maintenance-report.md'), 'utf8'),
       'dedupe-docs',
     ));
   } finally {
@@ -92,12 +92,12 @@ test('tighten-docs contract reduces bytes while preserving required facts and an
   const root = makeRepo({
     'README.md': '# Home\n\n[deploy](docs/deploy.md)\n',
     'docs/deploy.md': after,
-    '.verify-docs/dist/checklist.md': checklist('tighten-docs', [
+    '.verify-docs/dist/maintenance-report.md': maintenanceReport('tighten-docs', [
       `- [x] docs/deploy.md — 2026-09-13 / ${compressionRecord(before, after)}`,
       '',
       '### 最終検査結果',
       '',
-      '- node scripts/verify-docs.mjs: 文書構造: すべて通過',
+      '- node scripts/document-structure-verifier.mjs: 文書構造: すべて通過',
     ].join('\n')),
   });
   try {
@@ -107,9 +107,9 @@ test('tighten-docs contract reduces bytes while preserving required facts and an
     assertRequiredFacts(after, [/production mode/, /30 seconds/, /Do not change the retry order\./]);
     const structure = extractProseBlocks(after);
     assert.equal(structure.headings[0].text, 'Deploy');
-    const checklistSource = readFileSync(join(root, '.verify-docs/dist/checklist.md'), 'utf8');
-    assert.match(checklistSource, new RegExp(compressionRecord(before, after)));
-    assertCompletedSection(checklistSource, 'tighten-docs');
+    const reportSource = readFileSync(join(root, '.verify-docs/dist/maintenance-report.md'), 'utf8');
+    assert.match(reportSource, new RegExp(compressionRecord(before, after)));
+    assertCompletedSection(reportSource, 'tighten-docs');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -126,9 +126,9 @@ test('skill instructions keep deterministic contracts separate from semantic jud
   const dedupe = readFileSync(skillPath('dedupe-docs'), 'utf8');
   const tighten = readFileSync(skillPath('tighten-docs'), 'utf8');
   for (const skill of [dedupe, tighten]) {
-    assert.match(skill, /node scripts\/verify-docs\.mjs/);
+    assert.match(skill, /node scripts\/document-structure-verifier\.mjs/);
     assert.match(skill, /### 最終検査結果/);
-    assert.match(skill, /checklist/);
+    assert.match(skill, /maintenance-report/);
   }
   assert.match(dedupe, /CI の pass\/fail には使わない/);
   assert.match(tighten, /数値・条件・手順の順序・免責文言は一字一句変更しない/);

@@ -7,10 +7,10 @@
       "skill": "dedupe-docs",
       "expectedDecision": "consolidate",
       "documents": [
-        { "path": "README.md", "content": "# Home\n\nセットアップはパッケージを導入してからリポジトリ直下でチェッカーを実行する。\n" },
-        { "path": "docs/setup.md", "content": "# Setup\n\nパッケージを導入してから、リポジトリ直下でチェッカーを実行する。\n" }
+        { "path": "README.md", "content": "# Home\n\nセットアップはパッケージを導入してからリポジトリ直下でDocumentStructureVerifierを実行する。\n" },
+        { "path": "docs/setup.md", "content": "# Setup\n\nパッケージを導入してから、リポジトリ直下でDocumentStructureVerifierを実行する。\n" }
       ],
-      "mustPreserve": ["パッケージを導入", "リポジトリ直下", "チェッカーを実行"],
+      "mustPreserve": ["パッケージを導入", "リポジトリ直下", "DocumentStructureVerifierを実行"],
       "reviewQuestions": ["正本を詳細文書に置き、入口文書をポインタ化できるか", "手順の順序を失っていないか"]
     },
     {

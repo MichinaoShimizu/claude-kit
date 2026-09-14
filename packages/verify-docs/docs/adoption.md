@@ -13,7 +13,7 @@
 ### 1. 現状の違反を一括で申告する
 
 ```bash
-node scripts/verify-docs.mjs --init-todo
+node scripts/document-structure-verifier.mjs --init-todo
 ```
 
 サイズ上限を超えている文書を全て抽出し`verify-docs.todo.json`に書き出す。
@@ -33,9 +33,9 @@ node scripts/verify-docs.mjs --init-todo
 [文書構造の是正手順「3. 重複特定」](../.agents/skills/verify-docs/references/remediation.md#3-重複特定)
 を参照する。
 
-## チェックリストの作業単位
+## Maintenance Reportの作業単位
 
-`checklist.md` は、現在の作業単位だけを記録する。作業単位は、同じ目的・対象範囲に
+`maintenance-report.md` は、現在の作業単位だけを記録する。作業単位は、同じ目的・対象範囲に
 対する一連の変更と、その変更を含む1つの PR のレビュー対応・再検査を指す。
 
 同じ作業単位では、実行履歴と開始時点のサイズを引き継ぐ。PR 作成後のレビュー対応、
@@ -43,8 +43,8 @@ node scripts/verify-docs.mjs --init-todo
 
 前の作業単位を含む PR が merge 済みである場合、または目的・対象範囲を変えて新しい
 PR の作業を始める場合は、新しい作業単位とする。新しい作業単位の一時記録を統合するときは、
-既存の `checklist.md` を新しい作業単位の記録で置き換える。前の記録は merge 済みの
-コミットと PR に残るため、`checklist.md` へ再掲しない。
+既存の `maintenance-report.md` を新しい作業単位の記録で置き換える。前の記録は merge 済みの
+コミットと PR に残るため、`maintenance-report.md` へ再掲しない。
 
 ## CIへの組み込み
 
@@ -66,12 +66,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: node scripts/verify-docs.mjs
+      - run: node scripts/document-structure-verifier.mjs
 ```
 
 `paths` は対象リポジトリのCI構成に合わせる。文書だけの変更でも実行する。
 push前にも検証する場合は、既存のlint・typecheck・testなどに
-`node scripts/verify-docs.mjs`を追加する。
+`node scripts/document-structure-verifier.mjs`を追加する。
 
 ## TODOの管理
 

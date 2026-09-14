@@ -24,8 +24,8 @@ verify-docs の検査はサイズ超過という結果のみを見る。冗長�
 
 ## 前提条件
 
-対象リポジトリに verify-docs 一式（`scripts/verify-docs.mjs` と
-`.agents/skills/verify-docs/`）が導入済みであること。検査対象・チェックリスト
+対象リポジトリに verify-docs 一式（`scripts/document-structure-verifier.mjs` と
+`.agents/skills/verify-docs/`）が導入済みであること。検査対象・Maintenance Report
 規約は流用する。verify-docs 自体の規約は
 [verify-docs/SKILL.md](../verify-docs/SKILL.md) を参照する。
 
@@ -45,7 +45,7 @@ verify-docs の検査はサイズ超過という結果のみを見る。冗長�
 ### 1. 作業記録の作成
 
 作り方は
-[verify-docs/references/checklist.md](../verify-docs/references/checklist.md)
+[verify-docs/references/work-records-and-report.md](../verify-docs/references/work-records-and-report.md)
 を参照する。
 
 一時作業記録に載せた対象文書は、共通抽出コマンドで段落の見出し階層・元位置・
@@ -77,13 +77,13 @@ dedupe-docs に切り分ける。
 
 ### 3. サイズ変化記録
 
-[checklist.md「サイズ変更の記録」](../verify-docs/references/checklist.md#サイズ変更の記録)
+[work-records-and-report.md「サイズ変更の記録」](../verify-docs/references/work-records-and-report.md#サイズ変更の記録)
 の様式（開始時点・最終サイズ・削減バイト数・開始時点からの削減率）に従う。
 
 ### 4. 是正後再検査
 
 ```bash
-node scripts/verify-docs.mjs
+node scripts/document-structure-verifier.mjs
 ```
 
 書き換えに伴うリンク切れ・断片リンク切れが発生していないか確認する。
@@ -93,9 +93,9 @@ node scripts/verify-docs.mjs
 以下を全て満たした時点で完了とする。
 
 - 一時作業記録の全項目にチェックが入っている
-- `node scripts/verify-docs.mjs` が「文書構造: すべて通過」で終わっている
-- 自分の一時作業記録に `### 最終検査結果` を記載して `checklist.md` へ統合し、作業完了を報告する際は
-  チェックリストファイルのパスと実行結果を人に伝える
+- `node scripts/document-structure-verifier.mjs` が「文書構造: すべて通過」で終わっている
+- 自分の一時作業記録に `### 最終検査結果` を記載して `maintenance-report.md` へ統合し、作業完了を報告する際は
+  Maintenance Reportのパスと実行結果を人に伝える
 
 ## 制約と対象外
 

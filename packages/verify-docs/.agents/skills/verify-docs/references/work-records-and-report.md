@@ -1,4 +1,4 @@
-# 作業記録とチェックリスト
+# 作業記録とMaintenance Report
 
 ## 作業記録
 
@@ -16,7 +16,7 @@
 一時記録は編集しない。実行が中断した場合も一時記録を残すため、作業状況と再開地点を
 確認できる。
 
-一時記録と `checklist.md` に記載する対象ファイル・是正先・サイズ表のファイル名は、
+一時記録と `maintenance-report.md` に記載する対象ファイル・是正先・サイズ表のファイル名は、
 すべて Markdown リンクにする。一時記録は未コミットの変更を示すため、表示するパスを
 リポジトリルートからの相対パスとし、`.verify-docs/dist/` から解決するローカルリンクを
 使う。例えば `AGENTS.md` は `[AGENTS.md](../../AGENTS.md)` と記載する。文書が
@@ -45,27 +45,27 @@ AST の位置情報で修正箇所を特定できるときは、文書全体を1
       [docs/deploy-domain.md](../../docs/deploy-domain.md) へ移動し、元の位置をポインタ化
 ```
 
-## チェックリストへの統合
+## Maintenance Reportへの統合
 
 実行対象の全スキルが完了したら、一時記録を
-`.verify-docs/dist/checklist.md` へ統合する。`checklist.md` は完了後の正本であり、
+`.verify-docs/dist/maintenance-report.md` へ統合する。`maintenance-report.md` は完了後の正本であり、
 作業中には書き換えない。単独実行では、その1スキルの完了時に統合する。
 
 統合時は、実行したスキルごとに一時記録の対象・判断理由・`### 最終検査結果` を対応する
 `## <skill-name>` セクションへそのまま移す。実行しなかったスキルのセクションは
 `（未実施）` とする。形式と記入規則は
-[checklist-summary.md](checklist-summary.md)を参照する。
+[maintenance-report-format.md](maintenance-report-format.md)を参照する。
 
-`checklist.md` への統合を確認してから、その回に使った一時記録だけを削除する。
+`maintenance-report.md` への統合を確認してから、その回に使った一時記録だけを削除する。
 統合に失敗した場合や作業を中断した場合は削除しない。日時サフィックス付きの
-チェックリストや、別名の恒久ファイルを追加しない。
+Maintenance Reportや、別名の恒久ファイルを追加しない。
 
 作業単位の継続・切替は
-[導入と運用「チェックリストの作業単位」](../../../../docs/adoption.md#チェックリストの作業単位)
+[導入と運用「Maintenance Reportの作業単位」](../../../../docs/adoption.md#maintenance-reportの作業単位)
 に従う。
 
 作業中と、文書変更を含む最初のコミットではローカルリンクを使う。外部から参照する
-確定版のチェックリストが必要な場合だけ、その変更コミットの後に、チェックリストの
+確定版のMaintenance Reportが必要な場合だけ、その変更コミットの後に、Maintenance Reportの
 リンクを当該コミットのパーマネントリンクへ置き換える専用の更新コミットを作る。
 GitHub なら `https://github.com/<owner>/<repository>/blob/<commit>/<path>` を使う。同じコミットを
 指すリンクを、そのコミットに含めようとはしない。未コミットの変更、リモートリポジトリが
@@ -75,7 +75,7 @@ GitHub なら `https://github.com/<owner>/<repository>/blob/<commit>/<path>` を
 ## サイズ変更の記録
 
 `tighten-docs` は、最初の試行で全対象ファイルの開始サイズを記録する。再実行では、
-開始サイズを変えず、今回の最終サイズを記録する。`checklist.md` には開始サイズ、
+開始サイズを変えず、今回の最終サイズを記録する。`maintenance-report.md` には開始サイズ、
 最終サイズ、開始時点からの削減バイト数、開始時点からの削減率を残す。削減バイト数は
 `開始 - 最終`、削減率は `(開始 - 最終) / 開始 * 100` で計算し、小数第1位までとする。
 削減バイト数と削減率は、正の値ほど削減、負の値ほど増加を表す。表は削減バイト数の

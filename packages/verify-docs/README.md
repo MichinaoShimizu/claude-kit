@@ -1,6 +1,6 @@
 # verify-docs
 
-Markdown文書群の検査・改善パッケージ。チェッカーと構造抽出CLIに加え、
+Markdown文書群の検査・改善パッケージ。DocumentStructureVerifier（文書構造検証器）と構造抽出CLIに加え、
 `verify-docs`・`dedupe-docs`・`tighten-docs`の3つのスキルを同梱する。
 CommonMark ASTを基盤に、参照整合性・文書構造・サイズ・重複を検査し、
 文書構造の是正、意味的重複の解消、意味を保った簡潔化を支援する。
@@ -41,16 +41,16 @@ CLIの詳細は[CLIリファレンス](docs/advanced-usage.md)を参照。
 
 スキルが対象文書を改善し、変更をリポジトリ内のMarkdown文書に反映する。
 
-### チェックリスト
+### Maintenance Report
 
 作業中はスキル別の一時記録を `.verify-docs/dist/` に置き、完了後に
-`.verify-docs/dist/checklist.md` へ統合する。形式は
-[作業記録とチェックリスト](.agents/skills/verify-docs/references/checklist.md)を参照。
-導入時に `*.work.md` を無視し、`checklist.md` は追跡する。
-単独のチェッカーは作業記録を作成しない。
+`.verify-docs/dist/maintenance-report.md` へ統合する。形式は
+[作業記録とMaintenance Report](.agents/skills/verify-docs/references/work-records-and-report.md)を参照。
+導入時に `*.work.md` を無視し、`maintenance-report.md` は追跡する。
+単独の文書構造検証器は作業記録を作成しない。
 
 作業単位の継続・切替は
-[導入と運用「チェックリストの作業単位」](docs/adoption.md#チェックリストの作業単位)
+[導入と運用「Maintenance Reportの作業単位」](docs/adoption.md#maintenance-reportの作業単位)
 を参照。
 
 契約テストの範囲は[構造解析と機械検査](docs/structure.md#スキルの契約テスト)を参照。
@@ -59,11 +59,11 @@ CLIの詳細は[CLIリファレンス](docs/advanced-usage.md)を参照。
 
 標準出力には検査概要とサイズの大きい末端節の上位5件を表示する。TODO登録があれば、
 対象文書と分割候補節も表示する。違反の詳細は標準エラーに出力する。通常の検査では
-Markdown文書やチェックリストを変更しない。
+Markdown文書やMaintenance Reportを変更しない。
 
 ### 検査結果（JSON）
 
-`node scripts/verify-docs.mjs --json`のように実行すると、文書数・構造集計、違反種別ごとの件数、
+`node scripts/document-structure-verifier.mjs --json`のように実行すると、文書数・構造集計、違反種別ごとの件数、
 大きな節、TODO候補（[TODOファイルの記述形式](.agents/skills/verify-docs/references/todo.md)）に加え、
 違反箇所の行・列・見出し階層や重複箇所をJSON形式で標準出力に出力する。詳しい例は
 [CLIリファレンス「検査結果のJSON出力」](docs/advanced-usage.md#検査結果のjson出力)を参照。
@@ -72,7 +72,7 @@ Markdown文書やチェックリストを変更しない。
 
 | 機能 | 課題 | 内容 | 対象外 |
 | --- | --- | --- | --- |
-| [チェッカー](docs/advanced-usage.md#文書構造の検査) | リンク切れ、孤立文書、サイズ超過、同一段落 | CommonMark ASTで構造違反を検出 | 意味の近さや文章の良し悪しの判断 |
+| [DocumentStructureVerifier（文書構造検証器）](docs/advanced-usage.md#文書構造の検査) | リンク切れ、孤立文書、サイズ超過、同一段落 | CommonMark ASTで構造違反を検出 | 意味の近さや文章の良し悪しの判断 |
 | [`verify-docs` スキル](.agents/skills/verify-docs/SKILL.md) | 検出した構造違反 | 文書の置き場所と参照関係を整える | 内容の要約・言い換え・文章の推敲 |
 | [`dedupe-docs` スキル](.agents/skills/dedupe-docs/SKILL.md) | 言い換えた同じ説明 | 意味的重複を正本へ集約し、他方を案内にする | 文脈や読者が異なる説明の強制統合 |
 | [`tighten-docs` スキル](.agents/skills/tighten-docs/SKILL.md) | 冗長な文章 | 意味を保った冗長表現を削る | 文書の分割、重複の集約、意味の変更 |
@@ -86,7 +86,7 @@ flowchart TD
     Config[verify-docs.config.json<br/>任意設定・既定値を上書き]
     Todo[verify-docs.todo.json<br/>サイズ超過の継続管理]
     AST[CommonMark AST]
-    Checker[verify-docs チェッカー]
+    DocumentStructureVerifier[DocumentStructureVerifier<br/>文書構造検証器]
     CheckJSON[検査JSON<br/>違反・集計・大きい節・TODO候補]
     Extractor[構造抽出CLI]
     ASTJSON[AST抽出JSON<br/>見出し・段落・位置・バイト数]
@@ -95,14 +95,14 @@ flowchart TD
     Tighten[tighten-docs スキル]
     UpdatedDocs[改善後のMarkdown文書]
     WorkRecords[作業記録]
-    Checklist[チェックリスト]
+    MaintenanceReport[Maintenance Report]
 
     Docs --> AST
-    Config -.設定.-> Checker
-    Todo -.既存超過を許容.-> Checker
-    AST --> Checker
-    Checker --> CheckJSON
-    Checker -->|--init-todo| Todo
+    Config -.設定.-> DocumentStructureVerifier
+    Todo -.既存超過を許容.-> DocumentStructureVerifier
+    AST --> DocumentStructureVerifier
+    DocumentStructureVerifier --> CheckJSON
+    DocumentStructureVerifier -->|--init-todo| Todo
     CheckJSON -->|対象節・違反の根拠| VerifySkill
     VerifySkill --> WorkRecords
     VerifySkill --> UpdatedDocs
@@ -113,7 +113,7 @@ flowchart TD
     ASTJSON --> Tighten
     Dedupe --> WorkRecords
     Tighten --> WorkRecords
-    WorkRecords -->|完了後に統合| Checklist
+    WorkRecords -->|完了後に統合| MaintenanceReport
     Dedupe --> UpdatedDocs
     Tighten --> UpdatedDocs
 ```

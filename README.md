@@ -11,7 +11,7 @@ Claude Code・Codex・Kiro などの生成AIエージェント向けパッケー
 
 | パッケージ | 概要 |
 | --- | --- |
-| [verify-docs](packages/verify-docs/) | Markdown文書群の検査・改善パッケージ。チェッカーと構造抽出CLIに加え、`verify-docs`・`dedupe-docs`・`tighten-docs`の3つのスキルを同梱する。CommonMark ASTを基盤に、参照整合性・文書構造・サイズ・重複を検査し、文書構造の是正、意味的重複の解消、意味を保った簡潔化を支援する。 |
+| [verify-docs](packages/verify-docs/) | Markdown文書群の検査・改善パッケージ。DocumentStructureVerifier（文書構造検証器）と構造抽出CLIに加え、`verify-docs`・`dedupe-docs`・`tighten-docs`の3つのスキルを同梱する。CommonMark ASTを基盤に、参照整合性・文書構造・サイズ・重複を検査し、文書構造の是正、意味的重複の解消、意味を保った簡潔化を支援する。 |
 | [agent-layout](packages/agent-layout/) | スキルとカスタムエージェントをClaude Code・Codex・Kiro向けに補正・同期する |
 
 ## ガイド

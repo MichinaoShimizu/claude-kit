@@ -12,13 +12,13 @@ CLAUDE.md・AGENTS.md（または README）を開き、「MUST」と「道案内
 `docsDir`）に切り出し、入口には1行のポインタのみを残す。判断基準は
 「この段落を読まなくても次に何をすべきかが分かるか」。分かるなら詳細は
 外部でよい。冗長な言い回しの削減自体は執筆者本人・原則審査の役目で、
-チェッカーはサイズという結果のみを検査する（削減の手順は
+文書構造検証器はサイズという結果のみを検査する（削減の手順は
 [tighten-docs スキル](../../tighten-docs/SKILL.md)を参照）。
 
 ## 2. 肥大化文書の特定
 
 ```bash
-node scripts/verify-docs.mjs
+node scripts/document-structure-verifier.mjs
 ```
 
 `[サイズ超過]` が出力された文書が対象。見出し単位で内容を仕分ける。
@@ -50,7 +50,7 @@ node scripts/verify-docs.mjs
   [duplicate-handling.md](duplicate-handling.md)
   「準一致重複」）
 
-### 意味的な重複（チェッカーでは検出できない）
+### 意味的な重複（文書構造検証器では検出できない）
 
 `[重複]`・`[準一致重複]` はいずれもAST抽出した文字列の一致ベースであり、言い回しが
 異なる言い換えの重複は検知できない。この判断は
@@ -72,5 +72,5 @@ push・PR の前に必ず通過するよう構成する。組み込み方法は
 ## 6. 継続的な検査
 
 一度是正しても、追記のたびに再度肥大化・重複が起きる。新規文書追加時・
-既存文書への追記時に毎回 `node scripts/verify-docs.mjs` を実行する
+既存文書への追記時に毎回 `node scripts/document-structure-verifier.mjs` を実行する
 ことを push 前検証に組み込めば、崩れた時点で機械的に検知できる。

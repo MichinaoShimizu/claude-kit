@@ -13,11 +13,11 @@
  *   3. 同じ説明が複数の文書に重複する —— コピーしてから直すと、片方だけ更新されて
  *      矛盾した2つの説明が残る。太った文書を分割するときにも起きやすい。
  *
- * このスクリプトは3つとも検査する。チェッカー（このスクリプト）と、プレイブック
+ * このスクリプトは3つとも検査する。DocumentStructureVerifier（このスクリプト）と、プレイブック
  * （見つかったものをどう直すか）は分けてある。プレイブックの手順は
  * `.agents/skills/verify-docs/SKILL.md`。
  *
- *   node scripts/verify-docs.mjs
+ *   node scripts/document-structure-verifier.mjs
  *
  * 見ているもの:
  *   - マークダウンリンクの飛び先が実在するか（外部 URL は見ない）

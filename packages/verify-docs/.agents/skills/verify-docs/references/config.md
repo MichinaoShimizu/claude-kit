@@ -10,7 +10,7 @@
 リポジトリ直下に配置する。存在しない場合は全項目が既定値で動作する。
 設定項目名と意味は下表を正本とする。README.md・CONTRIBUTING.md など
 他の文書では個々のキー名を列挙せず本表を指すだけにとどめる（キー追加時の
-更新漏れを防ぐ。追加時は本表への追記漏れを `verify-docs.test.mjs` が
+更新漏れを防ぐ。追加時は本表への追記漏れを `document-structure-verifier.test.mjs` が
 機械的に検査する）。
 
 ```json
@@ -36,7 +36,7 @@
 | `skillsDir`           | スキル定義を配置するディレクトリ（`<skillsDir>/<name>/SKILL.md` を想定）。既定は `.agents/skills`。存在しなければ `.claude/skills`、`.kiro/skills` の順に自動検出する |
 | `pathRoots`           | 本文中のバッククォート表記をパスとして検査する接頭辞                 |
 | `agentConfigDirs`     | スキル以外のエージェント設定文書を孤立チェックから除外するディレクトリ |
-| `excludePaths`        | 検査対象から除外するディレクトリ（下記「検査対象の集め方」を参照）。既定に含まれる `.verify-docs/` は作業記録とチェックリストの保管先（[checklist.md「作業記録」](checklist.md#作業記録)を参照） |
+| `excludePaths`        | 検査対象から除外するディレクトリ（下記「検査対象の集め方」を参照）。既定に含まれる `.verify-docs/` は作業記録とMaintenance Reportの保管先（[work-records-and-report.md「作業記録」](work-records-and-report.md#作業記録)を参照） |
 | `maxDocBytes`         | 1文書あたりの上限（バイト数）。超過時は分割するか TODO に記載する    |
 | `minDuplicateChars`   | AST抽出した段落本文の最小文字数。値が小さいほど誤検知が増加する |
 | `checkDuplicates`     | 完全一致の重複検査の有効・無効。既定は有効                           |
@@ -60,7 +60,7 @@
 使う。
 
 モノレポで各パッケージを個別に `--root=packages/<name>`（詳細は
-[verify-docs.mjs](../../../../scripts/verify-docs.mjs) の `--root` オプション
+[document-structure-verifier.mjs](../../../../scripts/document-structure-verifier.mjs) の `--root` オプション
 説明を参照）で検査する場合は、リポジトリ直下の検査からパッケージの
 ディレクトリを `excludePaths` で除外し二重検査を避ける。
 
@@ -70,9 +70,9 @@
 （リンク切れ・サイズ超過・重複の検査）には含まれたまま、孤立チェックのみ
 免除される。README・SKILL.md から参照されない運用が前提の設定ファイルまで
 「孤立」として毎回検出し続けるのを避けるための意図的な例外であり、実装漏れ
-ではない。チェックリストを作る際は、孤立チェックの結果と照合する前提の
+ではない。Maintenance Reportを作る際は、孤立チェックの結果と照合する前提の
 項目からはこの種の文書を除いて考える（詳細な判定ロジックは
-[verify-docs.mjs](../../../../scripts/verify-docs.mjs)「検査対象の集め方」の
+[document-structure-verifier.mjs](../../../../scripts/document-structure-verifier.mjs)「検査対象の集め方」の
 コメントを正本とする）。
 
 `maxDocBytes` の設定方針: 初期段階から厳格にしない。まず上限なしで検査し、
@@ -90,6 +90,6 @@
 [agent-compatibility.md](agent-compatibility.md) を参照する。
 
 `excludePaths` の既定値に `.verify-docs/` を含めている理由（作業記録と
-チェックリストの保管先であること）は
-[checklist.md「作業記録」](checklist.md#作業記録)
+Maintenance Reportの保管先であること）は
+[work-records-and-report.md「作業記録」](work-records-and-report.md#作業記録)
 を参照する。

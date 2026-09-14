@@ -3,7 +3,7 @@
 ## 文書構造の検査
 
 ```bash
-node scripts/verify-docs.mjs
+node scripts/document-structure-verifier.mjs
 ```
 
 ## PR差分の検査
@@ -14,7 +14,7 @@ node scripts/verify-docs.mjs
 移動元を参照したままの文書も検出できる。
 
 ```bash
-node scripts/verify-docs.mjs --changed-base=origin/main
+node scripts/document-structure-verifier.mjs --changed-base=origin/main
 ```
 
 ## AST情報のJSON出力
@@ -33,11 +33,11 @@ node scripts/extract-doc-blocks.mjs --root=. README.md docs/guide.md
 既存文書に違反があるリポジトリでは、最初に次を実行する。
 
 ```bash
-node scripts/verify-docs.mjs --init-todo
+node scripts/document-structure-verifier.mjs --init-todo
 ```
 
 ## 検査結果のJSON出力
 
 ```bash
-node scripts/verify-docs.mjs --json
+node scripts/document-structure-verifier.mjs --json
 ```

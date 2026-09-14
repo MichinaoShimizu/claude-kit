@@ -11,9 +11,9 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { verifyDocs } from './verify-docs.mjs';
+import { verifyDocs } from './document-structure-verifier.mjs';
 
-const SCRIPT = join(import.meta.dirname, 'verify-docs.mjs');
+const SCRIPT = join(import.meta.dirname, 'document-structure-verifier.mjs');
 
 function makeRepo(files) {
   const root = mkdtempSync(join(tmpdir(), 'verify-docs-test-'));
@@ -459,7 +459,7 @@ test('every DEFAULTS key is documented in config.md (prevents doc drift when a k
   const script = readFileSync(SCRIPT, 'utf8');
   const defaultsBlock = script.match(/const DEFAULTS = \{([\s\S]*?)\n\};/)[1];
   const keys = [...defaultsBlock.matchAll(/^\s*(\w+):/gm)].map((m) => m[1]);
-  assert.ok(keys.length > 0, 'failed to extract DEFAULTS keys from verify-docs.mjs');
+  assert.ok(keys.length > 0, 'failed to extract DEFAULTS keys from document-structure-verifier.mjs');
 
   const configMd = readFileSync(
     join(import.meta.dirname, '../.agents/skills/verify-docs/references/config.md'),

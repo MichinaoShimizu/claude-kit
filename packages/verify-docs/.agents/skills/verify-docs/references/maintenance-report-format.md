@@ -1,11 +1,11 @@
-# 実行結果の記録
+# Maintenance Report Format
 
-`checklist.md` は各スキルの最終結果と作業単位の実行履歴を残す。
-作業記録の作成、統合、再実行、リンクの扱いは[作業記録とチェックリスト](checklist.md)に従う。
+`maintenance-report.md` は各スキルの最終結果と作業単位の実行履歴を残す。
+作業記録の作成、統合、再実行、リンクの扱いは[作業記録とMaintenance Report](work-records-and-report.md)に従う。
 
 ## 作業単位と再実行
 
-`checklist.md` は1つの作業単位を記録する。作業単位は、同じ目的・対象範囲に対する
+`maintenance-report.md` は1つの作業単位を記録する。作業単位は、同じ目的・対象範囲に対する
 最初の試行から最終試行までを指す。作業単位の開始時刻、最終更新時刻、各試行の時刻を
 本文に記す。観点別の結果とファイル別サイズは、開始時点から最終状態までの累積結果を
 示す。
@@ -36,10 +36,10 @@
 
 | 観点 | 検査・保証内容 | 検査根拠 | 結果 |
 | --- | --- | --- | --- |
-| 参照整合性 | Markdownリンク・画像リンク・断片リンク、設定した `pathRoots` に一致するバッククォート内のパスが解決できる | `node scripts/verify-docs.mjs` | リンク違反0件 |
-| 孤立文書 | 入口文書または他の検査対象文書から到達できる | `node scripts/verify-docs.mjs` | 孤立違反0件 |
-| 文書サイズ | `maxDocBytes` 以下、または TODO に理由を記録済みである | `node scripts/verify-docs.mjs` | サイズ違反0件 |
-| 機械的重複 | 完全一致と、有効時の準一致の段落重複を検出・是正済みである | `node scripts/verify-docs.mjs` | 重複違反0件 |
+| 参照整合性 | Markdownリンク・画像リンク・断片リンク、設定した `pathRoots` に一致するバッククォート内のパスが解決できる | `node scripts/document-structure-verifier.mjs` | リンク違反0件 |
+| 孤立文書 | 入口文書または他の検査対象文書から到達できる | `node scripts/document-structure-verifier.mjs` | 孤立違反0件 |
+| 文書サイズ | `maxDocBytes` 以下、または TODO に理由を記録済みである | `node scripts/document-structure-verifier.mjs` | サイズ違反0件 |
+| 機械的重複 | 完全一致と、有効時の準一致の段落重複を検出・是正済みである | `node scripts/document-structure-verifier.mjs` | 重複違反0件 |
 
 ### dedupe-docs
 
@@ -47,7 +47,7 @@
 | --- | --- | --- | --- |
 | 意味的重複 | 言い換えによる同一の主張・手順・判断基準を確認した | 原文と抽出結果の照合 | 重複なし |
 | 正本の配置 | 統合対象は詳細度と読者に合う文書を正本にした | 正本と統合元の原文 | 該当なし、または是正済み |
-| ポインタ | 統合元から正本への案内が解決でき、内容を重ねていない | `node scripts/verify-docs.mjs` | 該当なし、またはリンク違反0件 |
+| ポインタ | 統合元から正本への案内が解決でき、内容を重ねていない | `node scripts/document-structure-verifier.mjs` | 該当なし、またはリンク違反0件 |
 | 判断保留 | 統合の確信が持てない候補を人の判断へ残した | 一時作業記録 | なし、または保留内容 |
 
 ### tighten-docs

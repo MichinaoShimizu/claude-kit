@@ -1,6 +1,6 @@
 # この一式の改修作法
 
-本ファイルは `verify-docs.mjs` 自体・`SKILL.md`・`references/config.md` を
+本ファイルは `document-structure-verifier.mjs` 自体・`SKILL.md`・`references/config.md` を
 改修する側の作法を扱う。利用側の手順は [README.md](README.md) を参照する。
 
 - 改修後、自身に対して検査を通過させる（ドッグフーディング）。本リポジトリ
@@ -12,11 +12,11 @@
   該当箇所を同一コミットで更新する（コードのみ改修し説明が旧状態のまま
   残ると、本一式自体が文書の重複・不整合を起こす）。`DEFAULTS` にキーを
   追加した場合、正本である `references/config.md` の表への追記を
-  `verify-docs.test.mjs`（「every DEFAULTS key is documented in
+  `document-structure-verifier.test.mjs`（「every DEFAULTS key is documented in
   config.md」）が機械的に検査する。README.md 側は個々のキー名を列挙しない
   （正本は [config.md](.agents/skills/verify-docs/references/config.md)）
 - 「機械的に真偽が判定できるか」を超える判断（表記ゆれの許容、意味的な
-  類似判定など）はチェッカーに組み込まない。必要なら
+  類似判定など）はDocumentStructureVerifierに組み込まない。必要なら
   [dedupe-docs スキル](.agents/skills/dedupe-docs/SKILL.md) のような
   別スキルに切り出す
 - 「不変条件」は本一式自体にも適用する。既存説明の書き直しでも、意味を

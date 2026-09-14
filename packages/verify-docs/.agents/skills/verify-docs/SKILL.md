@@ -45,17 +45,17 @@ description: >
 
 ## 責務の分離
 
-チェッカー・プレイブックそれぞれの役割は
+文書構造検証器・プレイブックそれぞれの役割は
 [README.md「機能と責務」](../../../README.md#機能と責務)
 を参照する。
-チェッカーの通過は、意味的な重複、配置の妥当性、文章品質を保証しない。
+文書構造検証器の通過は、意味的な重複、配置の妥当性、文章品質を保証しない。
 機械的な検査結果と、プレイブックによる判断を同じ根拠として扱わない。
 意味的な重複は [dedupe-docs](../dedupe-docs/SKILL.md)、冗長性は
 [tighten-docs](../tighten-docs/SKILL.md) の手順で別に確認する。
 
 ## 前提条件
 
-`scripts/verify-docs.mjs` を対象リポジトリに配置する（本スキル一式を
+`scripts/document-structure-verifier.mjs` を対象リポジトリに配置する（本スキル一式を
 まるごとコピーすれば含まれる）。設定は `verify-docs.config.json`
 （無ければ既定値。[references/config.md](references/config.md)を参照。
 入力制約は[references/config-validation.md](references/config-validation.md)を参照）。
@@ -65,17 +65,17 @@ description: >
 **実行する前に、必ず対象文書（またはこの回で確認する観点）の一覧を、
 スキルごとの一時作業記録へ先に作る。**「簡単な確認だから」「1回実行するだけ
 だから」は省略の理由にならない。作り方は
-[references/checklist.md](references/checklist.md) を参照する。
+[references/work-records-and-report.md](references/work-records-and-report.md) を参照する。
 
 ```bash
-node scripts/verify-docs.mjs
+node scripts/document-structure-verifier.mjs
 ```
 
 本スクリプトは破綻箇所を通知するのみで、是正は本スキルの役目。出力された
 違反は事前に作った一時作業記録へ反映し、1件是正するごとにチェックを
 入れ日付・判断理由を書き添える。全項目が済んだら再実行し、新規の違反が
-無いか確認する。完了時には一時記録を `checklist.md` へ統合する。最終検査結果の様式は
-[references/checklist-summary.md](references/checklist-summary.md) を参照する。
+無いか確認する。完了時には一時記録を `maintenance-report.md` へ統合する。最終検査結果の様式は
+[references/maintenance-report-format.md](references/maintenance-report-format.md) を参照する。
 
 ## 実施手順
 
@@ -88,13 +88,13 @@ TODOの記述形式は[TODOファイルの記述形式](references/todo.md)を�
 
 以下を全て満たした時点で、その回の是正作業は完了とする。
 
-- `node scripts/verify-docs.mjs` の実行結果が「文書構造: すべて通過」
+- `node scripts/document-structure-verifier.mjs` の実行結果が「文書構造: すべて通過」
   である（`verify-docs.todo.json` に理由付きで明示的に残した超過は
   例外として許容する）
 - 検査結果に複数件出力された違反は、一時作業記録の全項目にチェックが
   入っている
-- 自分の一時作業記録に `### 最終検査結果` を記載して `checklist.md` へ統合し、作業完了を報告する際は
-  チェックリストファイルのパス（`.verify-docs/dist/checklist.md`）と実行結果を人に伝える
+- 自分の一時作業記録に `### 最終検査結果` を記載して `maintenance-report.md` へ統合し、作業完了を報告する際は
+  Maintenance Reportのパス（`.verify-docs/dist/maintenance-report.md`）と実行結果を人に伝える
 
 ## 制約と対象外
 

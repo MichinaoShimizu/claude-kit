@@ -45,7 +45,7 @@ if [[ -z "$source_root" ]]; then
   script_path="${BASH_SOURCE[0]:-}"
   if [[ -n "$script_path" && -f "$script_path" ]]; then
     script_dir="$(cd "$(dirname "$script_path")" && pwd)"
-    if [[ -f "$script_dir/scripts/verify-docs.mjs" ]]; then
+    if [[ -f "$script_dir/scripts/document-structure-verifier.mjs" ]]; then
       source_root="$script_dir"
     fi
   fi
@@ -60,13 +60,13 @@ if [[ -z "$source_root" ]]; then
   fi
 fi
 
-if [[ ! -f "$source_root/scripts/verify-docs.mjs" ]]; then
+if [[ ! -f "$source_root/scripts/document-structure-verifier.mjs" ]]; then
   echo "verify-docs package not found at: $source_root" >&2
   exit 1
 fi
 
 files=(
-  scripts/verify-docs.mjs
+  scripts/document-structure-verifier.mjs
   scripts/markdown-structure.mjs
   scripts/extract-doc-blocks.mjs
   scripts/vendor
@@ -168,4 +168,4 @@ for agent_dir in .claude .kiro; do
 done
 
 echo "Installed verify-docs into $target_root"
-echo "Run: node scripts/verify-docs.mjs"
+echo "Run: node scripts/document-structure-verifier.mjs"
