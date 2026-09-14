@@ -25,14 +25,14 @@ description: >
 
 ## 目的
 
-[文書構造検証器](../verify-docs/references/shared/verification-boundaries.md)では検出できない言い換えによる重複を、人・エージェントの判断で扱う。
+[文書構造検証器](references/verification-boundaries.md#検証器とプレイブックの責務)では検出できない言い換えによる重複を、人・エージェントの判断で扱う。
 
 ## 前提条件
 
-対象リポジトリに[文書構造是正スキル](../verify-docs/SKILL.md#文書構造是正スキル)一式（`scripts/document-structure-verifier.mjs` と
+対象リポジトリに文書構造是正スキル一式（`scripts/document-structure-verifier.mjs` と
 `.agents/skills/verify-docs/`）が導入済みであること。検査対象・設定・
 規約（`allow-duplicate` マーカーなど）は流用する。文書構造是正スキル自体の規約は
-[文書構造是正スキル](../verify-docs/SKILL.md#文書構造是正スキル)を参照する。
+文書構造是正スキルの規約を参照する。
 
 ## 実施手順
 
@@ -43,18 +43,18 @@ node scripts/document-structure-verifier.mjs
 ```
 
 `[重複]`・`[準一致重複]` が出たら、まず
-[文書構造是正スキル](../verify-docs/SKILL.md#文書構造是正スキル)「3. 重複特定」の
+文書構造是正スキルの「3. 重複特定」の
 手順で解消する。意味的な重複の判定は、機械的な重複が無い状態を前提に行う
 （残ったままだと、どちらが本来の重複源か判断しづらい）。
 
 ### 2. 意味的重複の探索
 
 対象は文書構造是正スキルの検査対象と同じである。詳細は
-[検査対象の集め方](../verify-docs/references/config.md#検査対象の集め方)を参照する。
+[検査対象の集め方](references/config.md#検査対象の集め方)を参照する。
 文字列が一致しなくても、同じ主張・手順・判断基準を説明する段落が複数ないかを確認する。
 
 開始前に対象文書を一時作業記録へ列挙する。作り方は
-[作業記録と保守報告](../verify-docs/references/work-records-and-report.md)を参照する。
+[作業記録と保守報告](references/work-records-and-report.md)を参照する。
 全項目を確認するまで「3. 判定と対応」には進まない。
 
 一時作業記録の対象文書を調べるときは、共通抽出コマンドで段落の見出し階層・
@@ -85,15 +85,15 @@ node scripts/document-structure-extractor.mjs --root=. README.md docs/guide.md
   完全一致の重複と同じ手順で是正する。本来の置き場所（より詳細・下位の
   文書）を決め、他方はポインタ1行に置換する。移動とポインタ化のみとし、
   要約・言い換えによる内容変更は行わない
-  （[文書構造是正スキル「不変条件」](../verify-docs/SKILL.md#不変条件)）
+  （文書構造是正スキルの「不変条件」）
 - **確信が持てない場合**（意味が重なるのは一部だけ、対象読者・文脈が
   異なる、片方が要約でもう片方が手順の詳細、など）→ その場で断定して
   統合せず、検出内容と根拠を人に報告して判断を仰ぐ
 - **意図して重複させるべき場合**（免責文言・定型の注意書きなど）→
-  [duplicate-handling.md「意図した重複の許可」](../verify-docs/references/duplicate-handling.md#意図した重複の許可)
+  [duplicate-handling.md「意図した重複の許可」](references/duplicate-handling.md#意図した重複の許可)
   の `allow-duplicate` マーカーを使う。統合の対象からも外す
 
-本手順の判定は[文書構造検証器](../verify-docs/references/shared/verification-boundaries.md)と異なり再現性を持たない（同じ入力でも見落とし・
+本手順の判定は[文書構造検証器](references/verification-boundaries.md#検証器とプレイブックの責務)と異なり再現性を持たない（同じ入力でも見落とし・
 過検知が起こりうる）。誤った統合を単独で確定させない。
 
 ### 4. 是正後再検査
@@ -115,12 +115,12 @@ node scripts/document-structure-verifier.mjs
   ともに人へ報告済みである
 - 「4. 是正後再検査」の `node scripts/document-structure-verifier.mjs` が
   「文書構造: すべて通過」で終わっている
-- 自分の一時作業記録に `### 最終検査結果` を記載し、[保守報告](../verify-docs/references/work-records-and-report.md#保守報告)へ統合している
+- 自分の一時作業記録に `### 最終検査結果` を記載し、[保守報告](references/work-records-and-report.md#保守報告)へ統合している
 
 ## 制約と対象外
 
 - **重複の判定を自動化・機械化すること。** LLM 判定は再現性を持たないため、
-  CI の pass/fail には使わない（[文書構造検証器](../verify-docs/references/shared/verification-boundaries.md)には組み込まない）
+  CI の pass/fail には使わない（[文書構造検証器](references/verification-boundaries.md#検証器とプレイブックの責務)には組み込まない）
 - **文章の品質・正確性の判断。** 文書構造是正スキルと同じく、判定するのは
   「同じ内容が重複しているか」のみであり、内容の正否・簡潔さは対象外
 - **意味的な類似度のしきい値の数値化。** 「何%似ていたら重複とみなすか」

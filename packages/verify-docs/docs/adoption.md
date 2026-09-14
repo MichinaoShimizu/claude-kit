@@ -35,7 +35,7 @@ node scripts/document-structure-verifier.mjs --init-size-exceptions
 
 ## 保守報告の作業単位
 
-[保守報告の作業単位](../.agents/skills/verify-docs/references/shared/work-record-lifecycle.md)を参照。
+[保守報告の作業単位](../.agents/skills/verify-docs/references/work-record-lifecycle.md)を参照。
 
 ## CIへの組み込み
 

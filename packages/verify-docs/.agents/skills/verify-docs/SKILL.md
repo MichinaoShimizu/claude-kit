@@ -54,8 +54,8 @@ description: >
 
 ## 責務の分離
 
-責務境界は[検証器とプレイブックの責務](references/shared/verification-boundaries.md)を参照する。CIは[CIへの組み込み](references/shared/ci-integration.md)、作業単位は[保守報告の作業単位](references/shared/work-record-lifecycle.md)に従う。意味的な重複は[文書重複解消スキル](../dedupe-docs/SKILL.md#文書重複解消スキル)、冗長性は
-[文書簡潔化スキル](../tighten-docs/SKILL.md#文書簡潔化スキル)の手順で別に確認する。
+責務境界は[検証器とプレイブックの責務](references/verification-boundaries.md)を参照する。CIは[CIへの組み込み](references/ci-integration.md)、作業単位は[保守報告の作業単位](references/work-record-lifecycle.md)に従う。意味的な重複は文書重複解消スキル、冗長性は
+文書簡潔化スキルの手順で別に確認する。
 
 ## 前提条件
 

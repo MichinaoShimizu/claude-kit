@@ -8,7 +8,9 @@ dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "$dir/../.." && pwd)"
 rel_dir="${dir#"$repo_root"/}"
 
-node "$dir/scripts/document-structure-verifier.mjs" --root="$rel_dir"
+node "$dir/scripts/sync-shared-references.mjs"
+node "$dir/scripts/check-skill-local-links.mjs"
+node "$dir/scripts/document-structure-verifier.mjs" --root="$rel_dir" --config="$dir/selfcheck.config.json"
 node --test "$dir/scripts/document-structure-verifier.test.mjs"
 node --test "$dir/scripts/document-structure-extractor.test.mjs"
 node --test "$dir/scripts/skill-contracts.test.mjs"
@@ -24,6 +26,8 @@ trap 'rm -rf "$install_target" "$ignore_target" "$existing_skills_target" "$conf
 tar -cf "$distribution_archive" -C "$(dirname "$dir")" "$(basename "$dir")"
 tar -xf "$distribution_archive" -C "$distribution_root"
 distribution_dir="$distribution_root/$(basename "$dir")"
+node "$distribution_dir/scripts/sync-shared-references.mjs"
+node "$distribution_dir/scripts/check-skill-local-links.mjs"
 while IFS= read -r -d '' link; do
   if [[ ! -e "$link" ]]; then
     echo "distribution contains a broken symbolic link: $link -> $(readlink "$link")" >&2
@@ -48,6 +52,7 @@ test -f "$install_target/evals/README.md"
 node "$install_target/scripts/document-structure-verifier.mjs" --root="$install_target/scripts"
 node "$install_target/scripts/document-structure-extractor.mjs" \
   --root="$install_target" .agents/skills/verify-docs/SKILL.md >/dev/null
+node "$dir/scripts/check-skill-local-links.mjs" --skills-root="$install_target/.agents/skills"
 test -f "$install_target/.agents/skills/verify-docs/SKILL.md"
 test -f "$install_target/.agents/skills/dedupe-docs/SKILL.md"
 test -f "$install_target/.agents/skills/tighten-docs/SKILL.md"
@@ -59,11 +64,6 @@ for agent_dir in .claude .kiro; do
   test -f "$install_target/$agent_dir/skills/dedupe-docs/SKILL.md"
   test -f "$install_target/$agent_dir/skills/tighten-docs/SKILL.md"
 done
-if rg -n '\]\((\.\./)+(docs/structure\.md|README\.md)' "$install_target/.agents/skills" --glob '*.md'; then
-  echo "installed skills must not depend on package README or docs/structure.md" >&2
-  exit 1
-fi
-
 mkdir -p "$existing_skills_target/.kiro/skills/repository-skill"
 printf '# Repository skill\n' > "$existing_skills_target/.kiro/skills/repository-skill/SKILL.md"
 (cd "$existing_skills_target" && bash "$dir/install.sh" --source "$dir")
