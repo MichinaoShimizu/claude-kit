@@ -43,3 +43,27 @@ node scripts/document-structure-verifier.mjs --init-size-exceptions
 ```bash
 node scripts/document-structure-verifier.mjs --json
 ```
+
+## 大規模コーパスの性能・構造検出精度ベンチマーク
+
+実在の文書を複製せず、指定した文書数と段落数のMarkdownコーパスを一時ディレクトリに
+生成して測定する。生成器は、完全一致重複、断片リンク切れ、ファイルリンク切れ、孤立文書を
+`issues`件ずつ意図的に含める。出力の`accuracy`は、この既知の構造違反に対する適合率・再現率である。
+意味的重複の正本化や冗長性の判断は採点しない。
+
+```bash
+node scripts/benchmark-document-structure.mjs --documents=1000 --paragraphs=20 --issues=100 --runs=11
+```
+
+`verification`は文書構造検証器、`extraction`はdedupe-docs・tighten-docsで使う構造抽出の
+準備を測る。`runs`回の結果から最小値・中央値・p95・平均・最大値をJSONで返す。
+
+## 正本候補の機械判定
+
+[正本候補の選定規約](../.agents/skills/dedupe-docs/references/canonical-selection.md)に従い、比較した二つの候補をJSONで渡す。`facts`は、候補から人またはエージェントが取り出した事実であり、判定器が意味を推測して作るものではない。
+
+```bash
+node scripts/select-canonical.mjs candidate-pair.json
+```
+
+`auto-canonical`は、正本が他方の事実を全て含み、明示的な正本または詳細文書である場合だけ返す。`decision-required`と`conflict`は利用者の判断を必要とするため、ポインタ化しない。

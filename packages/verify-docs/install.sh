@@ -69,8 +69,8 @@ files=(
   scripts/document-structure-verifier.mjs
   scripts/markdown-structure.mjs
   scripts/document-structure-extractor.mjs
+  scripts/select-canonical.mjs
   scripts/vendor
-  evals
   .agents/skills/verify-docs
   .agents/skills/dedupe-docs
   .agents/skills/tighten-docs
