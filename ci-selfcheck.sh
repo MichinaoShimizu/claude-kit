@@ -12,7 +12,7 @@ done
 
 node "$dir/scripts/prepare-skill-distribution.mjs"
 node "$dir/scripts/check-skill-local-links.mjs"
-node "$dir/scripts/document-structure-verifier.mjs" --root="$repo_root" --config="$dir/selfcheck.config.json"
+node "$dir/scripts/document-structure-verifier.mjs" --root="$repo_root"
 node --test "$dir/scripts/document-structure-verifier.test.mjs"
 node --test "$dir/scripts/document-structure-extractor.test.mjs"
 node --test "$dir/scripts/benchmark-document-structure.test.mjs"
