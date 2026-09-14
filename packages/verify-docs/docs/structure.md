@@ -29,6 +29,18 @@ Markdown文書の参照整合性・文書サイズ・段落重複を検査する
 
 Markdown文書の見出し・段落・位置・バイト数を抽出する。
 
+### 正本候補選定器
+
+| 項目 | 値 |
+| --- | --- |
+| 和名 | 正本候補選定器 |
+| 英名 | CanonicalCandidateSelector |
+| ファイル名 | `select-canonical.mjs` |
+| リポジトリ内パス | `packages/verify-docs/scripts/select-canonical.mjs` |
+| 配布先パス | `scripts/select-canonical.mjs` |
+
+比較済みの事実と文書の役割から、正本を自動選定できる候補だけを返す。事実が矛盾する場合や、双方に固有の事実がある場合は選定しない。
+
 ### Markdown構造解析器
 
 | 項目 | 値 |
@@ -62,6 +74,7 @@ Markdownは正規表現ではなく、同梱の CommonMark.js で AST（構文�
 
 意味判断を比較するための小さな評価fixtureは[スキル判断の評価セット](../evals/README.md)を
 参照する。これはCIのpass/failには使わず、スキル・モデル・評価方法を変更するときに使う。
+パッケージ開発用のため、導入器は導入先へコピーしない。
 
 ## 機械可読出力と文書サイズ例外の初期化
 

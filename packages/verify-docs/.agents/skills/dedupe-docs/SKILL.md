@@ -81,7 +81,9 @@ node scripts/document-structure-extractor.mjs --root=. README.md docs/guide.md
 
 ### 3. 判定と対応
 
-[判定と利用者への質問](references/judgement-and-escalation.md)に従う。
+[正本候補の選定規約](references/canonical-selection.md)と
+[判定と利用者への質問](references/judgement-and-escalation.md)に従う。選定規約の
+`auto-canonical`条件を満たす場合だけ、片方をポインタに置換できる。
 
 本手順の判定は[文書構造検証器](references/verification-boundaries.md#検証器とプレイブックの責務)と異なり再現性を持たない（同じ入力でも見落とし・
 過検知が起こりうる）。誤った統合を単独で確定させない。
