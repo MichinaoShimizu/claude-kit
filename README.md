@@ -21,7 +21,7 @@ curl -fsSL https://raw.githubusercontent.com/MichinaoShimizu/verify-docs/main/in
 
 ## Skills
 
-導入すると、以下の同梱スキルが配布される。
+導入すると、以下の同梱スキルを使えるようになる。
 
 | Skill | 行うこと |
 | --- | --- |
