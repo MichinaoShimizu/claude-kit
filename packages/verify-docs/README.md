@@ -16,6 +16,8 @@ CommonMark ASTを基盤に、参照整合性・文書構造・サイズ・重複
 curl -fsSL https://raw.githubusercontent.com/MichinaoShimizu/claude-kit/main/packages/verify-docs/install.sh | bash
 ```
 
+既存スキルがある導入先の扱いは[互換構成](.agents/skills/verify-docs/references/agent-compatibility.md)を参照。
+
 ## 実行方法
 
 ### スキルの実行

@@ -8,7 +8,9 @@ dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "$dir/../.." && pwd)"
 rel_dir="${dir#"$repo_root"/}"
 
-node "$dir/scripts/document-structure-verifier.mjs" --root="$rel_dir"
+node "$dir/scripts/sync-shared-references.mjs"
+node "$dir/scripts/check-skill-local-links.mjs"
+node "$dir/scripts/document-structure-verifier.mjs" --root="$rel_dir" --config="$dir/selfcheck.config.json"
 node --test "$dir/scripts/document-structure-verifier.test.mjs"
 node --test "$dir/scripts/document-structure-extractor.test.mjs"
 node --test "$dir/scripts/skill-contracts.test.mjs"
@@ -16,10 +18,25 @@ node --test "$dir/scripts/skill-evals.test.mjs"
 
 install_target="$(mktemp -d)"
 ignore_target="$(mktemp -d)"
-trap 'rm -rf "$install_target" "$ignore_target"' EXIT
+existing_skills_target="$(mktemp -d)"
+conflicting_skill_target="$(mktemp -d)"
+distribution_root="$(mktemp -d)"
+distribution_archive="$distribution_root/verify-docs.tar"
+trap 'rm -rf "$install_target" "$ignore_target" "$existing_skills_target" "$conflicting_skill_target" "$distribution_root"' EXIT
+tar -cf "$distribution_archive" -C "$(dirname "$dir")" "$(basename "$dir")"
+tar -xf "$distribution_archive" -C "$distribution_root"
+distribution_dir="$distribution_root/$(basename "$dir")"
+node "$distribution_dir/scripts/sync-shared-references.mjs"
+node "$distribution_dir/scripts/check-skill-local-links.mjs"
+while IFS= read -r -d '' link; do
+  if [[ ! -e "$link" ]]; then
+    echo "distribution contains a broken symbolic link: $link -> $(readlink "$link")" >&2
+    exit 1
+  fi
+done < <(find "$distribution_dir" -type l -print0)
 git -C "$install_target" init -q
-(cd "$install_target" && bash "$dir/install.sh" --source "$dir")
-(cd "$install_target" && bash "$dir/install.sh" --source "$dir")
+(cd "$install_target" && bash "$distribution_dir/install.sh" --source "$distribution_dir")
+(cd "$install_target" && bash "$distribution_dir/install.sh" --source "$distribution_dir")
 test "$(grep -Fxc '.verify-docs/dist/*.work.md' "$install_target/.gitignore")" = "1"
 git -C "$install_target" check-ignore -q --no-index -- .verify-docs/dist/verify-docs.work.md
 if git -C "$install_target" check-ignore -q --no-index -- .verify-docs/dist/maintenance-report.md; then
@@ -35,11 +52,31 @@ test -f "$install_target/evals/README.md"
 node "$install_target/scripts/document-structure-verifier.mjs" --root="$install_target/scripts"
 node "$install_target/scripts/document-structure-extractor.mjs" \
   --root="$install_target" .agents/skills/verify-docs/SKILL.md >/dev/null
+node "$dir/scripts/check-skill-local-links.mjs" --skills-root="$install_target/.agents/skills"
 test -f "$install_target/.agents/skills/verify-docs/SKILL.md"
 test -f "$install_target/.agents/skills/dedupe-docs/SKILL.md"
 test -f "$install_target/.agents/skills/tighten-docs/SKILL.md"
-test "$(readlink "$install_target/.claude/skills")" = "../.agents/skills"
-test "$(readlink "$install_target/.kiro/skills")" = "../.agents/skills"
+for agent_dir in .claude .kiro; do
+  test "$(readlink "$install_target/$agent_dir/skills/verify-docs")" = "../../.agents/skills/verify-docs"
+  test "$(readlink "$install_target/$agent_dir/skills/dedupe-docs")" = "../../.agents/skills/dedupe-docs"
+  test "$(readlink "$install_target/$agent_dir/skills/tighten-docs")" = "../../.agents/skills/tighten-docs"
+  test -f "$install_target/$agent_dir/skills/verify-docs/SKILL.md"
+  test -f "$install_target/$agent_dir/skills/dedupe-docs/SKILL.md"
+  test -f "$install_target/$agent_dir/skills/tighten-docs/SKILL.md"
+done
+mkdir -p "$existing_skills_target/.kiro/skills/repository-skill"
+printf '# Repository skill\n' > "$existing_skills_target/.kiro/skills/repository-skill/SKILL.md"
+(cd "$existing_skills_target" && bash "$dir/install.sh" --source "$dir")
+test -f "$existing_skills_target/.kiro/skills/repository-skill/SKILL.md"
+test "$(readlink "$existing_skills_target/.kiro/skills/verify-docs")" = "../../.agents/skills/verify-docs"
+
+mkdir -p "$conflicting_skill_target/.kiro/skills/verify-docs"
+printf '# User-owned skill\n' > "$conflicting_skill_target/.kiro/skills/verify-docs/SKILL.md"
+if (cd "$conflicting_skill_target" && bash "$dir/install.sh" --source "$dir" >/dev/null 2>&1); then
+  echo "installer must not overwrite a conflicting Kiro skill" >&2
+  exit 1
+fi
+test -f "$conflicting_skill_target/.kiro/skills/verify-docs/SKILL.md"
 
 printf '.verify-docs/\n' > "$ignore_target/.gitignore"
 (cd "$ignore_target" && bash "$dir/install.sh" --source "$dir")

@@ -8,6 +8,10 @@
   CI の自動探索方法は
   [リポジトリのCI定義](../../.github/workflows/ci.yml)
   を参照する
+- `shared-references/` を変更した場合は、自己検査の前に
+  `node scripts/sync-shared-references.mjs --write` を実行する。このコマンドは正本を
+  `verify-docs`・`dedupe-docs`・`tighten-docs` の各 `references/` へコピーする。生成された
+  コピーも正本と同じコミットへ含める。自己検査と CI は同期の有無を検査するだけで、コピーを書き換えない
 - 挙動を変更した場合、`SKILL.md`・`references/config.md`・README.md の
   該当箇所を同一コミットで更新する（コードのみ改修し説明が旧状態のまま
   残ると、本一式自体が文書の重複・不整合を起こす）。`DEFAULTS` にキーを
