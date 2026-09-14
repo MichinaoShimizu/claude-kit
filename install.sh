@@ -68,9 +68,9 @@ if [[ -z "$source_root" ]]; then
   if [[ -z "$source_root" ]]; then
     temp_root="$(mktemp -d)"
     archive="$temp_root/claude-kit.tar.gz"
-    echo "Downloading verify-docs from MichinaoShimizu/claude-kit (main)..."
+    echo "Downloading verify-docs from MichinaoShimizu/verify-docs (main)..."
     curl -fsSL \
-      https://github.com/MichinaoShimizu/claude-kit/archive/refs/heads/main.tar.gz \
+      https://github.com/MichinaoShimizu/verify-docs/archive/refs/heads/main.tar.gz \
       -o "$archive"
     tar -xzf "$archive" -C "$temp_root"
     source_file="$(find "$temp_root" -type f -path '*/scripts/document-structure-verifier.mjs' -print -quit)"
