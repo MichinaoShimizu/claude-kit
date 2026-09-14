@@ -75,6 +75,11 @@ files=(
   .agents/skills/dedupe-docs
   .agents/skills/tighten-docs
 )
+bundled_skills=(
+  verify-docs
+  dedupe-docs
+  tighten-docs
+)
 
 work_record_ignore='.verify-docs/dist/*.work.md'
 
@@ -133,6 +138,39 @@ if ((${#conflicts[@]})); then
   exit 1
 fi
 
+skill_alias_conflicts=()
+for agent_dir in .claude .kiro; do
+  skills_dir="$target_root/$agent_dir/skills"
+  if [[ -L "$skills_dir" ]]; then
+    if [[ "$(readlink "$skills_dir")" == "../.agents/skills" ]]; then
+      continue
+    fi
+    skill_alias_conflicts+=("$agent_dir/skills (different symbolic link)")
+    continue
+  fi
+  if [[ -e "$skills_dir" && ! -d "$skills_dir" ]]; then
+    skill_alias_conflicts+=("$agent_dir/skills (not a directory)")
+    continue
+  fi
+  for skill in "${bundled_skills[@]}"; do
+    alias="$skills_dir/$skill"
+    expected="../../.agents/skills/$skill"
+    if [[ -L "$alias" && "$(readlink "$alias")" == "$expected" ]]; then
+      continue
+    fi
+    if [[ -e "$alias" || -L "$alias" ]]; then
+      skill_alias_conflicts+=("$agent_dir/skills/$skill")
+    fi
+  done
+done
+
+if ((${#skill_alias_conflicts[@]})); then
+  echo "verify-docs installation stopped; these skill paths cannot be replaced with package links:" >&2
+  printf '  %s\n' "${skill_alias_conflicts[@]}" >&2
+  echo "Move the conflicting paths, then run the installer again." >&2
+  exit 1
+fi
+
 for item in "${files[@]}"; do
   if [[ -d "$source_root/$item" ]]; then
     while IFS= read -r -d '' source_file; do
@@ -155,16 +193,18 @@ done
 ensure_work_record_ignore
 
 for agent_dir in .claude .kiro; do
-  alias="$target_root/$agent_dir/skills"
-  if [[ -L "$alias" && "$(readlink "$alias")" == "../.agents/skills" ]]; then
+  skills_dir="$target_root/$agent_dir/skills"
+  if [[ -L "$skills_dir" && "$(readlink "$skills_dir")" == "../.agents/skills" ]]; then
     continue
   fi
-  if [[ -e "$alias" || -L "$alias" ]]; then
-    echo "Kept existing $agent_dir/skills; sync it with .agents/skills if needed." >&2
-    continue
-  fi
-  mkdir -p "$target_root/$agent_dir"
-  ln -s ../.agents/skills "$alias"
+  mkdir -p "$skills_dir"
+  for skill in "${bundled_skills[@]}"; do
+    if [[ -L "$skills_dir/$skill" ]] \
+      && [[ "$(readlink "$skills_dir/$skill")" == "../../.agents/skills/$skill" ]]; then
+      continue
+    fi
+    ln -s "../../.agents/skills/$skill" "$skills_dir/$skill"
+  done
 done
 
 echo "Installed verify-docs into $target_root"

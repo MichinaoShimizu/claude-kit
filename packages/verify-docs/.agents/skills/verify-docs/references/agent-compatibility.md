@@ -17,13 +17,17 @@
 
 ## スキルディレクトリ
 
-`.agents/skills/` は Agent Skills 対応エージェント向けの正本であり、同梱の
-`.claude/skills` はそこを指すシンボリックリンクである。Windows でシンボリック
-リンクを利用できない場合は、`.agents/skills/` の内容を `.claude/skills/` に
-コピーして Claude Code 用の互換入口を作る。既存の `.claude/skills` 構成も
+`.agents/skills/` は Agent Skills 対応エージェント向けの正本である。導入先に
+`.claude/skills/` がなければ、導入器は同梱スキルごとに正本へのシンボリックリンクを
+作る。既存の実体ディレクトリがあっても、そのディレクトリは置き換えず、同梱スキル
+だけを追加する。同名の既存スキルがある場合、導入器は停止する。Windows で
+シンボリックリンクを利用できない場合は、`.agents/skills/` の同梱スキルを
+`.claude/skills/` へコピーする。既存の `.claude/skills` 構成も
 [文書構造検証器](../../../../docs/structure.md#文書構造検証器)が自動認識する。
 
-Kiro は `AGENTS.md` を直接読み、スキルは `.kiro/skills/` から読み込む。
-同梱の `.kiro/skills` は `.agents/skills/` を指す。シンボリックリンクを
-利用できない場合は、同じ内容を `.kiro/skills/` にコピーする。既存の
-`.kiro/skills` 構成も[文書構造検証器](../../../../docs/structure.md#文書構造検証器)が自動認識する。
+Kiro は `AGENTS.md` を直接読み、スキルは `.kiro/skills/` から読み込む。導入器は
+同梱スキルごとに`.agents/skills/`へのシンボリックリンクを作るため、既存の
+`.kiro/skills/`内のスキルを置き換えない。同名の既存スキルがある場合、導入器は
+停止する。シンボリックリンクを利用できない場合は、同梱スキルを
+`.kiro/skills/` にコピーする。既存の `.kiro/skills` 構成も
+[文書構造検証器](../../../../docs/structure.md#文書構造検証器)が自動認識する。
