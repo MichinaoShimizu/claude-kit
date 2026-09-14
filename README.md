@@ -105,6 +105,7 @@ flowchart TD
 
 ## ライセンス
 
-Markdown構文解析にはCommonMark.js 0.31.2を同梱しているため、
-導入先で追加のnpmインストールは不要。
-`scripts/vendor/commonmark-LICENSE.txt`を参照。
+このパッケージは[MIT License](LICENSE)の下で提供する。
+
+Markdown構文解析にはCommonMark.js 0.31.2を同梱している。第三者ライセンスは
+[scripts/vendor/commonmark-LICENSE.txt](scripts/vendor/commonmark-LICENSE.txt)を参照。
