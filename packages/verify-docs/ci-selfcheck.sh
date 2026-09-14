@@ -59,6 +59,10 @@ for agent_dir in .claude .kiro; do
   test -f "$install_target/$agent_dir/skills/dedupe-docs/SKILL.md"
   test -f "$install_target/$agent_dir/skills/tighten-docs/SKILL.md"
 done
+if rg -n '\]\((\.\./)+(docs/structure\.md|README\.md)' "$install_target/.agents/skills" --glob '*.md'; then
+  echo "installed skills must not depend on package README or docs/structure.md" >&2
+  exit 1
+fi
 
 mkdir -p "$existing_skills_target/.kiro/skills/repository-skill"
 printf '# Repository skill\n' > "$existing_skills_target/.kiro/skills/repository-skill/SKILL.md"
