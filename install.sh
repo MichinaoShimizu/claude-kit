@@ -50,8 +50,10 @@ if ! command -v node >/dev/null 2>&1; then
   exit 1
 fi
 node_version="$(node --version)"
-if [[ ! "$node_version" =~ ^v22\. ]]; then
-  echo "verify-docs requires Node.js 22.23.2 (Node 22). Current version: $node_version" >&2
+node_major="${node_version#v}"
+node_major="${node_major%%.*}"
+if [[ ! "$node_major" =~ ^[0-9]+$ ]] || (( node_major < 22 )); then
+  echo "verify-docs requires Node.js 22.23.2 or later. Current version: $node_version" >&2
   exit 1
 fi
 
