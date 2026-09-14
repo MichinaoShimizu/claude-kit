@@ -3,7 +3,7 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: install.sh [--source PACKAGE_DIR]
+Usage: install.sh [--source SOURCE_DIR]
 
 Install verify-docs into the current repository root. --source is intended for
 local development and tests; normal use downloads the package from GitHub.
@@ -56,12 +56,15 @@ if [[ -z "$source_root" ]]; then
       https://github.com/MichinaoShimizu/claude-kit/archive/refs/heads/main.tar.gz \
       -o "$archive"
     tar -xzf "$archive" -C "$temp_root"
-    source_root="$(find "$temp_root" -type d -path '*/packages/verify-docs' -print -quit)"
+    source_file="$(find "$temp_root" -type f -path '*/scripts/document-structure-verifier.mjs' -print -quit)"
+    if [[ -n "$source_file" ]]; then
+      source_root="$(dirname "$(dirname "$source_file")")"
+    fi
   fi
 fi
 
 if [[ ! -f "$source_root/scripts/document-structure-verifier.mjs" ]]; then
-  echo "verify-docs package not found at: $source_root" >&2
+  echo "verify-docs source not found at: $source_root" >&2
   exit 1
 fi
 

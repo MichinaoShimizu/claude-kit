@@ -14,7 +14,7 @@ description: >
 | 和名 | 文書重複解消スキル |
 | 英名 | DocumentDeduplicationSkill |
 | ファイル名 | `SKILL.md` |
-| リポジトリ内パス | `packages/verify-docs/.agents/skills/dedupe-docs/SKILL.md` |
+| リポジトリ内パス | `.agents/skills/dedupe-docs/SKILL.md` |
 | 配布先パス | `.agents/skills/dedupe-docs/SKILL.md` |
 | スキルID | `dedupe-docs` |
 

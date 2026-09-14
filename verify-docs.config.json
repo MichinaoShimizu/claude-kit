@@ -1,4 +1,14 @@
 {
-  "excludePaths": ["node_modules/", ".git/", "vendor/", "dist/", "build/", "packages/", ".verify-docs/"],
+  "excludePaths": [
+    "node_modules/",
+    ".git/",
+    "vendor/",
+    "dist/",
+    "build/",
+    ".verify-docs/",
+    ".agents/skills/verify-docs/references/",
+    ".agents/skills/dedupe-docs/references/",
+    ".agents/skills/tighten-docs/references/"
+  ],
   "maxDocBytes": 7000
 }

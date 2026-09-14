@@ -18,7 +18,7 @@ description: >
 | 和名 | 文書構造是正スキル |
 | 英名 | DocumentStructureRemediationSkill |
 | ファイル名 | `SKILL.md` |
-| リポジトリ内パス | `packages/verify-docs/.agents/skills/verify-docs/SKILL.md` |
+| リポジトリ内パス | `.agents/skills/verify-docs/SKILL.md` |
 | 配布先パス | `.agents/skills/verify-docs/SKILL.md` |
 | スキルID | `verify-docs` |
 

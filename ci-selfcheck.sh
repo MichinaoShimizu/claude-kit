@@ -1,21 +1,18 @@
 #!/usr/bin/env bash
-# 各パッケージが自分自身に対して自己検査を持つときの共通の呼び出し口。
-# CI は`packages/`配下から`*/ci-selfcheck.sh`を機械的に探して実行するだけで、
-# 個々のパッケージの検査コマンドを知らなくていい（.github/workflows/ci.yml 参照）。
+# verify-docs 自身に対する自己検査の呼び出し口。
 set -euo pipefail
 
 dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-repo_root="$(cd "$dir/../.." && pwd)"
-rel_dir="${dir#"$repo_root"/}"
+repo_root="$dir"
 
-test "$(readlink "$repo_root/.agents/skills")" = "../packages/verify-docs/.agents/skills"
+test -d "$repo_root/.agents/skills"
 for skill in verify-docs dedupe-docs tighten-docs; do
   test -f "$repo_root/.agents/skills/$skill/SKILL.md"
 done
 
 node "$dir/scripts/sync-skill-references.mjs"
 node "$dir/scripts/check-skill-local-links.mjs"
-node "$dir/scripts/document-structure-verifier.mjs" --root="$rel_dir" --config="$dir/selfcheck.config.json"
+node "$dir/scripts/document-structure-verifier.mjs" --root="$repo_root" --config="$dir/selfcheck.config.json"
 node --test "$dir/scripts/document-structure-verifier.test.mjs"
 node --test "$dir/scripts/document-structure-extractor.test.mjs"
 node --test "$dir/scripts/benchmark-document-structure.test.mjs"

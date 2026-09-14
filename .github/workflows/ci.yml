@@ -17,40 +17,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-      - name: リポジトリルートと各パッケージの文書をそれぞれのルートで検査する
-        run: |
-          node packages/verify-docs/scripts/document-structure-verifier.mjs
-          node packages/verify-docs/scripts/document-structure-verifier.mjs --root=packages/agent-layout
+      - name: リポジトリルートの文書を検査する
+        run: node scripts/document-structure-verifier.mjs
 
-  agent-layout-root-check:
+  verify-docs-self-check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-      - name: スキルとカスタムエージェントの配置・生成結果を検査する
-        run: node packages/agent-layout/scripts/sync-agent-layout.mjs
-
-  package-self-check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-      - name: 各パッケージの ci-selfcheck.sh を自動で見つけて実行する（ドッグフーディング）
-        run: |
-          shopt -s nullglob
-          scripts=(packages/*/ci-selfcheck.sh)
-          if [ "${#scripts[@]}" -eq 0 ]; then
-            echo "ci-selfcheck.sh を持つパッケージが無い"
-            exit 0
-          fi
-          status=0
-          for script in "${scripts[@]}"; do
-            echo "::group::$script"
-            bash "$script" || status=1
-            echo "::endgroup::"
-          done
-          exit "$status"
+      - name: verify-docs の自己検査を実行する（ドッグフーディング）
+        run: bash ci-selfcheck.sh

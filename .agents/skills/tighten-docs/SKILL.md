@@ -17,7 +17,7 @@ description: >
 | 和名 | 文書簡潔化スキル |
 | 英名 | DocumentTighteningSkill |
 | ファイル名 | `SKILL.md` |
-| リポジトリ内パス | `packages/verify-docs/.agents/skills/tighten-docs/SKILL.md` |
+| リポジトリ内パス | `.agents/skills/tighten-docs/SKILL.md` |
 | 配布先パス | `.agents/skills/tighten-docs/SKILL.md` |
 | スキルID | `tighten-docs` |
 

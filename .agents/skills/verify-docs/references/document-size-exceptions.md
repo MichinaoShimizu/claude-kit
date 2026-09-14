@@ -9,7 +9,7 @@
 | 和名 | 文書サイズ例外一覧 |
 | 英名 | DocumentSizeExceptionList |
 | ファイル名 | `document-size-exceptions.json` |
-| リポジトリ内パス | `packages/verify-docs/document-size-exceptions.json` |
+| リポジトリ内パス | `document-size-exceptions.json` |
 | 配布先パス | `document-size-exceptions.json` |
 
 上限を超過しているが現時点では分割できない文書の申告リスト。パッケージ内の

@@ -12,7 +12,7 @@
 | 和名 | 文書構造検証器 |
 | 英名 | DocumentStructureVerifier |
 | ファイル名 | `document-structure-verifier.mjs` |
-| リポジトリ内パス | `packages/verify-docs/scripts/document-structure-verifier.mjs` |
+| リポジトリ内パス | `scripts/document-structure-verifier.mjs` |
 | 配布先パス | `scripts/document-structure-verifier.mjs` |
 
 Markdown文書の参照整合性・文書サイズ・段落重複を検査する。
@@ -24,7 +24,7 @@ Markdown文書の参照整合性・文書サイズ・段落重複を検査する
 | 和名 | 文書構造抽出器 |
 | 英名 | DocumentStructureExtractor |
 | ファイル名 | `document-structure-extractor.mjs` |
-| リポジトリ内パス | `packages/verify-docs/scripts/document-structure-extractor.mjs` |
+| リポジトリ内パス | `scripts/document-structure-extractor.mjs` |
 | 配布先パス | `scripts/document-structure-extractor.mjs` |
 
 Markdown文書の見出し・段落・位置・バイト数を抽出する。
@@ -36,7 +36,7 @@ Markdown文書の見出し・段落・位置・バイト数を抽出する。
 | 和名 | 正本候補選定器 |
 | 英名 | CanonicalCandidateSelector |
 | ファイル名 | `select-canonical.mjs` |
-| リポジトリ内パス | `packages/verify-docs/scripts/select-canonical.mjs` |
+| リポジトリ内パス | `scripts/select-canonical.mjs` |
 | 配布先パス | `scripts/select-canonical.mjs` |
 
 比較済みの事実と文書の役割から、正本を自動選定できる候補だけを返す。事実が矛盾する場合や、双方に固有の事実がある場合は選定しない。
@@ -48,7 +48,7 @@ Markdown文書の見出し・段落・位置・バイト数を抽出する。
 | 和名 | Markdown構造解析器 |
 | 英名 | MarkdownStructureAnalyzer |
 | ファイル名 | `markdown-structure.mjs` |
-| リポジトリ内パス | `packages/verify-docs/scripts/markdown-structure.mjs` |
+| リポジトリ内パス | `scripts/markdown-structure.mjs` |
 | 配布先パス | `scripts/markdown-structure.mjs` |
 
 CommonMark ASTを解析し、文書構造検証器と文書構造抽出器へ構造情報を提供する。
