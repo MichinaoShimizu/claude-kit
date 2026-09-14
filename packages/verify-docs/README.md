@@ -131,6 +131,8 @@ flowchart TD
 - [検出事項の是正手順](.agents/skills/verify-docs/SKILL.md)
 - [この一式の改修作法](CONTRIBUTING.md)
 
+## ライセンス
+
 Markdown構文解析にはCommonMark.js 0.31.2を同梱しているため、
-導入先で追加のnpmインストールは不要。ライセンスは
+導入先で追加のnpmインストールは不要。
 `scripts/vendor/commonmark-LICENSE.txt`を参照。
