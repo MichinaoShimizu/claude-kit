@@ -36,41 +36,15 @@ curl -fsSL https://raw.githubusercontent.com/MichinaoShimizu/verify-docs/main/in
 
 CLIの詳細は[CLIリファレンス](docs/advanced-usage.md)を参照。
 
-## 生成物と標準出力
+## Skills
 
-### 改善後のMarkdown文書
+| Skill | 行うこと |
+| --- | --- |
+| [文書構造是正](.agents/skills/verify-docs/SKILL.md#文書構造是正スキル) | <ul><li>リンク切れ、孤立文書、サイズ超過、同一段落の重複を検知する</li><li>検知結果に基づき、文書の置き場所と参照関係を整える</li><li>構造を確認し、必要な変更をMarkdown文書へ反映する</li></ul> |
+| [文書重複解消](.agents/skills/dedupe-docs/SKILL.md#文書重複解消スキル) | <ul><li>言い換えを含む、同じ内容の重複を見つける</li><li>正本となる文書を一つ選ぶ</li><li>他の説明を正本への案内に置き換える</li></ul> |
+| [文書簡潔化](.agents/skills/tighten-docs/SKILL.md#文書簡潔化スキル) | <ul><li>意味を変えずに削れる冗長な表現を見つける</li><li>不要な表現を削り、必要に応じて同一文書内の節を整理する</li><li>対象読者、条件、手順の順序を保ったまま文書を短くする</li></ul> |
 
-スキルが対象文書を改善し、変更をリポジトリ内のMarkdown文書に反映する。
-
-### [保守報告](docs/work-records-and-report.md#保守報告)
-
-スキル別の一時記録を `.verify-docs/dist/` に置き、完了後に保守報告へ統合する。形式は
-[作業記録と保守報告](docs/work-records-and-report.md)を参照。
-
-作業単位の継続・切替は
-[導入と運用「保守報告の作業単位」](docs/adoption.md#保守報告の作業単位)
-を参照。
-
-契約テストの範囲は[構造解析と機械検査](docs/structure.md#スキルの契約テスト)を参照。
-
-### 検査結果（標準出力）
-
-標準出力には検査概要、大きい末端節の上位5件、文書サイズ例外を表示する。違反の詳細は標準エラーに出力する。
-
-### 検査結果（JSON）
-
-`node scripts/document-structure-verifier.mjs --json`は、DocumentStructureVerificationReport（文書構造検証レポート）を標準出力する。項目と例は
-[CLIリファレンス「文書構造検証レポートのJSON出力」](docs/advanced-usage.md#文書構造検証レポートのjson出力)を参照。
-
-## 機能と責務
-
-| 機能 | 課題 | 内容 | 対象外 |
-| --- | --- | --- | --- |
-| [文書構造検証器](docs/structure.md#文書構造検証器) | リンク切れ、孤立文書、サイズ超過、同一段落 | CommonMark ASTで構造違反を検出 | 意味の近さや文章の良し悪しの判断 |
-| [文書構造是正スキル](.agents/skills/verify-docs/SKILL.md#文書構造是正スキル) | 検出した構造違反 | 文書の置き場所と参照関係を整える | 内容の要約・言い換え・文章の推敲 |
-| [文書重複解消スキル](.agents/skills/dedupe-docs/SKILL.md#文書重複解消スキル) | 言い換えた同じ説明 | 包含時だけ正本へ集約し、他方を案内にする | 文脈や読者が異なる説明の強制統合 |
-| [文書簡潔化スキル](.agents/skills/tighten-docs/SKILL.md#文書簡潔化スキル) | 冗長な文章 | 意味を保った冗長表現を削る | 文書の分割、重複の集約、意味の変更 |
-| [文書構造抽出器](docs/structure.md#文書構造抽出器) | 文書構造の確認・記録 | DocumentStructureSnapshot（文書構造スナップショット）をJSON出力 | 意味的な重複や冗長性の自動判定 |
+各Skillの作業結果はMarkdown文書に反映し、作業記録は[保守報告](docs/work-records-and-report.md#保守報告)へ統合する。
 
 ## 処理構成
 
