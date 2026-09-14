@@ -10,6 +10,8 @@
 | 和名 | 文書検証パッケージ導入器 |
 | 英名 | VerifyDocsInstaller |
 | ファイル名 | `install.sh` |
+| リポジトリ内パス | `packages/verify-docs/install.sh` |
+| 配布先パス | なし（導入時に取得して実行する） |
 
 verify-docs パッケージ一式を導入先のリポジトリへ配置する。
 
@@ -20,6 +22,8 @@ verify-docs パッケージ一式を導入先のリポジトリへ配置する�
 | 和名 | 文書検証パッケージ自己検査 |
 | 英名 | VerifyDocsSelfCheck |
 | ファイル名 | `ci-selfcheck.sh` |
+| リポジトリ内パス | `packages/verify-docs/ci-selfcheck.sh` |
+| 配布先パス | なし（パッケージ開発時だけ実行する） |
 
 パッケージ自身の検証器・抽出器・スキル契約・評価・導入器を検査する。
 
@@ -29,6 +33,9 @@ verify-docs パッケージ一式を導入先のリポジトリへ配置する�
 | --- | --- |
 | 和名 | 文書構造検証ワークフロー |
 | 英名 | DocumentStructureVerificationWorkflow |
-| ファイル名 | `.github/workflows/verify-docs.yml` |
+| ファイル名 | `verify-docs.yml` |
+| リポジトリ内パス | `packages/verify-docs/.github/workflows/verify-docs.yml` |
+| 配布先パス | `.github/workflows/verify-docs.yml` |
 
 導入先の pull request で文書構造検証器を実行する GitHub Actions テンプレートである。
+導入器はこのテンプレートをコピーしないため、導入先で必要な場合は手動で配置する。

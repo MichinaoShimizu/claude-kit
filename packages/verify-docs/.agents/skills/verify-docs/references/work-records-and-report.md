@@ -11,9 +11,12 @@
 | --- | --- |
 | 和名 | 保守報告 |
 | 英名 | Maintenance Report |
-| ファイル名 | `.verify-docs/dist/maintenance-report.md` |
+| ファイル名 | `maintenance-report.md` |
+| リポジトリ内パス | `.verify-docs/dist/maintenance-report.md` |
+| 配布先パス | `.verify-docs/dist/maintenance-report.md` |
 
 保守報告は、完了した1つの作業単位の実行履歴と最終検査結果を残す恒久記録である。
+導入器は保守報告をコピーせず、各導入先で作成する。
 
 | スキルID | 一時記録 |
 | --- | --- |
