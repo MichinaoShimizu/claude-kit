@@ -113,7 +113,7 @@ node scripts/document-structure-verifier.mjs
   ともに人へ報告済みである
 - 「4. 是正後再検査」の `node scripts/document-structure-verifier.mjs` が
   「文書構造: すべて通過」で終わっている
-- 自分の一時作業記録に `### 最終検査結果` を記載し、`maintenance-report.md` へ統合している
+- 自分の一時作業記録に `### 最終検査結果` を記載し、[保守報告](../verify-docs/references/work-records-and-report.md#保守報告)へ統合している
 
 ## 制約と対象外
 

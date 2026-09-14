@@ -4,7 +4,7 @@
 
 作業単位: リポジトリ Markdown の文章補正と検証記録の整備
 開始: 2026-09-13T18:50:12+0900
-最終更新: 2026-09-14T10:59:29+0900
+最終更新: 2026-09-14T11:06:47+0900
 
 ## 実行履歴
 
@@ -24,14 +24,16 @@
 | 12 | 00:20 | verify-docs・dedupe-docs・tighten-docs | 作業単位の定義を導入・運用文書へ集約 | 構造違反0件 |
 | 13 | 10:39 | japanese-tech-writing | オブジェクトの和名・英名・ファイル名と参照規約を追加 | 構造違反0件 |
 | 14 | 10:59 | 文書構造是正・文書重複解消・文書簡潔化スキル | 運用オブジェクトを定義し、文書内の呼称を和名リンクへ統一（agent-layoutは対象外） | 構造違反0件 |
+| 15 | 11:06 | 文書構造是正・文書重複解消・文書簡潔化スキル | 最終の構造・意味的重複・冗長性を確認。追加是正なし | 構造違反0件 |
 
 ## 文書構造是正スキル
 
-最終実行: 2026-09-14T10:59:29+0900
+最終実行: 2026-09-14T11:06:47+0900
 
 - [x] リポジトリルート: [AGENTS.md](../../AGENTS.md)、[CLAUDE.md](../../CLAUDE.md)、[CONTRIBUTING.md](../../CONTRIBUTING.md)、[README.md](../../README.md) — 2026-09-13 / 構造検査を完了
 - [x] [packages/agent-layout/README.md](../../packages/agent-layout/README.md) — 2026-09-13 / 構造検査を完了
 - [x] [packages/verify-docs/](../../packages/verify-docs/) の22文書 — 2026-09-14 / 運用オブジェクトの定義と和名リンクの規約を整備
+- [x] [README.md](../../README.md) と [packages/verify-docs/](../../packages/verify-docs/) — 2026-09-14 / ルート4文書・パッケージ22文書を再検査し、違反なし
 
 ### 最終検査結果
 
@@ -42,15 +44,16 @@
 | 文書サイズ | `maxDocBytes` 以下、または文書サイズ例外一覧に理由を記録済みである | `node packages/verify-docs/scripts/document-structure-verifier.mjs` | サイズ違反0件 |
 | 機械的重複 | 完全一致と、有効時の準一致の段落重複を検出・是正済みである | `node packages/verify-docs/scripts/document-structure-verifier.mjs` | 重複違反0件 |
 
-最終検査: `packages/verify-docs/ci-selfcheck.sh`、`node packages/verify-docs/scripts/document-structure-verifier.mjs`、`cd packages/verify-docs && node scripts/document-structure-verifier.mjs` — 違反0件
+最終検査: `node packages/verify-docs/scripts/document-structure-verifier.mjs --root=.`、`node packages/verify-docs/scripts/document-structure-verifier.mjs --root=packages/verify-docs` — 違反0件
 
 ## 文書重複解消スキル
 
-最終実行: 2026-09-14T10:59:29+0900
+最終実行: 2026-09-14T11:06:47+0900
 
 - [x] リポジトリルート: [AGENTS.md](../../AGENTS.md)、[CLAUDE.md](../../CLAUDE.md)、[CONTRIBUTING.md](../../CONTRIBUTING.md)、[README.md](../../README.md) — 2026-09-13 / 意味的重複なし
 - [x] [packages/agent-layout/README.md](../../packages/agent-layout/README.md) — 2026-09-13 / 意味的重複なし
 - [x] [packages/verify-docs/](../../packages/verify-docs/) の22文書 — 2026-09-14 / 定義元を正本にし、他文書の和名リンクを確認
+- [x] [README.md](../../README.md) と [packages/verify-docs/](../../packages/verify-docs/) — 2026-09-14 / 構造抽出した15文書を照合し、正本化が必要な意味的重複なし
 
 ### 最終検査結果
 
@@ -62,15 +65,16 @@
 | 検査範囲外 | ルート `README.md` と `verify-docs/README.md` の説明重複 | `excludePaths` の設定 | 今回の意味的重複検査の対象外 |
 | 判断保留 | 統合の確信が持てない候補を人の判断へ残した | 一時作業記録 | なし |
 
-最終検査: 3ルート再検査 — 重複・準一致重複・リンク・サイズ違反0件
+最終検査: 構造抽出した15文書の原文照合、`node packages/verify-docs/scripts/document-structure-verifier.mjs --root=packages/verify-docs` — 意味的重複・構造違反0件
 
 ## 文書簡潔化スキル
 
-最終実行: 2026-09-14T10:59:29+0900
+最終実行: 2026-09-14T11:06:47+0900
 
 - [x] リポジトリルート: [AGENTS.md](../../AGENTS.md)、[CLAUDE.md](../../CLAUDE.md)、[CONTRIBUTING.md](../../CONTRIBUTING.md)、[README.md](../../README.md) — 2026-09-13 / 安全に削れる表現なし
 - [x] [packages/agent-layout/README.md](../../packages/agent-layout/README.md) — 2026-09-13 / 安全に削れる表現なし
 - [x] [packages/verify-docs/](../../packages/verify-docs/) の22文書 — 2026-09-14 / 表記統一に伴う冗長な英名呼称を削除
+- [x] [README.md](../../README.md) と [packages/verify-docs/](../../packages/verify-docs/) — 2026-09-14 / 意味を変えずに削れる冗長表現はなく、追加変更なし
 
 ### 最終検査結果
 
@@ -112,4 +116,4 @@
 | [packages/verify-docs/docs/adoption.md](../../packages/verify-docs/docs/adoption.md) | 2,836B | 3,773B | -937B | -33.0% |
 | [packages/verify-docs/.agents/skills/tighten-docs/references/patterns-duplication-and-style.md](../../packages/verify-docs/.agents/skills/tighten-docs/references/patterns-duplication-and-style.md) | 2,085B | 3,586B | -1,501B | -72.0% |
 
-最終検査: 3ルート再検査 — 構造違反0件
+最終検査: 原文照合、`node packages/verify-docs/scripts/document-structure-verifier.mjs --root=packages/verify-docs` — 構造違反0件
