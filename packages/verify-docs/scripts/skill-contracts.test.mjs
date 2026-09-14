@@ -8,6 +8,8 @@ import { verifyDocumentStructure } from './document-structure-verifier.mjs';
 
 const packageRoot = join(import.meta.dirname, '..');
 const skillPath = (name) => join(packageRoot, '.agents', 'skills', name, 'SKILL.md');
+const skillReferencePath = (name, reference) => join(packageRoot, '.agents', 'skills', name, 'references', reference);
+const sharedReferencePath = (reference) => join(packageRoot, 'shared-references', reference);
 
 function makeRepo(files) {
   const root = mkdtempSync(join(tmpdir(), 'skill-contract-'));
@@ -124,12 +126,26 @@ test('tighten-docs contract rejects lost facts and inaccurate compression record
 
 test('skill instructions keep deterministic contracts separate from semantic judgement', () => {
   const dedupe = readFileSync(skillPath('dedupe-docs'), 'utf8');
+  const dedupeJudgement = readFileSync(skillReferencePath('dedupe-docs', 'judgement-and-escalation.md'), 'utf8');
   const tighten = readFileSync(skillPath('tighten-docs'), 'utf8');
+  const duplicateHandling = readFileSync(sharedReferencePath('duplicate-handling.md'), 'utf8');
+  const workRecords = readFileSync(sharedReferencePath('work-records-and-report.md'), 'utf8');
   for (const skill of [dedupe, tighten]) {
     assert.match(skill, /node scripts\/document-structure-verifier\.mjs/);
     assert.match(skill, /### 最終検査結果/);
     assert.match(skill, /保守報告/);
   }
   assert.match(dedupe, /CI の pass\/fail には使わない/);
+  assert.match(dedupe, /judgement-and-escalation\.md/);
+  assert.match(dedupeJudgement, /正本性を高めることを判断基準にする/);
+  assert.match(dedupeJudgement, /作業を止めて利用者に質問する/);
+  assert.match(dedupeJudgement, /自分で追加したりしない/);
+  assert.match(dedupeJudgement, /保守報告へ統合しない/);
   assert.match(tighten, /数値・条件・手順の順序・免責文言は一字一句変更しない/);
+  assert.match(tighten, /作業を止めて利用者に質問する/);
+  assert.match(tighten, /保守報告へ統合しない/);
+  assert.match(duplicateHandling, /利用者が当該の重複を意図して\n残すと明示的に回答した場合に限る/);
+  assert.match(duplicateHandling, /自分だけの判断で重複を許容したり、マーカーを\n追加したりしない/);
+  assert.match(workRecords, /現在の会話で利用者に質問する/);
+  assert.match(workRecords, /保守報告は未解決の判断を埋める場所ではない/);
 });
