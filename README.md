@@ -26,20 +26,11 @@ curl -fsSL https://raw.githubusercontent.com/MichinaoShimizu/verify-docs/main/in
 
 導入すると、以下の同梱スキルを使えるようになる。
 
-| Skill | 行うこと |
-| --- | --- |
-| [文書構造是正スキル](.agents/skills/verify-docs/SKILL.md#文書構造是正スキル) | <ul><li>リンク切れ、孤立文書、サイズ超過、同一段落の重複を検知する</li><li>検知結果に基づき、文書の置き場所と参照関係を整える</li><li>構造を確認し、必要な変更をMarkdown文書へ反映する</li></ul> |
-| [文書重複解消スキル](.agents/skills/dedupe-docs/SKILL.md#文書重複解消スキル) | <ul><li>言い換えを含む、同じ内容の重複を見つける</li><li>正本となる文書を一つ選ぶ</li><li>他の説明を正本への案内に置き換える</li></ul> |
-| [文書簡潔化スキル](.agents/skills/tighten-docs/SKILL.md#文書簡潔化スキル) | <ul><li>意味を変えずに削れる冗長な表現を見つける</li><li>不要な表現を削り、必要に応じて同一文書内の節を整理する</li><li>対象読者、条件、手順の順序を保ったまま文書を短くする</li></ul> |
-
-各エージェントで以下を実行する。
-
-| エージェント | 実行方法 |
-| --- | --- |
-| Claude Code | `/verify-docs`・`/dedupe-docs`・`/tighten-docs` |
-| Kiro | `/verify-docs`・`/dedupe-docs`・`/tighten-docs` |
-| Codex App | `@verify-docs`・`@dedupe-docs`・`@tighten-docs` |
-| Codex CLI／IDE拡張 | `$verify-docs`・`$dedupe-docs`・`$tighten-docs` |
+| Skill | 行うこと | 実行方法 |
+| --- | --- | --- |
+| [文書構造是正スキル](.agents/skills/verify-docs/SKILL.md#文書構造是正スキル) | <ul><li>リンク切れ、孤立文書、サイズ超過、同一段落の重複を検知する</li><li>検知結果に基づき、文書の置き場所と参照関係を整える</li><li>構造を確認し、必要な変更をMarkdown文書へ反映する</li></ul> | <ul><li>Claude Code・Kiro: `/verify-docs`</li><li>Codex App: `@verify-docs`</li><li>Codex CLI／IDE拡張: `$verify-docs`</li></ul> |
+| [文書重複解消スキル](.agents/skills/dedupe-docs/SKILL.md#文書重複解消スキル) | <ul><li>言い換えを含む、同じ内容の重複を見つける</li><li>正本となる文書を一つ選ぶ</li><li>他の説明を正本への案内に置き換える</li></ul> | <ul><li>Claude Code・Kiro: `/dedupe-docs`</li><li>Codex App: `@dedupe-docs`</li><li>Codex CLI／IDE拡張: `$dedupe-docs`</li></ul> |
+| [文書簡潔化スキル](.agents/skills/tighten-docs/SKILL.md#文書簡潔化スキル) | <ul><li>意味を変えずに削れる冗長な表現を見つける</li><li>不要な表現を削り、必要に応じて同一文書内の節を整理する</li><li>対象読者、条件、手順の順序を保ったまま文書を短くする</li></ul> | <ul><li>Claude Code・Kiro: `/tighten-docs`</li><li>Codex App: `@tighten-docs`</li><li>Codex CLI／IDE拡張: `$tighten-docs`</li></ul> |
 
 [推奨フロー](docs/workflow.md)を参照し、対象文書と導入済みスキルに合う順序で実行する。
 
