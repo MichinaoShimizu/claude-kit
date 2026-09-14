@@ -38,6 +38,9 @@ jobs:
             });
             const conclusions = new Map(jobs.jobs.map((job) => [job.name, job.conclusion]));
             const result = (job) => {
+              if (job === 'remote-install-smoke' && run.event === 'pull_request') {
+                return ':fast_forward:';
+              }
               switch (conclusions.get(job)) {
                 case 'success': return ':white_check_mark:';
                 case 'failure':
@@ -52,7 +55,7 @@ jobs:
             const rows = [
               ['verify-docs-root-check', 'Markdown のリンク、孤立文書、サイズ、重複段落を検査する。'],
               ['verify-docs-self-check', 'スキルからの `docs/` 参照、配布用 `references/` 生成、導入・再導入・競合拒否・互換リンクを検査する。'],
-              ['remote-install-smoke', 'PR head の raw `install.sh` と同じrefのアーカイブから導入し、配布形と導入済み CLI を検査する。'],
+              ['remote-install-smoke', '`main` マージ後に、公開 raw `install.sh` と同じrefのアーカイブから導入し、配布形と導入済み CLI を検査する。'],
             ];
             const body = [
               marker,

@@ -36,15 +36,15 @@ verify-docs パッケージ一式を導入先のリポジトリへ配置する�
 上の badge は `main` の `ci` ワークフロー全体の最新結果である。表は、各ジョブの
 成功時に確認できる項目を対応付ける。
 
-| 結果 | ジョブ | 確認すること |
-| --- | --- | --- |
-| :white_check_mark: | `verify-docs-root-check` | リポジトリの Markdown について、リンク・孤立文書・サイズ・重複の検査が通過する。 |
-| :white_check_mark: | `verify-docs-self-check` | ソースの `SKILL.md` から `docs/` をたどれる。アーカイブから配布用スキルを生成でき、ローカル導入・再導入・競合拒否・Claude/Kiro向け互換リンクが成立する。 |
-| :white_check_mark: | `remote-install-smoke` | 対象refの raw `install.sh` と同じrefのアーカイブを公開URLから取得し、導入先で必要な `references/` を生成できる。`docs/` 全体と `evals/` は導入しない。 |
+| 実行契機 | 結果 | ジョブ | 確認すること |
+| --- | --- | --- | --- |
+| pull request・`main` への push | :white_check_mark: | `verify-docs-root-check` | リポジトリの Markdown について、リンク・孤立文書・サイズ・重複の検査が通過する。 |
+| pull request・`main` への push | :white_check_mark: | `verify-docs-self-check` | ソースの `SKILL.md` から `docs/` をたどれる。アーカイブから配布用スキルを生成でき、ローカル導入・再導入・競合拒否・Claude/Kiro向け互換リンクが成立する。 |
+| `main` への push | :white_check_mark: | `remote-install-smoke` | `main` の raw `install.sh` と同じrefのアーカイブを公開URLから取得し、導入先で必要な `references/` を生成できる。`docs/` 全体と `evals/` は導入しない。 |
 
-`remote-install-smoke` は pull request では PR head のリポジトリとブランチを、`main` への push では `main` を取得する。通常の導入は `main` を取得するため、PRの未マージ変更を利用者へ配布しない。
+`remote-install-smoke` はマージ後の `main` だけを取得する。したがって、公開URL経由での導入確認はレビュー済みコードだけを実行する。通常の導入も `main` を取得する。
 
-pull request の `ci` 完了後には、同じ PR 内の bot コメントを作成または更新する。コメントは対象 commit、各ジョブの結果、上表に対応する保証範囲、実行結果へのリンクを表で示す。報告用 workflow は完了済み CI の結果だけを GitHub API で読み、PR のコードを checkout・実行しない。
+pull request の `ci` 完了後には、同じ PR 内の bot コメントを作成または更新する。コメントは対象 commit、各ジョブの結果、上表に対応する保証範囲、実行結果へのリンクを表で示す。`remote-install-smoke` は PR では :fast_forward: と表示し、`main` マージ後の Actions summary で結果を確認する。報告用 workflow は完了済み CI の結果だけを GitHub API で読み、PR のコードを checkout・実行しない。
 
 このCIは実ホストでスキルを起動すること、利用者の文書内容が正しいこと、Node.js 23以上の各版で動くことまでは確認しない。前者はホストごとの手動確認、後者は対象リポジトリ側の検証、Node.js 23以上は対応版ごとの追加検証が必要である。
 

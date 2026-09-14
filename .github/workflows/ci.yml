@@ -33,10 +33,11 @@ jobs:
         run: bash ci-selfcheck.sh
 
   remote-install-smoke:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     env:
-      SMOKE_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
-      SMOKE_REF: ${{ github.head_ref || github.ref_name }}
+      SMOKE_REPOSITORY: ${{ github.repository }}
+      SMOKE_REF: main
     steps:
       # Node 24 ランタイムの v5 を完全長コミット SHA に固定する。
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
