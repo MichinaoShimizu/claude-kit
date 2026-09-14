@@ -11,7 +11,14 @@ description: >
   一般的なレビューでは使わない。
 ---
 
-# verify-docs
+# 文書構造是正スキル
+
+| 項目 | 値 |
+| --- | --- |
+| 和名 | 文書構造是正スキル |
+| 英名 | DocumentStructureRemediationSkill |
+| ファイル名 | `.agents/skills/verify-docs/SKILL.md` |
+| スキルID | `verify-docs` |
 
 ## 適用範囲
 
@@ -50,15 +57,15 @@ description: >
 を参照する。
 [文書構造検証器](../../../docs/structure.md#文書構造検証器)の通過は、意味的な重複、配置の妥当性、文章品質を保証しない。
 機械的な検査結果と、プレイブックによる判断を同じ根拠として扱わない。
-意味的な重複は [dedupe-docs](../dedupe-docs/SKILL.md)、冗長性は
-[tighten-docs](../tighten-docs/SKILL.md) の手順で別に確認する。
+意味的な重複は[文書重複解消スキル](../dedupe-docs/SKILL.md#文書重複解消スキル)、冗長性は
+[文書簡潔化スキル](../tighten-docs/SKILL.md#文書簡潔化スキル)の手順で別に確認する。
 
 ## 前提条件
 
 `scripts/document-structure-verifier.mjs` を対象リポジトリに配置する（本スキル一式を
-まるごとコピーすれば含まれる）。設定は `verify-docs.config.json`
-（無ければ既定値。[references/config.md](references/config.md)を参照。
-入力制約は[references/config-validation.md](references/config-validation.md)を参照）。
+まるごとコピーすれば含まれる）。設定は
+[文書構造検証設定](references/config.md#文書構造検証設定)
+（無ければ既定値。入力制約は[references/config-validation.md](references/config-validation.md)を参照）。
 複数エージェントで入口文書とスキルを共用する構成は
 [references/agent-compatibility.md](references/agent-compatibility.md) を参照する。
 和名・英名・ファイル名を組にして定義するオブジェクトの記載は、
@@ -76,7 +83,7 @@ node scripts/document-structure-verifier.mjs
 本スクリプトは破綻箇所を通知するのみで、是正は本スキルの役目。出力された
 違反は事前に作った一時作業記録へ反映し、1件是正するごとにチェックを
 入れ日付・判断理由を書き添える。全項目が済んだら再実行し、新規の違反が
-無いか確認する。完了時には一時記録を `maintenance-report.md` へ統合する。最終検査結果の様式は
+無いか確認する。完了時には一時記録を保守報告へ統合する。最終検査結果の様式は
 [references/maintenance-report-format.md](references/maintenance-report-format.md) を参照する。
 
 ## 実施手順
@@ -95,8 +102,8 @@ node scripts/document-structure-verifier.mjs
   例外として許容する）
 - 検査結果に複数件出力された違反は、一時作業記録の全項目にチェックが
   入っている
-- 自分の一時作業記録に `### 最終検査結果` を記載して `maintenance-report.md` へ統合し、作業完了を報告する際は
-  Maintenance Reportのパス（`.verify-docs/dist/maintenance-report.md`）と実行結果を人に伝える
+- 自分の一時作業記録に `### 最終検査結果` を記載して[保守報告](references/work-records-and-report.md#保守報告)へ統合し、作業完了を報告する際は
+  保守報告のパスと実行結果を人に伝える
 
 ## 制約と対象外
 

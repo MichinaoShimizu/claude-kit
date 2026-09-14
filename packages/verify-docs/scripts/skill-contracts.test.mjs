@@ -20,7 +20,7 @@ function makeRepo(files) {
 }
 
 function maintenanceReport(section, details) {
-  return `# Maintenance Report\n\n## verify-docs\n\n（未実施）\n\n## dedupe-docs\n\n${section === 'dedupe-docs' ? details : '（未実施）'}\n\n## tighten-docs\n\n${section === 'tighten-docs' ? details : '（未実施）'}\n`;
+  return `# Maintenance Report\n\n## 文書構造是正スキル\n\n（未実施）\n\n## 文書重複解消スキル\n\n${section === 'dedupe-docs' ? details : '（未実施）'}\n\n## 文書簡潔化スキル\n\n${section === 'tighten-docs' ? details : '（未実施）'}\n`;
 }
 
 function assertCompletedSection(source, section) {
@@ -63,7 +63,7 @@ test('dedupe-docs contract keeps one canonical explanation, a pointer, and an ex
     assertRequiredFacts(canonical, [/Install the package, then run DocumentStructureVerifier/]);
     assert.match(pointer, /\[setup\]\(setup\.md\)/);
     assert.doesNotMatch(pointer, /Install the package, then run DocumentStructureVerifier/);
-    assertCompletedSection(readFileSync(join(root, '.verify-docs/dist/maintenance-report.md'), 'utf8'), 'dedupe-docs');
+    assertCompletedSection(readFileSync(join(root, '.verify-docs/dist/maintenance-report.md'), 'utf8'), '文書重複解消スキル');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -79,7 +79,7 @@ test('dedupe-docs contract rejects a broken canonical pointer and incomplete mai
     assert.ok(verifyDocumentStructure(root).violations.some((violation) => violation.kind === 'link'));
     assert.throws(() => assertCompletedSection(
       readFileSync(join(root, '.verify-docs/dist/maintenance-report.md'), 'utf8'),
-      'dedupe-docs',
+      '文書重複解消スキル',
     ));
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -109,7 +109,7 @@ test('tighten-docs contract reduces bytes while preserving required facts and an
     assert.equal(structure.headings[0].text, 'Deploy');
     const reportSource = readFileSync(join(root, '.verify-docs/dist/maintenance-report.md'), 'utf8');
     assert.match(reportSource, new RegExp(compressionRecord(before, after)));
-    assertCompletedSection(reportSource, 'tighten-docs');
+    assertCompletedSection(reportSource, '文書簡潔化スキル');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -128,7 +128,7 @@ test('skill instructions keep deterministic contracts separate from semantic jud
   for (const skill of [dedupe, tighten]) {
     assert.match(skill, /node scripts\/document-structure-verifier\.mjs/);
     assert.match(skill, /### 最終検査結果/);
-    assert.match(skill, /maintenance-report/);
+    assert.match(skill, /保守報告/);
   }
   assert.match(dedupe, /CI の pass\/fail には使わない/);
   assert.match(tighten, /数値・条件・手順の順序・免責文言は一字一句変更しない/);

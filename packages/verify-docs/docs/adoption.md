@@ -33,9 +33,9 @@ node scripts/document-structure-verifier.mjs --init-size-exceptions
 [文書構造の是正手順「3. 重複特定」](../.agents/skills/verify-docs/references/remediation.md#3-重複特定)
 を参照する。
 
-## Maintenance Reportの作業単位
+## 保守報告の作業単位
 
-`maintenance-report.md` は、現在の作業単位だけを記録する。作業単位は、同じ目的・対象範囲に
+[保守報告](../.agents/skills/verify-docs/references/work-records-and-report.md#保守報告)は、現在の作業単位だけを記録する。作業単位は、同じ目的・対象範囲に
 対する一連の変更と、その変更を含む1つの PR のレビュー対応・再検査を指す。
 
 同じ作業単位では、実行履歴と開始時点のサイズを引き継ぐ。PR 作成後のレビュー対応、
@@ -49,7 +49,7 @@ PR の作業を始める場合は、新しい作業単位とする。新しい�
 ## CIへの組み込み
 
 GitHub Actionsの構成例。本パッケージの
-[ワークフロー](../.github/workflows/verify-docs.yml)も利用できる。
+[文書構造検証ワークフロー](operations.md#文書構造検証ワークフロー)も利用できる。
 
 ```yaml
 name: verify-docs

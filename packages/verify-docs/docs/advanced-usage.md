@@ -1,4 +1,4 @@
-# verify-docs CLIリファレンス
+# 文書構造検証器のCLIリファレンス
 
 ## 文書構造の検査
 
@@ -21,7 +21,7 @@ node scripts/document-structure-verifier.mjs --changed-base=origin/main
 
 ## 文書構造スナップショットのJSON出力
 
-[文書構造抽出器](structure.md#文書構造抽出器)は、dedupe-docs / tighten-docs で対象文書を調べるときに、CommonMarkの見出し階層と段落を
+[文書構造抽出器](structure.md#文書構造抽出器)は、文書重複解消スキル／文書簡潔化スキルで対象文書を調べるときに、CommonMarkの見出し階層と段落を
 JSON出力できる。意味的な重複や冗長性は判定しない。
 
 ```bash
