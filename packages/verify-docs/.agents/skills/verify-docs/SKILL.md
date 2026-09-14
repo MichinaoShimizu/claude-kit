@@ -46,7 +46,7 @@ description: >
 ## 責務の分離
 
 チェッカー・プレイブックそれぞれの役割は
-[README.md「機能と責務」](../../../README.md#機能と責務)
+[verify-docs のREADME「機能と責務」](https://github.com/MichinaoShimizu/claude-kit/blob/main/packages/verify-docs/README.md#機能と責務)
 を参照する。
 チェッカーの通過は、意味的な重複、配置の妥当性、文章品質を保証しない。
 機械的な検査結果と、プレイブックによる判断を同じ根拠として扱わない。
