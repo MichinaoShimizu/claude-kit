@@ -35,6 +35,16 @@
       "reviewQuestions": ["削減後も数値・条件・手順が残るか", "短縮が許可範囲外の構造変更や意味変更になっていないか"]
     },
     {
+      "id": "tighten-uncertain-exception",
+      "skill": "tighten-docs",
+      "expectedDecision": "ask-human",
+      "documents": [
+        { "path": "docs/deploy.md", "content": "# Deploy\n\n通常は本番モードで実行する。障害対応時はこの限りではない。\n" }
+      ],
+      "mustPreserve": ["本番モード", "障害対応時", "この限りではない"],
+      "reviewQuestions": ["例外が冗長な補足ではなく運用条件である可能性を示せるか", "削除前に利用者へ候補箇所、削減案、失われるおそれ、両案の影響を質問できるか", "回答待ちの候補を保守報告へ統合せずに止められるか"]
+    },
+    {
       "id": "tighten-document-level-redundancy",
       "skill": "tighten-docs",
       "expectedDecision": "tighten",
