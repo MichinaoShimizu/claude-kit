@@ -30,7 +30,7 @@
  *     孤立チェックの対象外（サイズ超過・重複チェックは対象。詳細は下記
  *     「検査対象の集め方」参照）
  *   - スキルの補助文書（references/ など）が、自分の SKILL.md から参照されているか
- *   - 各文書のバイト数が、決めた上限を超えていないか（TODO ファイルに書いた例外は除く）
+ *   - 各文書のバイト数が、決めた上限を超えていないか（文書サイズ例外一覧に書いた例外は除く）
  *   - 同じ段落（一定の長さ以上）が複数の文書にそのまま重複していないか
  *   - （既定オフ）句読点・敬体/常体だけが違う、ほぼ同じ段落が複数の文書に
  *     ないか（`checkNearDuplicates`。誤検知が増えやすいのでオプトイン）
@@ -63,20 +63,20 @@
  *       "minDuplicateChars": 60,
  *       "checkDuplicates": true,
  *       "checkNearDuplicates": false,
- *       "todoFile": "verify-docs.todo.json"
+ *       "sizeExceptionFile": "document-size-exceptions.json"
  *     }
  *
- * TODO ファイル（既定 verify-docs.todo.json）:
+ * 文書サイズ例外一覧（既定 document-size-exceptions.json）:
  *   既存リポジトリに後から入れると、すでに上限を超えている文書が見つかることがある。
  *   全部その場で分割できるとは限らないので、超過を **黙って見逃す代わりに、
- *   TODO ファイルに書いて明示的に「わかっていて残している」形にする。**
+ *   文書サイズ例外一覧に書いて明示的に「わかっていて残している」形にする。**
  *
  *     [
  *       { "path": "docs/deploy.md", "reason": "既存の肥大化ドキュメント。分割待ち" }
  *     ]
  *
- *   TODO に載っている文書は、超過していても検査は落とさない（かわりに一覧に出す）。
- *   ただし **すでに上限内に収まっている文書が TODO に残っていたら、それは検査を落とす**
+ *   例外一覧に載っている文書は、超過していても検査は落とさない（かわりに一覧に出す）。
+ *   ただし **すでに上限内に収まっている文書が例外一覧に残っていたら、それは検査を落とす**
  *   （直したのに消し忘れた借金は、借金のふりをして居座らせない）。
  *
  * 意図した重複を許すとき:
@@ -89,7 +89,7 @@
  *   --config=<file> 設定ファイルの場所（既定: <root>/verify-docs.config.json）
  *   --json          結果を JSON で出す
  *   --changed-base=<ref> そのGit参照からの差分に関係する違反だけを報告する（移動元・削除済みパスも含む）
- *   --init-todo     いま上限を超えている文書を全部 TODO ファイルに書き出して終わる
+ *   --init-size-exceptions いま上限を超えている文書を全部例外一覧に書き出して終わる
  *                   （検査は走らせない）。既存リポジトリに導入する最初の1回に使う。
  *                   すでにファイルがあれば上書きせず失敗する（手で消してから）
  */
@@ -114,7 +114,7 @@ const DEFAULTS = {
   minDuplicateChars: 60,
   checkDuplicates: true,
   checkNearDuplicates: false,
-  todoFile: 'verify-docs.todo.json',
+  sizeExceptionFile: 'document-size-exceptions.json',
 };
 
 function readJson(path, label) {
@@ -136,7 +136,7 @@ const CONFIG_TYPES = {
   minDuplicateChars: 'positive integer',
   checkDuplicates: 'boolean',
   checkNearDuplicates: 'boolean',
-  todoFile: 'path',
+  sizeExceptionFile: 'path',
 };
 
 function validateRelativePath(value, label) {
@@ -192,66 +192,66 @@ function loadConfig() {
   return validateConfig({ ...defaults, ...user });
 }
 
-function loadTodo(config) {
-  const path = join(ROOT, config.todoFile);
+function loadSizeExceptions(config) {
+  const path = join(ROOT, config.sizeExceptionFile);
   if (!existsSync(path)) return new Map();
-  const list = readJson(path, config.todoFile);
-  if (!Array.isArray(list)) throw new Error(`${config.todoFile} は配列である必要があります`);
+  const list = readJson(path, config.sizeExceptionFile);
+  if (!Array.isArray(list)) throw new Error(`${config.sizeExceptionFile} は配列である必要があります`);
   const entries = new Map();
   for (const [index, entry] of list.entries()) {
     if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
-      throw new Error(`${config.todoFile}[${index}] はオブジェクトである必要があります`);
+      throw new Error(`${config.sizeExceptionFile}[${index}] はオブジェクトである必要があります`);
     }
     const keys = Object.keys(entry);
     if (keys.some((key) => !['path', 'reason', 'section'].includes(key))) {
-      throw new Error(`${config.todoFile}[${index}] は path・reason・section だけを指定できます`);
+      throw new Error(`${config.sizeExceptionFile}[${index}] は path・reason・section だけを指定できます`);
     }
-    validateRelativePath(entry.path, `${config.todoFile}[${index}].path`);
+    validateRelativePath(entry.path, `${config.sizeExceptionFile}[${index}].path`);
     if (typeof entry.reason !== 'string' || entry.reason.trim() === '') {
-      throw new Error(`${config.todoFile}[${index}].reason は空でない文字列にしてください`);
+      throw new Error(`${config.sizeExceptionFile}[${index}].reason は空でない文字列にしてください`);
     }
     if (entry.section !== undefined) {
       const section = entry.section;
       if (!section || typeof section !== 'object' || Array.isArray(section)) {
-        throw new Error(`${config.todoFile}[${index}].section はオブジェクトにしてください`);
+        throw new Error(`${config.sizeExceptionFile}[${index}].section はオブジェクトにしてください`);
       }
       const sectionKeys = Object.keys(section);
       if (sectionKeys.some((key) => !['headingPath', 'startLine', 'endLine', 'bytes'].includes(key))) {
-        throw new Error(`${config.todoFile}[${index}].section に未対応の項目があります`);
+        throw new Error(`${config.sizeExceptionFile}[${index}].section に未対応の項目があります`);
       }
       if (!Array.isArray(section.headingPath) || section.headingPath.length === 0 ||
           section.headingPath.some((heading) => typeof heading !== 'string' || heading.trim() === '')) {
-        throw new Error(`${config.todoFile}[${index}].section.headingPath は空でない見出し文字列の配列にしてください`);
+        throw new Error(`${config.sizeExceptionFile}[${index}].section.headingPath は空でない見出し文字列の配列にしてください`);
       }
       for (const key of ['startLine', 'endLine', 'bytes']) {
         if (!Number.isSafeInteger(section[key]) || section[key] <= 0) {
-          throw new Error(`${config.todoFile}[${index}].section.${key} は正の整数にしてください`);
+          throw new Error(`${config.sizeExceptionFile}[${index}].section.${key} は正の整数にしてください`);
         }
       }
       if (section.endLine < section.startLine) {
-        throw new Error(`${config.todoFile}[${index}].section.endLine は startLine 以降にしてください`);
+        throw new Error(`${config.sizeExceptionFile}[${index}].section.endLine は startLine 以降にしてください`);
       }
     }
-    if (entries.has(entry.path)) throw new Error(`${config.todoFile} に重複した path があります: ${entry.path}`);
+    if (entries.has(entry.path)) throw new Error(`${config.sizeExceptionFile} に重複した path があります: ${entry.path}`);
     entries.set(entry.path, entry);
   }
   return entries;
 }
 
-export function verifyDocs(root, { configPath, initTodo = false, changedBase } = {}) {
+export function verifyDocumentStructure(root, { configPath, initSizeExceptions = false, changedBase } = {}) {
   ROOT = resolve(root);
   const changed = changedBase === undefined ? null : changedPathsSince(changedBase);
   const changedPaths = changed?.paths ?? null;
   configOption = configPath;
   const config = loadConfig();
-  const todo = loadTodo(config);
+  const sizeExceptions = loadSizeExceptions(config);
 
 /** 実体のない書き方。手順の説明で使うので、パスとしては見ない。 */
 const PLACEHOLDER = /[<>*…]|\.\.\./;
 
-const failures = [];
+const violations = [];
 const fail = (kind, from, target, reason, detail = {}) =>
-  failures.push({ kind, from, target, reason, ...detail });
+  violations.push({ kind, from, target, reason, ...detail });
 
 /* ---------- 対象の文書を集める ---------- */
 
@@ -307,7 +307,7 @@ function changedPathsSince(base) {
 const documents = [...new Set(walk(ROOT))].sort();
 const documentSet = new Set(documents);
 
-function todoSection(source) {
+function sizeExceptionSection(source) {
   const { headings } = extractProseBlocks(source);
   if (headings.length === 0) return undefined;
   // 文書全体を表す先頭の見出しより、分割の単位になりやすい末端節を優先する。
@@ -328,12 +328,12 @@ function todoSection(source) {
   };
 }
 
-/* ---------- --init-todo: 既存リポジトリへの導入 ---------- */
+/* ---------- --init-size-exceptions: 既存リポジトリへの導入 ---------- */
 
-if (initTodo) {
-  const todoPath = join(ROOT, config.todoFile);
-  if (existsSync(todoPath)) {
-    const error = new Error(`${config.todoFile} はすでにある。上書きしない。手で消してからやり直す。`);
+if (initSizeExceptions) {
+  const sizeExceptionPath = join(ROOT, config.sizeExceptionFile);
+  if (existsSync(sizeExceptionPath)) {
+    const error = new Error(`${config.sizeExceptionFile} はすでにある。上書きしない。手で消してからやり直す。`);
     error.exitCode = 1;
     throw error;
   }
@@ -345,7 +345,7 @@ if (initTodo) {
     }))
     .filter(({ bytes }) => bytes > config.maxDocBytes)
     .map(({ path, bytes }) => {
-      const section = todoSection(readFileSync(join(ROOT, path), 'utf8'));
+      const section = sizeExceptionSection(readFileSync(join(ROOT, path), 'utf8'));
       return {
         path,
         reason: `導入時点ですでに上限超過（${bytes} バイト）。分割するかここに理由を書き直す`,
@@ -353,8 +353,8 @@ if (initTodo) {
       };
     });
 
-  writeFileSync(todoPath, JSON.stringify(overSize, null, 2) + '\n');
-  return { initializedTodo: { path: config.todoFile, count: overSize.length } };
+  writeFileSync(sizeExceptionPath, JSON.stringify(overSize, null, 2) + '\n');
+  return { initializedSizeExceptions: { path: config.sizeExceptionFile, count: overSize.length } };
 }
 
 /* ---------- 見出しから断片を作る（GitHub と同じ規則） ---------- */
@@ -547,7 +547,7 @@ for (const doc of documents) {
 
 for (const doc of documents) {
   const bytes = Buffer.byteLength(readFileSync(join(ROOT, doc), 'utf8'), 'utf8');
-  const exempt = todo.get(doc);
+  const exempt = sizeExceptions.get(doc);
 
   if (bytes > config.maxDocBytes && !exempt) {
     const sections = structures.get(doc).headings
@@ -565,24 +565,24 @@ for (const doc of documents) {
       doc,
       doc,
       `${bytes} バイト（上限 ${config.maxDocBytes}）。話題ごとに分けて互いにリンクするか、` +
-        `${config.todoFile} に理由つきで書いて明示的に借金にする`,
+        `${config.sizeExceptionFile} に理由つきで書いて明示的に借金にする`,
       { bytes, limit: config.maxDocBytes, sections },
     );
   }
 
   if (exempt && bytes <= config.maxDocBytes) {
     fail(
-      'stale-todo',
-      config.todoFile,
+      'stale-size-exception',
+      config.sizeExceptionFile,
       doc,
-      `もう上限内に収まっている（${bytes} バイト）。${config.todoFile} から消す`,
+      `もう上限内に収まっている（${bytes} バイト）。${config.sizeExceptionFile} から消す`,
     );
   }
 }
 
-for (const path of todo.keys()) {
+for (const path of sizeExceptions.keys()) {
   if (!documentSet.has(path)) {
-    fail('stale-todo', config.todoFile, path, 'この文書がもう無い。エントリを消す');
+    fail('stale-size-exception', config.sizeExceptionFile, path, 'この文書がもう無い。エントリを消す');
   }
 }
 
@@ -735,18 +735,18 @@ const leafSections = [...structures.entries()].flatMap(([path, structure]) => {
     }];
   });
 });
-const changedScopeIncludesEverything = changedPaths?.has('verify-docs.config.json') || changedPaths?.has(config.todoFile);
-function failureTouchesChangedPath(failure) {
+const changedScopeIncludesEverything = changedPaths?.has('verify-docs.config.json') || changedPaths?.has(config.sizeExceptionFile);
+function violationTouchesChangedPath(violation) {
   if (!changedPaths || changedScopeIncludesEverything) return true;
-  const paths = [failure.from, failure.target, failure.location?.path];
-  for (const occurrence of failure.occurrences ?? []) paths.push(occurrence.location?.path);
+  const paths = [violation.from, violation.target, violation.location?.path];
+  for (const occurrence of violation.occurrences ?? []) paths.push(occurrence.location?.path);
   return paths.filter(Boolean).some((path) => changedPaths.has(path.split('#', 1)[0]));
 }
-const scopedFailures = failures.filter(failureTouchesChangedPath);
-const failuresByKind = Object.fromEntries(
-  [...new Set(scopedFailures.map(({ kind }) => kind))]
+const scopedViolations = violations.filter(violationTouchesChangedPath);
+const violationsByKind = Object.fromEntries(
+  [...new Set(scopedViolations.map(({ kind }) => kind))]
     .sort()
-    .map((kind) => [kind, scopedFailures.filter((failure) => failure.kind === kind).length]),
+    .map((kind) => [kind, scopedViolations.filter((violation) => violation.kind === kind).length]),
 );
 const summary = {
   documents: {
@@ -755,22 +755,23 @@ const summary = {
     headings: documentMetrics.reduce((sum, document) => sum + document.headings, 0),
     paragraphs: documentMetrics.reduce((sum, document) => sum + document.paragraphs, 0),
   },
-  todo: {
-    count: todo.size,
-    entries: [...todo.values()],
+  sizeExceptions: {
+    count: sizeExceptions.size,
+    entries: [...sizeExceptions.values()],
   },
   violations: {
-    count: scopedFailures.length,
-    byKind: failuresByKind,
+    count: scopedViolations.length,
+    byKind: violationsByKind,
   },
   largestSections: leafSections
     .sort((a, b) => b.bytes - a.bytes || a.path.localeCompare(b.path) || a.startLine - b.startLine)
     .slice(0, 5),
 };
 
-const report = {
+const verificationReport = {
+  kind: 'DocumentStructureVerificationReport',
   summary,
-  failures: scopedFailures,
+  violations: scopedViolations,
   ...(changedPaths ? {
     changed: {
       base: changedBase,
@@ -780,14 +781,14 @@ const report = {
   } : {}),
 };
 
-return report;
+return verificationReport;
 }
 
-export function printReport(report, { json = false } = {}) {
+export function printVerificationReport(verificationReport, { json = false } = {}) {
 if (json) {
-  console.log(JSON.stringify(report, null, 2));
+  console.log(JSON.stringify(verificationReport, null, 2));
 } else {
-  const { summary, failures } = report;
+  const { summary, violations } = verificationReport;
   const label = {
     link: 'リンク切れ',
     fragment: '断片',
@@ -796,11 +797,11 @@ if (json) {
     size: 'サイズ超過',
     duplicate: '重複',
     'near-duplicate': '準一致重複',
-    'stale-todo': 'TODO の掃除',
+    'stale-size-exception': '文書サイズ例外の掃除',
   };
   console.log(
     `文書 ${summary.documents.count} 件（見出し ${summary.documents.headings} 件・` +
-    `段落 ${summary.documents.paragraphs} 件・${summary.documents.bytes} バイト、TODO ${summary.todo.count} 件）を検査`,
+    `段落 ${summary.documents.paragraphs} 件・${summary.documents.bytes} バイト、文書サイズ例外 ${summary.sizeExceptions.count} 件）を検査`,
   );
   if (summary.largestSections.length > 0) {
     console.log('\n大きい節（末端節・上位5件）:');
@@ -811,21 +812,21 @@ if (json) {
       );
     }
   }
-  if (summary.todo.entries.length > 0) {
-    console.log('\nTODO:');
-    for (const entry of summary.todo.entries) {
+  if (summary.sizeExceptions.entries.length > 0) {
+    console.log('\n文書サイズ例外:');
+    for (const entry of summary.sizeExceptions.entries) {
       const section = entry.section
         ? ` / ${entry.section.headingPath.join(' > ')} (${entry.section.startLine}-${entry.section.endLine}行、${entry.section.bytes} バイト)`
         : '';
       console.log(`  - ${entry.path}${section} — ${entry.reason}`);
     }
   }
-  if (failures.length > 0) {
+  if (violations.length > 0) {
     const kinds = Object.entries(summary.violations.byKind)
       .map(([kind, count]) => `${label[kind]} ${count}件`)
       .join('・');
-    console.error(`\n文書構造の検査に失敗（${failures.length}件: ${kinds}）:`);
-    for (const f of failures) {
+    console.error(`\n文書構造の検査に失敗（${violations.length}件: ${kinds}）:`);
+    for (const f of violations) {
       const where = f.location
         ? ` (${f.location.path}:${f.location.start.line}:${f.location.start.column}` +
           `${f.location.headingPath?.length ? ` / ${f.location.headingPath.join(' > ')}` : ''})`
@@ -849,13 +850,13 @@ function main() {
   const configPath = option('config', undefined);
 
   try {
-    const result = verifyDocs(root, {
+    const result = verifyDocumentStructure(root, {
       configPath,
-      initTodo: flag('init-todo'),
+      initSizeExceptions: flag('init-size-exceptions'),
       changedBase: option('changed-base', undefined),
     });
-    if (result.initializedTodo) {
-      const { path, count } = result.initializedTodo;
+    if (result.initializedSizeExceptions) {
+      const { path, count } = result.initializedSizeExceptions;
       console.log(
         `${path} を作った（${count} 件）。\n` +
           '理由を書き直し、以後は新しく足す・書き足す文書から上限を守ること。' +
@@ -863,8 +864,8 @@ function main() {
       );
       return 0;
     }
-    printReport(result, { json: flag('json') });
-    return result.failures.length > 0 ? 1 : 0;
+    printVerificationReport(result, { json: flag('json') });
+    return result.violations.length > 0 ? 1 : 0;
   } catch (error) {
     if (error.exitCode !== undefined) {
       console.error(error.message);

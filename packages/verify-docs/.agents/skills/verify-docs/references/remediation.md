@@ -56,12 +56,12 @@ node scripts/document-structure-verifier.mjs
 異なる言い換えの重複は検知できない。この判断は
 [dedupe-docs スキル](../../dedupe-docs/SKILL.md) を参照する。
 
-## 4. 分割不可時の TODO 記載
+## 4. 文書サイズ例外の記載
 
 既存の大規模リポジトリへの後発導入では、その場では分割できない文書が
-出る。超過を黙認せず、`verify-docs.todo.json`（既定のファイル名）に理由を
+出る。超過を黙認せず、`document-size-exceptions.json`（既定のファイル名）に理由を
 付して記載する。記述形式・運用ルールは
-[todo.md](todo.md) を参照する。
+[document-size-exceptions.md](document-size-exceptions.md) を参照する。
 
 ## 5. CI 組み込み
 

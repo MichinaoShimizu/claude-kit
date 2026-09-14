@@ -52,7 +52,7 @@ verify-docs の検査はサイズ超過という結果のみを見る。冗長�
 本文・バイト数を一覧化し、確認する箇所を整理する。
 
 ```bash
-node scripts/extract-doc-blocks.mjs --root=. README.md docs/guide.md
+node scripts/document-structure-extractor.mjs --root=. README.md docs/guide.md
 ```
 
 対象が多い場合は、一時作業記録に列挙した対象文書のパスを複数指定する。段落の `bytes` はMarkdown

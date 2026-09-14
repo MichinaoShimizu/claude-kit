@@ -5,7 +5,7 @@ on:
     paths:
       - '**/*.md'
       - 'verify-docs.config.json'
-      - 'verify-docs.todo.json'
+      - 'document-size-exceptions.json'
       - 'scripts/**'
 
 jobs:

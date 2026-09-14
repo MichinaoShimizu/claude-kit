@@ -80,16 +80,16 @@ node scripts/document-structure-verifier.mjs
 ## 実施手順
 
 [文書構造の是正手順](references/remediation.md)の順に、入口軽量化、肥大化文書の特定、
-重複特定、分割不可時の TODO 記載、CI 組み込み、継続的な検査を実施する。
+重複特定、分割不可時の文書サイズ例外の記載、CI 組み込み、継続的な検査を実施する。
 準一致重複・意図した重複は[重複検査の設定と例外](references/duplicate-handling.md)、
-TODOの記述形式は[TODOファイルの記述形式](references/todo.md)を参照する。
+文書サイズ例外の記述形式は[文書サイズ例外一覧の形式](references/document-size-exceptions.md)を参照する。
 
 ## 完了基準
 
 以下を全て満たした時点で、その回の是正作業は完了とする。
 
 - `node scripts/document-structure-verifier.mjs` の実行結果が「文書構造: すべて通過」
-  である（`verify-docs.todo.json` に理由付きで明示的に残した超過は
+  である（`document-size-exceptions.json` に理由付きで明示的に残した超過は
   例外として許容する）
 - 検査結果に複数件出力された違反は、一時作業記録の全項目にチェックが
   入っている

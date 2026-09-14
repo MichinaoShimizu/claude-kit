@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { extractProseBlocks } from './markdown-structure.mjs';
-import { verifyDocs } from './document-structure-verifier.mjs';
+import { verifyDocumentStructure } from './document-structure-verifier.mjs';
 
 const packageRoot = join(import.meta.dirname, '..');
 const skillPath = (name) => join(packageRoot, '.agents', 'skills', name, 'SKILL.md');
@@ -56,8 +56,8 @@ test('dedupe-docs contract keeps one canonical explanation, a pointer, and an ex
     ].join('\n')),
   });
   try {
-    const report = verifyDocs(root);
-    assert.deepEqual(report.failures, []);
+    const report = verifyDocumentStructure(root);
+    assert.deepEqual(report.violations, []);
     const canonical = readFileSync(join(root, 'docs/setup.md'), 'utf8');
     const pointer = readFileSync(join(root, 'docs/guide.md'), 'utf8');
     assertRequiredFacts(canonical, [/Install the package, then run DocumentStructureVerifier/]);
@@ -76,7 +76,7 @@ test('dedupe-docs contract rejects a broken canonical pointer and incomplete mai
     '.verify-docs/dist/maintenance-report.md': maintenanceReport('dedupe-docs', '- [ ] docs/guide.md'),
   });
   try {
-    assert.ok(verifyDocs(root).failures.some((failure) => failure.kind === 'link'));
+    assert.ok(verifyDocumentStructure(root).violations.some((violation) => violation.kind === 'link'));
     assert.throws(() => assertCompletedSection(
       readFileSync(join(root, '.verify-docs/dist/maintenance-report.md'), 'utf8'),
       'dedupe-docs',
@@ -101,8 +101,8 @@ test('tighten-docs contract reduces bytes while preserving required facts and an
     ].join('\n')),
   });
   try {
-    const report = verifyDocs(root);
-    assert.deepEqual(report.failures, []);
+    const report = verifyDocumentStructure(root);
+    assert.deepEqual(report.violations, []);
     assert.ok(Buffer.byteLength(after, 'utf8') < Buffer.byteLength(before, 'utf8'));
     assertRequiredFacts(after, [/production mode/, /30 seconds/, /Do not change the retry order\./]);
     const structure = extractProseBlocks(after);

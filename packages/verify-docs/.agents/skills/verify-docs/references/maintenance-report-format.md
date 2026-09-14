@@ -38,7 +38,7 @@
 | --- | --- | --- | --- |
 | 参照整合性 | Markdownリンク・画像リンク・断片リンク、設定した `pathRoots` に一致するバッククォート内のパスが解決できる | `node scripts/document-structure-verifier.mjs` | リンク違反0件 |
 | 孤立文書 | 入口文書または他の検査対象文書から到達できる | `node scripts/document-structure-verifier.mjs` | 孤立違反0件 |
-| 文書サイズ | `maxDocBytes` 以下、または TODO に理由を記録済みである | `node scripts/document-structure-verifier.mjs` | サイズ違反0件 |
+| 文書サイズ | `maxDocBytes` 以下、または文書サイズ例外一覧に理由を記録済みである | `node scripts/document-structure-verifier.mjs` | サイズ違反0件 |
 | 機械的重複 | 完全一致と、有効時の準一致の段落重複を検出・是正済みである | `node scripts/document-structure-verifier.mjs` | 重複違反0件 |
 
 ### dedupe-docs

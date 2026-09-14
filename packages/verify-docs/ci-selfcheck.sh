@@ -10,7 +10,7 @@ rel_dir="${dir#"$repo_root"/}"
 
 node "$dir/scripts/document-structure-verifier.mjs" --root="$rel_dir"
 node --test "$dir/scripts/document-structure-verifier.test.mjs"
-node --test "$dir/scripts/extract-doc-blocks.test.mjs"
+node --test "$dir/scripts/document-structure-extractor.test.mjs"
 node --test "$dir/scripts/skill-contracts.test.mjs"
 node --test "$dir/scripts/skill-evals.test.mjs"
 
@@ -28,12 +28,12 @@ if git -C "$install_target" check-ignore -q --no-index -- .verify-docs/dist/main
 fi
 test -f "$install_target/scripts/document-structure-verifier.mjs"
 test -f "$install_target/scripts/markdown-structure.mjs"
-test -f "$install_target/scripts/extract-doc-blocks.mjs"
+test -f "$install_target/scripts/document-structure-extractor.mjs"
 test -f "$install_target/scripts/vendor/commonmark.cjs"
 test -f "$install_target/evals/skill-judgement-cases.json"
 test -f "$install_target/evals/README.md"
 node "$install_target/scripts/document-structure-verifier.mjs" --root="$install_target/scripts"
-node "$install_target/scripts/extract-doc-blocks.mjs" \
+node "$install_target/scripts/document-structure-extractor.mjs" \
   --root="$install_target" .agents/skills/verify-docs/SKILL.md >/dev/null
 test -f "$install_target/.agents/skills/verify-docs/SKILL.md"
 test -f "$install_target/.agents/skills/dedupe-docs/SKILL.md"

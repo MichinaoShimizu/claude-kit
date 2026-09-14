@@ -6,10 +6,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { extractProseBlocks } from './markdown-structure.mjs';
 
-const SCRIPT = join(import.meta.dirname, 'extract-doc-blocks.mjs');
+const SCRIPT = join(import.meta.dirname, 'document-structure-extractor.mjs');
 
 function withTempRepo(run) {
-  const root = mkdtempSync(join(tmpdir(), 'extract-doc-blocks-'));
+  const root = mkdtempSync(join(tmpdir(), 'document-structure-extractor-'));
   try {
     run(root);
   } finally {
@@ -55,6 +55,7 @@ test('CLI returns multiple requested documents as JSON with repository-relative 
       encoding: 'utf8',
     });
     const documents = JSON.parse(output);
+    assert.ok(documents.every(({ kind }) => kind === 'DocumentStructureSnapshot'));
     assert.deepEqual(documents.map(({ path }) => path), ['README.md', 'docs/guide.md']);
     assert.equal(documents[1].blocks[0].headingPath.join('/'), 'Guide');
     assert.equal(documents[1].headings[0].bytes, Buffer.byteLength('## Guide\n\nRead this.\n', 'utf8'));

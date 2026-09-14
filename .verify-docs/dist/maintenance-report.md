@@ -37,7 +37,7 @@
 | --- | --- | --- | --- |
 | 参照整合性 | Markdownリンク・画像リンク・断片リンク、設定した `pathRoots` に一致するバッククォート内のパスが解決できる | `node packages/verify-docs/scripts/document-structure-verifier.mjs` | リンク違反0件 |
 | 孤立文書 | 入口文書または他の検査対象文書から到達できる | `node packages/verify-docs/scripts/document-structure-verifier.mjs` | 孤立違反0件 |
-| 文書サイズ | `maxDocBytes` 以下、または TODO に理由を記録済みである | `node packages/verify-docs/scripts/document-structure-verifier.mjs` | サイズ違反0件 |
+| 文書サイズ | `maxDocBytes` 以下、または文書サイズ例外一覧に理由を記録済みである | `node packages/verify-docs/scripts/document-structure-verifier.mjs` | サイズ違反0件 |
 | 機械的重複 | 完全一致と、有効時の準一致の段落重複を検出・是正済みである | `node packages/verify-docs/scripts/document-structure-verifier.mjs` | 重複違反0件 |
 
 最終検査: `packages/verify-docs/ci-selfcheck.sh`、`node packages/verify-docs/scripts/document-structure-verifier.mjs`、`node packages/verify-docs/scripts/document-structure-verifier.mjs --root=packages/agent-layout`、`cd packages/verify-docs && node scripts/document-structure-verifier.mjs` — 違反0件
@@ -100,7 +100,7 @@
 | [packages/verify-docs/.agents/skills/verify-docs/references/config-validation.md](../../packages/verify-docs/.agents/skills/verify-docs/references/config-validation.md) | 680B | 680B | 0B | 0.0% |
 | [packages/verify-docs/.agents/skills/verify-docs/references/agent-compatibility.md](../../packages/verify-docs/.agents/skills/verify-docs/references/agent-compatibility.md) | 1,692B | 1,698B | -6B | -0.4% |
 | [packages/verify-docs/.agents/skills/verify-docs/references/remediation.md](../../packages/verify-docs/.agents/skills/verify-docs/references/remediation.md) | 4,105B | 4,119B | -14B | -0.3% |
-| [packages/verify-docs/.agents/skills/verify-docs/references/todo.md](../../packages/verify-docs/.agents/skills/verify-docs/references/todo.md) | 2,261B | 2,289B | -28B | -1.2% |
+| [packages/verify-docs/.agents/skills/verify-docs/references/document-size-exceptions.md](../../packages/verify-docs/.agents/skills/verify-docs/references/document-size-exceptions.md) | 2,261B | 2,289B | -28B | -1.2% |
 | [packages/verify-docs/.agents/skills/verify-docs/references/duplicate-handling.md](../../packages/verify-docs/.agents/skills/verify-docs/references/duplicate-handling.md) | 2,144B | 2,175B | -31B | -1.2% |
 | [CONTRIBUTING.md](../../CONTRIBUTING.md) | 1,176B | 1,214B | -38B | -3.2% |
 | [packages/agent-layout/README.md](../../packages/agent-layout/README.md) | 2,832B | 2,944B | -112B | -4.0% |

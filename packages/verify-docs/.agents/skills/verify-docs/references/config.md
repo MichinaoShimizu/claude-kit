@@ -1,8 +1,8 @@
 # 設定ファイル
 
 `.agents/skills/verify-docs/SKILL.md` から参照される。検査スクリプトの設定を
-変更する場合に参照する。TODO ファイルの記述形式は
-[references/todo.md](todo.md)、準一致重複・意図した重複の許可方法は
+変更する場合に参照する。文書サイズ例外一覧の形式は
+[document-size-exceptions.md](document-size-exceptions.md)、準一致重複・意図した重複の許可方法は
 [references/duplicate-handling.md](duplicate-handling.md) を参照する。
 
 ## `verify-docs.config.json`
@@ -25,7 +25,7 @@
   "minDuplicateChars": 60,
   "checkDuplicates": true,
   "checkNearDuplicates": false,
-  "todoFile": "verify-docs.todo.json"
+  "sizeExceptionFile": "document-size-exceptions.json"
 }
 ```
 
@@ -37,11 +37,11 @@
 | `pathRoots`           | 本文中のバッククォート表記をパスとして検査する接頭辞                 |
 | `agentConfigDirs`     | スキル以外のエージェント設定文書を孤立チェックから除外するディレクトリ |
 | `excludePaths`        | 検査対象から除外するディレクトリ（下記「検査対象の集め方」を参照）。既定に含まれる `.verify-docs/` は作業記録とMaintenance Reportの保管先（[work-records-and-report.md「作業記録」](work-records-and-report.md#作業記録)を参照） |
-| `maxDocBytes`         | 1文書あたりの上限（バイト数）。超過時は分割するか TODO に記載する    |
+| `maxDocBytes`         | 1文書あたりの上限（バイト数）。超過時は分割するか文書サイズ例外一覧に記載する    |
 | `minDuplicateChars`   | AST抽出した段落本文の最小文字数。値が小さいほど誤検知が増加する |
 | `checkDuplicates`     | 完全一致の重複検査の有効・無効。既定は有効                           |
 | `checkNearDuplicates` | 準一致の重複検査の有効・無効。既定は無効（下記「準一致重複」を参照） |
-| `todoFile`            | 例外リストの配置先                                                   |
+| `sizeExceptionFile`   | 文書サイズ例外一覧の配置先                                           |
 
 入力値の制約は[設定ファイルの入力検証](config-validation.md)を参照。
 

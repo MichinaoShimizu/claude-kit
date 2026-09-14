@@ -17,26 +17,26 @@ node scripts/document-structure-verifier.mjs
 node scripts/document-structure-verifier.mjs --changed-base=origin/main
 ```
 
-## AST情報のJSON出力
+## 文書構造スナップショットのJSON出力
 
 dedupe-docs / tighten-docs で対象文書を調べるときは、CommonMarkの見出し階層と段落を
 JSON出力できる。意味的な重複や冗長性は判定しない。
 
 ```bash
-node scripts/extract-doc-blocks.mjs --root=. README.md docs/guide.md
+node scripts/document-structure-extractor.mjs --root=. README.md docs/guide.md
 ```
 
-見出し階層・段落・位置・バイト数を返す。出力項目の使い方は各スキルの手順を参照。
+各指定文書について、DocumentStructureSnapshot（文書構造スナップショット）として見出し階層・段落・位置・バイト数を返す。出力項目の使い方は各スキルの手順を参照。
 
-## 既存のサイズ超過のTODO記録
+## 既存のサイズ超過の例外記録
 
 既存文書に違反があるリポジトリでは、最初に次を実行する。
 
 ```bash
-node scripts/document-structure-verifier.mjs --init-todo
+node scripts/document-structure-verifier.mjs --init-size-exceptions
 ```
 
-## 検査結果のJSON出力
+## 文書構造検証レポートのJSON出力
 
 ```bash
 node scripts/document-structure-verifier.mjs --json

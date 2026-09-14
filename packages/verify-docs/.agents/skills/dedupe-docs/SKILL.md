@@ -52,7 +52,7 @@ node scripts/document-structure-verifier.mjs
 元位置・本文を一覧化する。
 
 ```bash
-node scripts/extract-doc-blocks.mjs --root=. README.md docs/guide.md
+node scripts/document-structure-extractor.mjs --root=. README.md docs/guide.md
 ```
 
 対象が多い場合は、一時作業記録に列挙した対象文書のパスを複数指定する。出力の `headingPath`・
