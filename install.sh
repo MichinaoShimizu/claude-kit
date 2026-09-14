@@ -66,11 +66,13 @@ if [[ -z "$source_root" ]]; then
     fi
   fi
   if [[ -z "$source_root" ]]; then
+    source_repository="${VERIFY_DOCS_SOURCE_REPOSITORY:-MichinaoShimizu/verify-docs}"
+    source_ref="${VERIFY_DOCS_SOURCE_REF:-main}"
     temp_root="$(mktemp -d)"
-    archive="$temp_root/claude-kit.tar.gz"
-    echo "Downloading verify-docs from MichinaoShimizu/verify-docs (main)..."
+    archive="$temp_root/verify-docs.tar.gz"
+    echo "Downloading verify-docs from $source_repository ($source_ref)..."
     curl -fsSL \
-      https://github.com/MichinaoShimizu/verify-docs/archive/refs/heads/main.tar.gz \
+      "https://github.com/$source_repository/archive/refs/heads/$source_ref.tar.gz" \
       -o "$archive"
     tar -xzf "$archive" -C "$temp_root"
     source_file="$(find "$temp_root" -type f -path '*/scripts/document-structure-verifier.mjs' -print -quit)"

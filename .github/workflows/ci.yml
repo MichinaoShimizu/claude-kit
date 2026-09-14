@@ -29,3 +29,38 @@ jobs:
           node-version-file: .nvmrc
       - name: verify-docs の自己検査を実行する（ドッグフーディング）
         run: bash ci-selfcheck.sh
+
+  remote-install-smoke:
+    runs-on: ubuntu-latest
+    env:
+      SMOKE_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+      SMOKE_REF: ${{ github.head_ref || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: 公開URLから対象refを導入する
+        run: |
+          target_root="$(mktemp -d)"
+          trap 'rm -rf "$target_root"' EXIT
+          curl -fsSL \
+            "https://raw.githubusercontent.com/$SMOKE_REPOSITORY/$SMOKE_REF/install.sh" \
+            -o "$target_root/install.sh"
+          (
+            cd "$target_root"
+            VERIFY_DOCS_SOURCE_REPOSITORY="$SMOKE_REPOSITORY" \
+            VERIFY_DOCS_SOURCE_REF="$SMOKE_REF" \
+            bash install.sh
+          )
+          test -f "$target_root/scripts/document-structure-verifier.mjs"
+          test -f "$target_root/.agents/skills/verify-docs/references/config.md"
+          test ! -e "$target_root/docs"
+          node "$target_root/scripts/document-structure-verifier.mjs" --root="$target_root/scripts"
+          {
+            echo '## Remote install smoke test'
+            echo
+            echo "- :white_check_mark: `$SMOKE_REPOSITORY@$SMOKE_REF` の raw install.sh を取得"
+            echo '- :white_check_mark: 同じrefのアーカイブから導入'
+            echo '- :white_check_mark: 配布用 references/ を生成し、docs/ 全体を導入先へコピーしない'
+          } >> "$GITHUB_STEP_SUMMARY"
