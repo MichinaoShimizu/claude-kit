@@ -4,7 +4,7 @@
 
 作業単位: リポジトリ Markdown の文章補正と検証記録の整備
 開始: 2026-09-13T18:50:12+0900
-最終更新: 2026-09-14T11:06:47+0900
+最終更新: 2026-09-14T11:29:09+0900
 
 ## 実行履歴
 
@@ -25,15 +25,17 @@
 | 13 | 10:39 | japanese-tech-writing | オブジェクトの和名・英名・ファイル名と参照規約を追加 | 構造違反0件 |
 | 14 | 10:59 | 文書構造是正・文書重複解消・文書簡潔化スキル | 運用オブジェクトを定義し、文書内の呼称を和名リンクへ統一（agent-layoutは対象外） | 構造違反0件 |
 | 15 | 11:06 | 文書構造是正・文書重複解消・文書簡潔化スキル | 最終の構造・意味的重複・冗長性を確認。追加是正なし | 構造違反0件 |
+| 16 | 11:29 | japanese-tech-writing・文書構造是正スキル | ファイル名を basename にし、リポジトリ内パスと配布先パスを分離 | 構造違反0件 |
 
 ## 文書構造是正スキル
 
-最終実行: 2026-09-14T11:06:47+0900
+最終実行: 2026-09-14T11:29:09+0900
 
 - [x] リポジトリルート: [AGENTS.md](../../AGENTS.md)、[CLAUDE.md](../../CLAUDE.md)、[CONTRIBUTING.md](../../CONTRIBUTING.md)、[README.md](../../README.md) — 2026-09-13 / 構造検査を完了
 - [x] [packages/agent-layout/README.md](../../packages/agent-layout/README.md) — 2026-09-13 / 構造検査を完了
 - [x] [packages/verify-docs/](../../packages/verify-docs/) の22文書 — 2026-09-14 / 運用オブジェクトの定義と和名リンクの規約を整備
 - [x] [README.md](../../README.md) と [packages/verify-docs/](../../packages/verify-docs/) — 2026-09-14 / ルート4文書・パッケージ22文書を再検査し、違反なし
+- [x] [packages/verify-docs/docs/](../../packages/verify-docs/docs/) と [packages/verify-docs/.agents/skills/](../../packages/verify-docs/.agents/skills/) — 2026-09-14 / 正本・配布先・非配布の扱いを実装に合わせて定義
 
 ### 最終検査結果
 
@@ -44,7 +46,7 @@
 | 文書サイズ | `maxDocBytes` 以下、または文書サイズ例外一覧に理由を記録済みである | `node packages/verify-docs/scripts/document-structure-verifier.mjs` | サイズ違反0件 |
 | 機械的重複 | 完全一致と、有効時の準一致の段落重複を検出・是正済みである | `node packages/verify-docs/scripts/document-structure-verifier.mjs` | 重複違反0件 |
 
-最終検査: `node packages/verify-docs/scripts/document-structure-verifier.mjs --root=.`、`node packages/verify-docs/scripts/document-structure-verifier.mjs --root=packages/verify-docs` — 違反0件
+最終検査: `bash packages/verify-docs/ci-selfcheck.sh`、`node packages/verify-docs/scripts/document-structure-verifier.mjs --root=.`、`git diff --check` — 違反0件
 
 ## 文書重複解消スキル
 

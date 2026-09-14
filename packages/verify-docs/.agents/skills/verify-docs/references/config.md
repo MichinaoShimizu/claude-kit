@@ -11,6 +11,8 @@
 | 和名 | 文書構造検証設定 |
 | 英名 | DocumentStructureVerificationConfiguration |
 | ファイル名 | `verify-docs.config.json` |
+| リポジトリ内パス | なし（導入先の利用者が作成する） |
+| 配布先パス | `verify-docs.config.json` |
 
 リポジトリ直下に配置する。存在しない場合は全項目が既定値で動作する。
 設定項目名と意味は下表を正本とする。個別キーは他文書で列挙せず、キー追加時の
