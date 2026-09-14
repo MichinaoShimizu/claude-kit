@@ -13,8 +13,9 @@ jobs:
   verify-docs-root-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      # v4 を完全長コミット SHA に固定する。
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version-file: .nvmrc
       - name: リポジトリルートの文書を検査する
@@ -23,8 +24,9 @@ jobs:
   verify-docs-self-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      # v4 を完全長コミット SHA に固定する。
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version-file: .nvmrc
       - name: verify-docs の自己検査を実行する（ドッグフーディング）
@@ -36,8 +38,9 @@ jobs:
       SMOKE_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
       SMOKE_REF: ${{ github.head_ref || github.ref_name }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      # v4 を完全長コミット SHA に固定する。
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version-file: .nvmrc
       - name: 公開URLから対象refを導入する
