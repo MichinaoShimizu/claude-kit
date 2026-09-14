@@ -6,6 +6,5 @@
     "dist/",
     "build/",
     ".verify-docs/"
-  ],
-  "maxDocBytes": 7000
+  ]
 }
