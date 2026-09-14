@@ -5,9 +5,6 @@
     "vendor/",
     "dist/",
     "build/",
-    ".verify-docs/",
-    ".agents/skills/verify-docs/references/",
-    ".agents/skills/dedupe-docs/references/",
-    ".agents/skills/tighten-docs/references/"
+    ".verify-docs/"
   ]
 }

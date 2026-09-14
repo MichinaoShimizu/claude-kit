@@ -8,7 +8,6 @@ import { verifyDocumentStructure } from './document-structure-verifier.mjs';
 
 const packageRoot = join(import.meta.dirname, '..');
 const skillPath = (name) => join(packageRoot, '.agents', 'skills', name, 'SKILL.md');
-const skillReferencePath = (name, reference) => join(packageRoot, '.agents', 'skills', name, 'references', reference);
 const sharedReferencePath = (reference) => join(packageRoot, 'docs', reference);
 
 function makeRepo(files) {
@@ -126,7 +125,7 @@ test('tighten-docs contract rejects lost facts and inaccurate compression record
 
 test('skill instructions keep deterministic contracts separate from semantic judgement', () => {
   const dedupe = readFileSync(skillPath('dedupe-docs'), 'utf8');
-  const dedupeJudgement = readFileSync(skillReferencePath('dedupe-docs', 'judgement-and-escalation.md'), 'utf8');
+  const dedupeJudgement = readFileSync(sharedReferencePath('judgement-and-escalation.md'), 'utf8');
   const tighten = readFileSync(skillPath('tighten-docs'), 'utf8');
   const duplicateHandling = readFileSync(sharedReferencePath('duplicate-handling.md'), 'utf8');
   const workRecords = readFileSync(sharedReferencePath('work-records-and-report.md'), 'utf8');

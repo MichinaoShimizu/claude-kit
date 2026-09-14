@@ -8,14 +8,14 @@
   CI の自動探索方法は
   [リポジトリのCI定義](.github/workflows/ci.yml)
   を参照する
-- `docs/` 内のスキル補助文書を変更した場合は、自己検査の前に
-  `node scripts/sync-skill-references.mjs --write` を実行する。このコマンドは各 `SKILL.md` の
-  `references/` リンクを起点に、`docs/` 内のリンク先を再帰的にたどって必要な文書だけをコピーする。
-  生成されたコピーも正本と同じコミットへ含める。自己検査と CI は同期の有無を検査するだけで、コピーを書き換えない
-- 挙動を変更した場合、`SKILL.md`・`references/config.md`・README.md の
+- `docs/` 内のスキル補助文書を変更した場合は、自己検査で
+  `node scripts/prepare-skill-distribution.mjs` を実行する。このコマンドはソースの各
+  `SKILL.md` が `docs/` へ張ったリンクを起点に、必要な文書を再帰的に求める。
+  配布用の `references/` はインストール時だけ一時生成し、リポジトリには含めない
+- 挙動を変更した場合、`SKILL.md`・`docs/config.md`・README.md の
   該当箇所を同一コミットで更新する（コードのみ改修し説明が旧状態のまま
   残ると、本一式自体が文書の重複・不整合を起こす）。`DEFAULTS` にキーを
-  追加した場合、正本である `references/config.md` の表への追記を
+  追加した場合、正本である `docs/config.md` の表への追記を
   `document-structure-verifier.test.mjs`（「every DEFAULTS key is documented in
   config.md」）が機械的に検査する。README.md 側は個々のキー名を列挙しない
   （正本は [config.md](docs/config.md)）

@@ -34,9 +34,13 @@ done
 
 target_root="$PWD"
 temp_root=""
+prepared_root=""
 cleanup() {
   if [[ -n "$temp_root" ]]; then
     rm -rf "$temp_root"
+  fi
+  if [[ -n "$prepared_root" ]]; then
+    rm -rf "$prepared_root"
   fi
 }
 trap cleanup EXIT
@@ -68,6 +72,9 @@ if [[ ! -f "$source_root/scripts/document-structure-verifier.mjs" ]]; then
   exit 1
 fi
 
+prepared_root="$(mktemp -d)"
+node "$source_root/scripts/prepare-skill-distribution.mjs" --output="$prepared_root"
+
 files=(
   scripts/document-structure-verifier.mjs
   scripts/markdown-structure.mjs
@@ -85,6 +92,14 @@ bundled_skills=(
 )
 
 work_record_ignore='.verify-docs/dist/*.work.md'
+
+item_source_root() {
+  if [[ "$1" == .agents/skills/* ]]; then
+    printf '%s\n' "$prepared_root"
+  else
+    printf '%s\n' "$source_root"
+  fi
+}
 
 has_work_record_ignore() {
   local gitignore="$1"
@@ -118,17 +133,18 @@ ensure_work_record_ignore() {
 
 conflicts=()
 for item in "${files[@]}"; do
-  if [[ -d "$source_root/$item" ]]; then
+  item_root="$(item_source_root "$item")"
+  if [[ -d "$item_root/$item" ]]; then
     while IFS= read -r -d '' source_file; do
-      relative_path="${source_file#"$source_root/"}"
+      relative_path="${source_file#"$item_root/"}"
       target_file="$target_root/$relative_path"
       if [[ -e "$target_file" ]] && ! cmp -s "$source_file" "$target_file"; then
         conflicts+=("$relative_path")
       fi
-    done < <(find "$source_root/$item" -type f -print0)
+    done < <(find "$item_root/$item" -type f -print0)
   else
     target_file="$target_root/$item"
-    if [[ -e "$target_file" ]] && ! cmp -s "$source_root/$item" "$target_file"; then
+    if [[ -e "$target_file" ]] && ! cmp -s "$item_root/$item" "$target_file"; then
       conflicts+=("$item")
     fi
   fi
@@ -175,20 +191,21 @@ if ((${#skill_alias_conflicts[@]})); then
 fi
 
 for item in "${files[@]}"; do
-  if [[ -d "$source_root/$item" ]]; then
+  item_root="$(item_source_root "$item")"
+  if [[ -d "$item_root/$item" ]]; then
     while IFS= read -r -d '' source_file; do
-      relative_path="${source_file#"$source_root/"}"
+      relative_path="${source_file#"$item_root/"}"
       target_file="$target_root/$relative_path"
       if [[ ! -e "$target_file" ]]; then
         mkdir -p "$(dirname "$target_file")"
         cp "$source_file" "$target_file"
       fi
-    done < <(find "$source_root/$item" -type f -print0)
+    done < <(find "$item_root/$item" -type f -print0)
   else
     target_file="$target_root/$item"
     if [[ ! -e "$target_file" ]]; then
       mkdir -p "$(dirname "$target_file")"
-      cp "$source_root/$item" "$target_file"
+      cp "$item_root/$item" "$target_file"
     fi
   fi
 done

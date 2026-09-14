@@ -1,7 +1,9 @@
 # スキル補助文書の正本
 
 [README.md](../README.md)から参照される。`docs/` 内のスキル補助文書はここを正本とし、
-`sync-skill-references.mjs` が各 `SKILL.md` から到達可能な文書だけを `references/` へコピーする。
+ソースの各 `SKILL.md` はここを直接参照する。`install.sh` は
+`prepare-skill-distribution.mjs` を実行し、各スキルから到達可能な文書だけを配布用の
+`references/` へコピーして、配布版の `SKILL.md` のリンクを書き換える。
 
 ## 文書重複解消スキル
 

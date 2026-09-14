@@ -54,26 +54,26 @@ description: >
 
 ## 責務の分離
 
-責務境界は[検証器とプレイブックの責務](references/verification-boundaries.md)を参照する。CIは[CIへの組み込み](references/ci-integration.md)、作業単位は[保守報告の作業単位](references/work-record-lifecycle.md)に従う。意味的な重複は文書重複解消スキル、冗長性は
+責務境界は[検証器とプレイブックの責務](../../../docs/verification-boundaries.md)を参照する。CIは[CIへの組み込み](../../../docs/ci-integration.md)、作業単位は[保守報告の作業単位](../../../docs/work-record-lifecycle.md)に従う。意味的な重複は文書重複解消スキル、冗長性は
 文書簡潔化スキルの手順で別に確認する。
 
-文書群を一巡して改善するときの順序は[推奨フロー](references/workflow.md)を参照する。
+文書群を一巡して改善するときの順序は[推奨フロー](../../../docs/workflow.md)を参照する。
 
 ## 前提条件
 
 `scripts/document-structure-verifier.mjs` を対象リポジトリに配置する（本スキル一式を
 まるごとコピーすれば含まれる）。設定は
-[文書構造検証設定](references/config.md#文書構造検証設定)
-（無ければ既定値。入力制約は[references/config-validation.md](references/config-validation.md)を参照）。
+[文書構造検証設定](../../../docs/config.md#文書構造検証設定)
+（無ければ既定値。入力制約は[../../../docs/config-validation.md](../../../docs/config-validation.md)を参照）。
 複数エージェントで入口文書とスキルを共用する構成は
-[references/agent-compatibility.md](references/agent-compatibility.md) を参照する。
+[../../../docs/agent-compatibility.md](../../../docs/agent-compatibility.md) を参照する。
 和名・英名・ファイル名を組にして定義するオブジェクトの記載は、
-[オブジェクトの名称・参照規約](references/object-naming.md)に従う。
+[オブジェクトの名称・参照規約](../../../docs/object-naming.md)に従う。
 
 **実行する前に、必ず対象文書（またはこの回で確認する観点）の一覧を、
 スキルごとの一時作業記録へ先に作る。**「簡単な確認だから」「1回実行するだけ
 だから」は省略の理由にならない。作り方は
-[references/work-records-and-report.md](references/work-records-and-report.md) を参照する。
+[../../../docs/work-records-and-report.md](../../../docs/work-records-and-report.md) を参照する。
 
 ```bash
 node scripts/document-structure-verifier.mjs
@@ -83,14 +83,14 @@ node scripts/document-structure-verifier.mjs
 違反は事前に作った一時作業記録へ反映し、1件是正するごとにチェックを
 入れ日付・判断理由を書き添える。全項目が済んだら再実行し、新規の違反が
 無いか確認する。完了時には一時記録を保守報告へ統合する。最終検査結果の様式は
-[references/maintenance-report-format.md](references/maintenance-report-format.md) を参照する。
+[../../../docs/maintenance-report-format.md](../../../docs/maintenance-report-format.md) を参照する。
 
 ## 実施手順
 
-[文書構造の是正手順](references/remediation.md)の順に、入口軽量化、肥大化文書の特定、
+[文書構造の是正手順](../../../docs/remediation.md)の順に、入口軽量化、肥大化文書の特定、
 重複特定、分割不可時の文書サイズ例外の記載、CI 組み込み、継続的な検査を実施する。
-準一致重複・意図した重複は[重複検査の設定と例外](references/duplicate-handling.md)、
-文書サイズ例外の記述形式は[文書サイズ例外一覧の形式](references/document-size-exceptions.md)を参照する。
+準一致重複・意図した重複は[重複検査の設定と例外](../../../docs/duplicate-handling.md)、
+文書サイズ例外の記述形式は[文書サイズ例外一覧の形式](../../../docs/document-size-exceptions.md)を参照する。
 
 ## 完了基準
 
@@ -101,7 +101,7 @@ node scripts/document-structure-verifier.mjs
   例外として許容する）
 - 検査結果に複数件出力された違反は、一時作業記録の全項目にチェックが
   入っている
-- 自分の一時作業記録に `### 最終検査結果` を記載して[保守報告](references/work-records-and-report.md#保守報告)へ統合し、作業完了を報告する際は
+- 自分の一時作業記録に `### 最終検査結果` を記載して[保守報告](../../../docs/work-records-and-report.md#保守報告)へ統合し、作業完了を報告する際は
   保守報告のパスと実行結果を人に伝える
 
 ## 制約と対象外

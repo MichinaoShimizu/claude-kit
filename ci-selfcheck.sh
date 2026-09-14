@@ -10,7 +10,7 @@ for skill in verify-docs dedupe-docs tighten-docs; do
   test -f "$repo_root/.agents/skills/$skill/SKILL.md"
 done
 
-node "$dir/scripts/sync-skill-references.mjs"
+node "$dir/scripts/prepare-skill-distribution.mjs"
 node "$dir/scripts/check-skill-local-links.mjs"
 node "$dir/scripts/document-structure-verifier.mjs" --root="$repo_root" --config="$dir/selfcheck.config.json"
 node --test "$dir/scripts/document-structure-verifier.test.mjs"
@@ -26,12 +26,14 @@ existing_skills_target="$(mktemp -d)"
 conflicting_skill_target="$(mktemp -d)"
 distribution_root="$(mktemp -d)"
 distribution_archive="$distribution_root/verify-docs.tar"
+prepared_skills="$distribution_root/prepared"
 trap 'rm -rf "$install_target" "$ignore_target" "$existing_skills_target" "$conflicting_skill_target" "$distribution_root"' EXIT
 tar -cf "$distribution_archive" -C "$(dirname "$dir")" "$(basename "$dir")"
 tar -xf "$distribution_archive" -C "$distribution_root"
 distribution_dir="$distribution_root/$(basename "$dir")"
-node "$distribution_dir/scripts/sync-skill-references.mjs"
-node "$distribution_dir/scripts/check-skill-local-links.mjs"
+node "$distribution_dir/scripts/prepare-skill-distribution.mjs" --output="$prepared_skills"
+node "$distribution_dir/scripts/check-skill-local-links.mjs" --skills-root="$prepared_skills/.agents/skills"
+test ! -e "$distribution_dir/.agents/skills/verify-docs/references"
 while IFS= read -r -d '' link; do
   if [[ ! -e "$link" ]]; then
     echo "distribution contains a broken symbolic link: $link -> $(readlink "$link")" >&2

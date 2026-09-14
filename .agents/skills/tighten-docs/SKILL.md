@@ -35,7 +35,7 @@ description: >
 
 対象リポジトリに文書構造是正スキル一式
 （`scripts/document-structure-verifier.mjs` と`.agents/skills/verify-docs/`）が導入済みで
-あること。検査対象・[保守報告](references/work-records-and-report.md#保守報告)
+あること。検査対象・[保守報告](../../../docs/work-records-and-report.md#保守報告)
 規約は流用する。
 
 ## 不変条件
@@ -52,7 +52,7 @@ description: >
 
 ### 1. 作業記録の作成
 
-作り方は[作業記録と保守報告](references/work-records-and-report.md)を参照する。
+作り方は[作業記録と保守報告](../../../docs/work-records-and-report.md)を参照する。
 
 一時作業記録に載せた対象文書は、共通抽出コマンドで段落の見出し階層・元位置・
 本文・バイト数を一覧化し、確認する箇所を整理する。
@@ -70,9 +70,9 @@ node scripts/document-structure-extractor.mjs --root=. README.md docs/guide.md
 ### 2. 冗長表現削減
 
 典型パターンの一覧で該当パターンの有無を1件ずつ確認する。
-[語句・文法](references/patterns-wording.md)、
-[重複・文体](references/patterns-duplication-and-style.md)、
-[Markdown表現](references/patterns-markdown.md) を参照する。
+[語句・文法](../../../docs/patterns-wording.md)、
+[重複・文体](../../../docs/patterns-duplication-and-style.md)、
+[Markdown表現](../../../docs/patterns-markdown.md) を参照する。
 
 導入説明・参照案内・例を削る場合は、同一文書の既存記述に対して固有の条件・
 例外・判断基準・対象読者を追加していないことを確認する。同じ役割の節を結合
@@ -88,7 +88,7 @@ node scripts/document-structure-extractor.mjs --root=. README.md docs/guide.md
 
 ### 3. サイズ変化記録
 
-[作業記録と保守報告「サイズ変更の記録」](references/work-records-and-report.md#サイズ変更の記録)の様式（開始時点・最終サイズ・削減バイト数・開始時点からの削減率）に従う。
+[作業記録と保守報告「サイズ変更の記録」](../../../docs/work-records-and-report.md#サイズ変更の記録)の様式（開始時点・最終サイズ・削減バイト数・開始時点からの削減率）に従う。
 
 ### 4. 是正後再検査
 
@@ -106,7 +106,7 @@ node scripts/document-structure-verifier.mjs
 - 判断が必要だった候補は、利用者の回答に従って対応済みである
 - `node scripts/document-structure-verifier.mjs` が「文書構造: すべて通過」で終わっている
 - 自分の一時作業記録に `### 最終検査結果` を記載して保守報告へ統合し、作業完了を
-  報告する際は[保守報告](references/work-records-and-report.md#保守報告)のパスと実行結果を人に伝える
+  報告する際は[保守報告](../../../docs/work-records-and-report.md#保守報告)のパスと実行結果を人に伝える
 
 ## 制約と対象外
 
