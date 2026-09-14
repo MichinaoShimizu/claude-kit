@@ -9,9 +9,12 @@
 
 - [判定と利用者への質問](judgement-and-escalation.md)
 - [正本候補の選定規約](canonical-selection.md)
+- [自律正本化モード](autonomous-canonicalization.md)
+- [文書保守モードの比較](mode-comparison.md)
 
 ## 文書簡潔化スキル
 
 - [語句・文法のパターン](patterns-wording.md)
 - [重複・文体のパターン](patterns-duplication-and-style.md)
 - [Markdown表現のパターン](patterns-markdown.md)
+- [文書保守モードの比較](mode-comparison.md)
