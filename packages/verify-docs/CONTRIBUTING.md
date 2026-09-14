@@ -16,7 +16,7 @@
   config.md」）が機械的に検査する。README.md 側は個々のキー名を列挙しない
   （正本は [config.md](.agents/skills/verify-docs/references/config.md)）
 - 「機械的に真偽が判定できるか」を超える判断（表記ゆれの許容、意味的な
-  類似判定など）はDocumentStructureVerifierに組み込まない。必要なら
+  類似判定など）は[文書構造検証器](docs/structure.md#文書構造検証器)に組み込まない。必要なら
   [dedupe-docs スキル](.agents/skills/dedupe-docs/SKILL.md) のような
   別スキルに切り出す
 - 「不変条件」は本一式自体にも適用する。既存説明の書き直しでも、意味を

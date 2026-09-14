@@ -16,7 +16,7 @@ description: >
 
 ## 目的
 
-文書構造検証器では検出できない言い換えによる重複を、人・エージェントの判断で扱う。
+[文書構造検証器](../../../docs/structure.md#文書構造検証器)では検出できない言い換えによる重複を、人・エージェントの判断で扱う。
 
 ## 前提条件
 
@@ -84,7 +84,7 @@ node scripts/document-structure-extractor.mjs --root=. README.md docs/guide.md
   [duplicate-handling.md「意図した重複の許可」](../verify-docs/references/duplicate-handling.md#意図した重複の許可)
   の `allow-duplicate` マーカーを使う。統合の対象からも外す
 
-本手順の判定は文書構造検証器と異なり再現性を持たない（同じ入力でも見落とし・
+本手順の判定は[文書構造検証器](../../../docs/structure.md#文書構造検証器)と異なり再現性を持たない（同じ入力でも見落とし・
 過検知が起こりうる）。誤った統合を単独で確定させない。
 
 ### 4. 是正後再検査
@@ -111,7 +111,7 @@ node scripts/document-structure-verifier.mjs
 ## 制約と対象外
 
 - **重複の判定を自動化・機械化すること。** LLM 判定は再現性を持たないため、
-  CI の pass/fail には使わない（DocumentStructureVerifierには組み込まない）
+  CI の pass/fail には使わない（[文書構造検証器](../../../docs/structure.md#文書構造検証器)には組み込まない）
 - **文章の品質・正確性の判断。** verify-docs 本体と同じく、判定するのは
   「同じ内容が重複しているか」のみであり、内容の正否・簡潔さは対象外
 - **意味的な類似度のしきい値の数値化。** 「何%似ていたら重複とみなすか」

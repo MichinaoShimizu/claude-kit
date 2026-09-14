@@ -1,7 +1,29 @@
 # 構造解析と機械検査
 
 [README.md](../README.md)から参照される。CommonMark ASTを使った構造解析、
-DocumentStructureVerifier（文書構造検証器）、JSON出力、既存リポジトリ導入時の文書サイズ例外の初期化を扱う。
+文書構造検証器、文書構造抽出器、JSON出力、既存リポジトリ導入時の文書サイズ例外の初期化を扱う。
+
+## オブジェクトの定義
+
+### 文書構造検証器
+
+| 項目 | 値 |
+| --- | --- |
+| 和名 | 文書構造検証器 |
+| 英名 | DocumentStructureVerifier |
+| ファイル名 | `scripts/document-structure-verifier.mjs` |
+
+Markdown文書の参照整合性・文書サイズ・段落重複を検査する。
+
+### 文書構造抽出器
+
+| 項目 | 値 |
+| --- | --- |
+| 和名 | 文書構造抽出器 |
+| 英名 | DocumentStructureExtractor |
+| ファイル名 | `scripts/document-structure-extractor.mjs` |
+
+Markdown文書の見出し・段落・位置・バイト数を抽出する。
 
 ## CommonMark AST解析
 
@@ -12,8 +34,8 @@ Markdownは正規表現ではなく、同梱の CommonMark.js で AST（構文�
 | 構成要素 | 提供すること |
 | --- | --- |
 | AST解析（`scripts/markdown-structure.mjs`） | 見出し階層、段落、リンク・画像の宛先、ソース位置を取り出す。 |
-| DocumentStructureVerifier（`scripts/document-structure-verifier.mjs`） | 参照切れ、孤立文書、**ファイル単位**のサイズ超過、AST抽出した同一段落の重複を検出する。違反箇所の行・列・見出し階層、文書・違反種別の集計、分割検討用の大きい葉セクションも出力する。 |
-| DocumentStructureExtractor（`scripts/document-structure-extractor.mjs`） | DocumentStructureSnapshot（文書構造スナップショット）として、文書の見出し・段落・位置・バイト数をJSONで出力する。dedupe-docsとtighten-docsが、対象を漏れなく確認するための共通入力になる。 |
+| 文書構造検証器 | 参照切れ、孤立文書、**ファイル単位**のサイズ超過、AST抽出した同一段落の重複を検出する。違反箇所の行・列・見出し階層、文書・違反種別の集計、分割検討用の大きい葉セクションも出力する。 |
+| 文書構造抽出器 | DocumentStructureSnapshot（文書構造スナップショット）として、文書の見出し・段落・位置・バイト数をJSONで出力する。dedupe-docsとtighten-docsが、対象を漏れなく確認するための共通入力になる。 |
 
 ## スキルの契約テスト
 

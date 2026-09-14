@@ -1,7 +1,7 @@
 # verify-docs
 
-Markdown文書群の検査・改善パッケージ。DocumentStructureVerifier（文書構造検証器）とDocumentStructureExtractor（文書構造抽出器）に加え、
-`verify-docs`・`dedupe-docs`・`tighten-docs`の3つのスキルを同梱する。
+Markdown文書群の検査・改善パッケージ。[文書構造検証器](docs/structure.md#文書構造検証器)・
+[文書構造抽出器](docs/structure.md#文書構造抽出器)と3つのスキルを同梱する。
 CommonMark ASTを基盤に、参照整合性・文書構造・サイズ・重複を検査し、
 文書構造の是正、意味的重複の解消、意味を保った簡潔化を支援する。
 
@@ -47,7 +47,7 @@ CLIの詳細は[CLIリファレンス](docs/advanced-usage.md)を参照。
 `.verify-docs/dist/maintenance-report.md` へ統合する。形式は
 [作業記録とMaintenance Report](.agents/skills/verify-docs/references/work-records-and-report.md)を参照。
 導入時に `*.work.md` を無視し、`maintenance-report.md` は追跡する。
-単独の文書構造検証器は作業記録を作成しない。
+単独の[文書構造検証器](docs/structure.md#文書構造検証器)は作業記録を作成しない。
 
 作業単位の継続・切替は
 [導入と運用「Maintenance Reportの作業単位」](docs/adoption.md#maintenance-reportの作業単位)
@@ -69,11 +69,11 @@ Markdown文書やMaintenance Reportを変更しない。
 
 | 機能 | 課題 | 内容 | 対象外 |
 | --- | --- | --- | --- |
-| [DocumentStructureVerifier（文書構造検証器）](docs/advanced-usage.md#文書構造の検査) | リンク切れ、孤立文書、サイズ超過、同一段落 | CommonMark ASTで構造違反を検出 | 意味の近さや文章の良し悪しの判断 |
+| [文書構造検証器](docs/structure.md#文書構造検証器) | リンク切れ、孤立文書、サイズ超過、同一段落 | CommonMark ASTで構造違反を検出 | 意味の近さや文章の良し悪しの判断 |
 | [`verify-docs` スキル](.agents/skills/verify-docs/SKILL.md) | 検出した構造違反 | 文書の置き場所と参照関係を整える | 内容の要約・言い換え・文章の推敲 |
 | [`dedupe-docs` スキル](.agents/skills/dedupe-docs/SKILL.md) | 言い換えた同じ説明 | 意味的重複を正本へ集約し、他方を案内にする | 文脈や読者が異なる説明の強制統合 |
 | [`tighten-docs` スキル](.agents/skills/tighten-docs/SKILL.md) | 冗長な文章 | 意味を保った冗長表現を削る | 文書の分割、重複の集約、意味の変更 |
-| [DocumentStructureExtractor（文書構造抽出器）](docs/advanced-usage.md#文書構造スナップショットのjson出力) | 文書構造の確認・記録 | DocumentStructureSnapshot（文書構造スナップショット）をJSON出力 | 意味的な重複や冗長性の自動判定 |
+| [文書構造抽出器](docs/structure.md#文書構造抽出器) | 文書構造の確認・記録 | DocumentStructureSnapshot（文書構造スナップショット）をJSON出力 | 意味的な重複や冗長性の自動判定 |
 
 ## 処理構成
 
@@ -83,9 +83,9 @@ flowchart TD
     Config[verify-docs.config.json<br/>任意設定・既定値を上書き]
     SizeExceptions[document-size-exceptions.json<br/>文書サイズ例外一覧]
     AST[CommonMark AST]
-    DocumentStructureVerifier[DocumentStructureVerifier<br/>文書構造検証器]
+    DocumentStructureVerifier[文書構造検証器]
     VerificationReport[DocumentStructureVerificationReport<br/>文書構造検証レポート]
-    DocumentStructureExtractor[DocumentStructureExtractor<br/>文書構造抽出器]
+    DocumentStructureExtractor[文書構造抽出器]
     StructureSnapshot[DocumentStructureSnapshot<br/>文書構造スナップショット]
     VerifySkill[verify-docs スキル]
     Dedupe[dedupe-docs スキル]
@@ -127,6 +127,7 @@ flowchart TD
 - [CommonMark ASTによる構造解析と機械検査](docs/structure.md)
 - [エージェント間の互換構成](.agents/skills/verify-docs/references/agent-compatibility.md)
 - [設定項目](.agents/skills/verify-docs/references/config.md)
+- [オブジェクトの名称・参照規約](.agents/skills/verify-docs/references/object-naming.md)
 - [文書サイズ例外一覧の形式](.agents/skills/verify-docs/references/document-size-exceptions.md)
 - [検出事項の是正手順](.agents/skills/verify-docs/SKILL.md)
 - [この一式の改修作法](CONTRIBUTING.md)

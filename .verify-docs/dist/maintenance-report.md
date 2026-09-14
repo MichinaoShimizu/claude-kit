@@ -4,7 +4,7 @@
 
 作業単位: リポジトリ Markdown の文章補正と検証記録の整備
 開始: 2026-09-13T18:50:12+0900
-最終更新: 2026-09-14T00:20:41+0900
+最終更新: 2026-09-14T10:39:59+0900
 
 ## 実行履歴
 
@@ -22,14 +22,15 @@
 | 10 | 23:45 | verify-docs・dedupe-docs・tighten-docs | 同一文書内の節削除・節結合を圧縮手段として追加 | 構造違反0件 |
 | 11 | 23:59 | verify-docs・dedupe-docs・tighten-docs | サイズ表を削減量・削減率で表示し、削減量順に整理 | 構造違反0件 |
 | 12 | 00:20 | verify-docs・dedupe-docs・tighten-docs | 作業単位の定義を導入・運用文書へ集約 | 構造違反0件 |
+| 13 | 10:39 | japanese-tech-writing | オブジェクトの和名・英名・ファイル名と参照規約を追加 | 構造違反0件 |
 
 ## verify-docs
 
-最終実行: 2026-09-14T00:20:41+0900
+最終実行: 2026-09-14T10:39:59+0900
 
 - [x] リポジトリルート: [AGENTS.md](../../AGENTS.md)、[CLAUDE.md](../../CLAUDE.md)、[CONTRIBUTING.md](../../CONTRIBUTING.md)、[README.md](../../README.md) — 2026-09-13 / 構造検査を完了
 - [x] [packages/agent-layout/README.md](../../packages/agent-layout/README.md) — 2026-09-13 / 構造検査を完了
-- [x] [packages/verify-docs/](../../packages/verify-docs/) の20文書 — 2026-09-14 / 作業単位の共有定義を導入・運用文書へ集約
+- [x] [packages/verify-docs/](../../packages/verify-docs/) の21文書 — 2026-09-14 / オブジェクトの定義形式と和名リンクの規約を追加
 
 ### 最終検査結果
 
@@ -44,7 +45,7 @@
 
 ## dedupe-docs
 
-最終実行: 2026-09-14T00:20:41+0900
+最終実行: 2026-09-14T10:39:59+0900
 
 - [x] リポジトリルート: [AGENTS.md](../../AGENTS.md)、[CLAUDE.md](../../CLAUDE.md)、[CONTRIBUTING.md](../../CONTRIBUTING.md)、[README.md](../../README.md) — 2026-09-13 / 意味的重複なし
 - [x] [packages/agent-layout/README.md](../../packages/agent-layout/README.md) — 2026-09-13 / 意味的重複なし
@@ -64,7 +65,7 @@
 
 ## tighten-docs
 
-最終実行: 2026-09-14T00:20:41+0900
+最終実行: 2026-09-14T10:39:59+0900
 
 - [x] リポジトリルート: [AGENTS.md](../../AGENTS.md)、[CLAUDE.md](../../CLAUDE.md)、[CONTRIBUTING.md](../../CONTRIBUTING.md)、[README.md](../../README.md) — 2026-09-13 / 安全に削れる表現なし
 - [x] [packages/agent-layout/README.md](../../packages/agent-layout/README.md) — 2026-09-13 / 安全に削れる表現なし

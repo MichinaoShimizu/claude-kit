@@ -45,10 +45,10 @@ description: >
 
 ## 責務の分離
 
-文書構造検証器・プレイブックそれぞれの役割は
+[文書構造検証器](../../../docs/structure.md#文書構造検証器)・プレイブックそれぞれの役割は
 [README.md「機能と責務」](../../../README.md#機能と責務)
 を参照する。
-文書構造検証器の通過は、意味的な重複、配置の妥当性、文章品質を保証しない。
+[文書構造検証器](../../../docs/structure.md#文書構造検証器)の通過は、意味的な重複、配置の妥当性、文章品質を保証しない。
 機械的な検査結果と、プレイブックによる判断を同じ根拠として扱わない。
 意味的な重複は [dedupe-docs](../dedupe-docs/SKILL.md)、冗長性は
 [tighten-docs](../tighten-docs/SKILL.md) の手順で別に確認する。
@@ -61,6 +61,8 @@ description: >
 入力制約は[references/config-validation.md](references/config-validation.md)を参照）。
 複数エージェントで入口文書とスキルを共用する構成は
 [references/agent-compatibility.md](references/agent-compatibility.md) を参照する。
+和名・英名・ファイル名を組にして定義するオブジェクトの記載は、
+[オブジェクトの名称・参照規約](references/object-naming.md)に従う。
 
 **実行する前に、必ず対象文書（またはこの回で確認する観点）の一覧を、
 スキルごとの一時作業記録へ先に作る。**「簡単な確認だから」「1回実行するだけ

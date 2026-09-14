@@ -2,6 +2,8 @@
 
 ## 文書構造の検査
 
+[文書構造検証器](structure.md#文書構造検証器)を実行する。
+
 ```bash
 node scripts/document-structure-verifier.mjs
 ```
@@ -19,7 +21,7 @@ node scripts/document-structure-verifier.mjs --changed-base=origin/main
 
 ## 文書構造スナップショットのJSON出力
 
-dedupe-docs / tighten-docs で対象文書を調べるときは、CommonMarkの見出し階層と段落を
+[文書構造抽出器](structure.md#文書構造抽出器)は、dedupe-docs / tighten-docs で対象文書を調べるときに、CommonMarkの見出し階層と段落を
 JSON出力できる。意味的な重複や冗長性は判定しない。
 
 ```bash
