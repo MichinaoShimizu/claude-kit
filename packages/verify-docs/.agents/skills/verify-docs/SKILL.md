@@ -54,9 +54,7 @@ description: >
 
 ## 責務の分離
 
-文書構造検証器の通過は、意味的な重複、配置の妥当性、文章品質を保証しない。
-機械的な検査結果と、プレイブックによる判断を同じ根拠として扱わない。
-意味的な重複は[文書重複解消スキル](../dedupe-docs/SKILL.md#文書重複解消スキル)、冗長性は
+責務境界は[検証器とプレイブックの責務](references/shared/verification-boundaries.md)を参照する。CIは[CIへの組み込み](references/shared/ci-integration.md)、作業単位は[保守報告の作業単位](references/shared/work-record-lifecycle.md)に従う。意味的な重複は[文書重複解消スキル](../dedupe-docs/SKILL.md#文書重複解消スキル)、冗長性は
 [文書簡潔化スキル](../tighten-docs/SKILL.md#文書簡潔化スキル)の手順で別に確認する。
 
 ## 前提条件

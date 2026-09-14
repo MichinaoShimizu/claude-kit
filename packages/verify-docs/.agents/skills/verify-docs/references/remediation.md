@@ -64,7 +64,7 @@ node scripts/document-structure-verifier.mjs
 
 ## 5. CI 組み込み
 
-push・PR の前に必ず通過するよう構成する。ローカルに
+push・PR の前に必ず通過するよう構成する。[CIへの組み込み](shared/ci-integration.md)を参照する。ローカルに
 配置するだけでは、直後に再度肥大化する。
 
 ## 6. 継続的な検査
