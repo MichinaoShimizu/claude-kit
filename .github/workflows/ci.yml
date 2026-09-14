@@ -19,8 +19,8 @@ jobs:
           node-version-file: .nvmrc
       - name: リポジトリルートと各パッケージの文書をそれぞれのルートで検査する
         run: |
-          node packages/verify-docs/scripts/verify-docs.mjs
-          node packages/verify-docs/scripts/verify-docs.mjs --root=packages/agent-layout
+          node packages/verify-docs/.verify-docs/scripts/verify-docs.mjs
+          node packages/verify-docs/.verify-docs/scripts/verify-docs.mjs --root=packages/agent-layout
 
   agent-layout-root-check:
     runs-on: ubuntu-latest
