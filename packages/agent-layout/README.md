@@ -40,8 +40,12 @@ node scripts/sync-agent-layout.mjs --init
 
 ## スキルの正本と互換入口
 
-`.agents/skills/`を正本とする。`.claude/skills`と`.kiro/skills`は正本を指す
-シンボリックリンクに補正する。
+通常の導入先では`.agents/skills/`を正本とする。`.claude/skills`と`.kiro/skills`は
+正本を指すシンボリックリンクに補正する。
+
+`claude-kit`の開発リポジトリでは、`.agents/skills`は
+`packages/verify-docs/.agents/skills`への開発用シンボリックリンクである。これにより
+パッケージのスキルをこのリポジトリ自身で試す際も、コピーを同期せず正本を参照する。
 
 ClaudeやKiroが互換入口の下へ新しいスキルを作ると、シンボリックリンクを介して
 最初から正本へ保存される。既存の実ディレクトリがある場合、`--write`は内容を
