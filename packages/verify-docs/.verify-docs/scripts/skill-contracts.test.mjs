@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { extractProseBlocks } from './markdown-structure.mjs';
 import { verifyDocs } from './verify-docs.mjs';
 
-const packageRoot = join(import.meta.dirname, '..');
+const packageRoot = join(import.meta.dirname, '../..');
 const skillPath = (name) => join(packageRoot, '.agents', 'skills', name, 'SKILL.md');
 
 function makeRepo(files) {

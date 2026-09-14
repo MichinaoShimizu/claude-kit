@@ -46,7 +46,7 @@ description: >
 ## 責務の分離
 
 チェッカー・プレイブックそれぞれの役割は
-[verify-docs のREADME「機能と責務」](https://github.com/MichinaoShimizu/claude-kit/blob/main/packages/verify-docs/README.md#機能と責務)
+[README.md「機能と責務」](../../../.verify-docs/README.md#機能と責務)
 を参照する。
 チェッカーの通過は、意味的な重複、配置の妥当性、文章品質を保証しない。
 機械的な検査結果と、プレイブックによる判断を同じ根拠として扱わない。
@@ -56,7 +56,7 @@ description: >
 ## 前提条件
 
 `.verify-docs/scripts/verify-docs.mjs` を対象リポジトリに配置する（本スキル一式を
-まるごとコピーすれば含まれる）。設定は `verify-docs.config.json`
+まるごとコピーすれば含まれる）。設定は `.verify-docs/config/verify-docs.config.json`
 （無ければ既定値。[references/config.md](references/config.md)を参照。
 入力制約は[references/config-validation.md](references/config-validation.md)を参照）。
 複数エージェントで入口文書とスキルを共用する構成は

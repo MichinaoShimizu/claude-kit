@@ -66,7 +66,7 @@ node .verify-docs/scripts/verify-docs.mjs
 ## 5. CI 組み込み
 
 push・PR の前に必ず通過するよう構成する。組み込み方法は
-[verify-docs のREADME](https://github.com/MichinaoShimizu/claude-kit/blob/main/packages/verify-docs/README.md)「CI への組み込み」を参照する。ローカルに
+[README.md](../../../../.verify-docs/README.md)「CI への組み込み」を参照する。ローカルに
 配置するだけでは、直後に再度肥大化する。
 
 ## 6. 継続的な検査

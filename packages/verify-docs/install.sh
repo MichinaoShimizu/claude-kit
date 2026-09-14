@@ -45,7 +45,7 @@ if [[ -z "$source_root" ]]; then
   script_path="${BASH_SOURCE[0]:-}"
   if [[ -n "$script_path" && -f "$script_path" ]]; then
     script_dir="$(cd "$(dirname "$script_path")" && pwd)"
-    if [[ -f "$script_dir/scripts/verify-docs.mjs" ]]; then
+    if [[ -f "$script_dir/.verify-docs/scripts/verify-docs.mjs" ]]; then
       source_root="$script_dir"
     fi
   fi
@@ -60,18 +60,13 @@ if [[ -z "$source_root" ]]; then
   fi
 fi
 
-if [[ ! -f "$source_root/scripts/verify-docs.mjs" ]]; then
+runtime_root="$source_root/.verify-docs"
+
+if [[ ! -f "$runtime_root/scripts/verify-docs.mjs" ]]; then
   echo "verify-docs package not found at: $source_root" >&2
   exit 1
 fi
 
-runtime_files=(
-  config
-  scripts/verify-docs.mjs
-  scripts/markdown-structure.mjs
-  scripts/extract-doc-blocks.mjs
-  scripts/vendor
-)
 skill_names=(verify-docs dedupe-docs tighten-docs)
 
 work_record_ignore='.verify-docs/dist/*.work.md'
@@ -131,16 +126,7 @@ copy_missing_files() {
   done < <(find "$source_path" -type f -print0)
 }
 
-for item in "${runtime_files[@]}"; do
-  if [[ -d "$source_root/$item" ]]; then
-    record_file_conflicts "$source_root/$item" "$target_root/.verify-docs/$item"
-  else
-    target_file="$target_root/.verify-docs/$item"
-    if [[ -e "$target_file" ]] && ! cmp -s "$source_root/$item" "$target_file"; then
-      conflicts+=("${target_file#"$target_root/"}")
-    fi
-  fi
-done
+record_file_conflicts "$runtime_root" "$target_root/.verify-docs"
 
 for skill_name in "${skill_names[@]}"; do
   source_skill="$source_root/.agents/skills/$skill_name"
@@ -181,17 +167,7 @@ if ((${#conflicts[@]})); then
   exit 1
 fi
 
-for item in "${runtime_files[@]}"; do
-  if [[ -d "$source_root/$item" ]]; then
-    copy_missing_files "$source_root/$item" "$target_root/.verify-docs/$item"
-  else
-    target_file="$target_root/.verify-docs/$item"
-    if [[ ! -e "$target_file" ]]; then
-      mkdir -p "$(dirname "$target_file")"
-      cp "$source_root/$item" "$target_file"
-    fi
-  fi
-done
+copy_missing_files "$runtime_root" "$target_root/.verify-docs"
 
 for skill_name in "${skill_names[@]}"; do
   copy_missing_files "$source_root/.agents/skills/$skill_name" "$target_root/.agents/skills/$skill_name"

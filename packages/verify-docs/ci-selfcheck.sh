@@ -7,11 +7,11 @@ set -euo pipefail
 dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # パッケージ自身を検査対象にするため、スクリプトの絶対パスを渡す。
-node "$dir/scripts/verify-docs.mjs" --root="$dir" --config="$dir/config/verify-docs.config.json"
-node --test "$dir/scripts/verify-docs.test.mjs"
-node --test "$dir/scripts/extract-doc-blocks.test.mjs"
-node --test "$dir/scripts/skill-contracts.test.mjs"
-node --test "$dir/scripts/skill-evals.test.mjs"
+node "$dir/.verify-docs/scripts/verify-docs.mjs" --root="$dir" --config="$dir/.verify-docs/config/verify-docs.config.json"
+node --test "$dir/.verify-docs/scripts/verify-docs.test.mjs"
+node --test "$dir/.verify-docs/scripts/extract-doc-blocks.test.mjs"
+node --test "$dir/.verify-docs/scripts/skill-contracts.test.mjs"
+node --test "$dir/.verify-docs/scripts/skill-evals.test.mjs"
 
 install_target="$(mktemp -d)"
 ignore_target="$(mktemp -d)"

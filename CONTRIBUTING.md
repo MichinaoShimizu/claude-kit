@@ -23,6 +23,6 @@
 - Node.js 22.23.2を使う。`.nvmrc` を使える環境では `nvm use` を実行する。
 - 変更したパッケージに `ci-selfcheck.sh` があれば実行する。
 - リポジトリ直下の README.md・AGENTS.md・CLAUDE.md を変更した場合は
-  `node packages/verify-docs/scripts/verify-docs.mjs` を実行する。
+  `node packages/verify-docs/.verify-docs/scripts/verify-docs.mjs` を実行する。
 - [.github/workflows/ci.yml](.github/workflows/ci.yml) が PR 時に上記と
   同等の検査を自動実行する。

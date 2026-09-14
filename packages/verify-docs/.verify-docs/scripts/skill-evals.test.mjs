@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const evalPath = join(import.meta.dirname, '../evals/skill-judgement-cases.json');
+const evalPath = join(import.meta.dirname, '../../evals/skill-judgement-cases.json');
 
 test('skill judgement evaluation cases are complete, reviewable, and outside CI pass/fail', () => {
   const suite = JSON.parse(readFileSync(evalPath, 'utf8'));

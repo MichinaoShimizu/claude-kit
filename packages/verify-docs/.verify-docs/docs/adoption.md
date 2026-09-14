@@ -24,13 +24,13 @@ node .verify-docs/scripts/verify-docs.mjs --init-todo
 
 以降、新規に書く文書・追記する文書は上限を遵守する。TODOに記載された文書は
 任意のタイミングで分割し、是正後にエントリを削除する。分割手順は
-[文書構造の是正手順「2. 肥大化文書の特定」](../.agents/skills/verify-docs/references/remediation.md#2-肥大化文書の特定)
+[文書構造の是正手順「2. 肥大化文書の特定」](../../.agents/skills/verify-docs/references/remediation.md#2-肥大化文書の特定)
 を参照する。
 
 重複はサイズ超過と異なりTODO化しない。導入時に検出された場合は一方へ統合して
 ポインタに置換する。意図した重複には`<!-- verify-docs:allow-duplicate -->`を
 付与する。詳しくは
-[文書構造の是正手順「3. 重複特定」](../.agents/skills/verify-docs/references/remediation.md#3-重複特定)
+[文書構造の是正手順「3. 重複特定」](../../.agents/skills/verify-docs/references/remediation.md#3-重複特定)
 を参照する。
 
 ## チェックリストの作業単位
@@ -49,7 +49,7 @@ PR の作業を始める場合は、新しい作業単位とする。新しい�
 ## CIへの組み込み
 
 GitHub Actionsの構成例。本パッケージの
-[ワークフロー](../.github/workflows/verify-docs.yml)も利用できる。
+[ワークフロー例](../workflows/verify-docs.yml)も利用できる。
 
 ```yaml
 name: verify-docs
@@ -76,7 +76,7 @@ push前にも検証する場合は、既存のlint・typecheck・testなどに
 
 `.verify-docs/config/verify-docs.todo.json` は、上限を超過している文書を後で是正するための一覧である。
 記述形式と運用ルールの正本は
-[references/todo.md](../.agents/skills/verify-docs/references/todo.md)を参照する。
+[references/todo.md](../../.agents/skills/verify-docs/references/todo.md)を参照する。
 
 TODOは導入直後から削減する方向にのみ運用する。際限なく増やすと、肥大化検知が
 負債を許容する仕組みに変わる。導入直後より件数が増えていれば退行の目安となる。
