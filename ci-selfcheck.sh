@@ -62,6 +62,7 @@ test -f "$install_target/scripts/markdown-structure.mjs"
 test -f "$install_target/scripts/document-structure-extractor.mjs"
 test -f "$install_target/scripts/select-canonical.mjs"
 test -f "$install_target/scripts/vendor/commonmark.cjs"
+test -f "$install_target/scripts/vendor/commonmark-LICENSE.txt"
 test ! -e "$install_target/evals"
 node "$install_target/scripts/document-structure-verifier.mjs" --root="$install_target/scripts"
 node "$install_target/scripts/document-structure-extractor.mjs" \
