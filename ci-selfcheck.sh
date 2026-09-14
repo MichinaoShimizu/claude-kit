@@ -27,6 +27,7 @@ conflicting_skill_target="$(mktemp -d)"
 distribution_root="$(mktemp -d)"
 distribution_archive="$distribution_root/verify-docs.tar"
 prepared_skills="$distribution_root/prepared"
+install_log="$distribution_root/install.log"
 trap 'rm -rf "$install_target" "$ignore_target" "$existing_skills_target" "$conflicting_skill_target" "$distribution_root"' EXIT
 tar -cf "$distribution_archive" -C "$(dirname "$dir")" "$(basename "$dir")"
 tar -xf "$distribution_archive" -C "$distribution_root"
@@ -41,7 +42,14 @@ while IFS= read -r -d '' link; do
   fi
 done < <(find "$distribution_dir" -type l -print0)
 git -C "$install_target" init -q
-(cd "$install_target" && bash "$distribution_dir/install.sh" --source "$distribution_dir")
+(cd "$install_target" && bash "$distribution_dir/install.sh" --source "$distribution_dir") >"$install_log"
+grep -Fxq 'Preparing standalone skills...' "$install_log"
+grep -Fxq 'Installing verify-docs files...' "$install_log"
+grep -Fq "Installed verify-docs into $install_target" "$install_log"
+if grep -Fq 'Prepared standalone skill distribution at ' "$install_log"; then
+  echo "installer must not expose its temporary distribution directory" >&2
+  exit 1
+fi
 (cd "$install_target" && bash "$distribution_dir/install.sh" --source "$distribution_dir")
 test "$(grep -Fxc '.verify-docs/dist/*.work.md' "$install_target/.gitignore")" = "1"
 git -C "$install_target" check-ignore -q --no-index -- .verify-docs/dist/verify-docs.work.md

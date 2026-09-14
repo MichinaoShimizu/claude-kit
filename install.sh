@@ -45,6 +45,16 @@ cleanup() {
 }
 trap cleanup EXIT
 
+if ! command -v node >/dev/null 2>&1; then
+  echo "verify-docs requires Node.js 22.23.2 (Node 22). Node.js was not found." >&2
+  exit 1
+fi
+node_version="$(node --version)"
+if [[ ! "$node_version" =~ ^v22\. ]]; then
+  echo "verify-docs requires Node.js 22.23.2 (Node 22). Current version: $node_version" >&2
+  exit 1
+fi
+
 if [[ -z "$source_root" ]]; then
   script_path="${BASH_SOURCE[0]:-}"
   if [[ -n "$script_path" && -f "$script_path" ]]; then
@@ -56,6 +66,7 @@ if [[ -z "$source_root" ]]; then
   if [[ -z "$source_root" ]]; then
     temp_root="$(mktemp -d)"
     archive="$temp_root/claude-kit.tar.gz"
+    echo "Downloading verify-docs from MichinaoShimizu/claude-kit (main)..."
     curl -fsSL \
       https://github.com/MichinaoShimizu/claude-kit/archive/refs/heads/main.tar.gz \
       -o "$archive"
@@ -73,7 +84,8 @@ if [[ ! -f "$source_root/scripts/document-structure-verifier.mjs" ]]; then
 fi
 
 prepared_root="$(mktemp -d)"
-node "$source_root/scripts/prepare-skill-distribution.mjs" --output="$prepared_root"
+echo "Preparing standalone skills..."
+node "$source_root/scripts/prepare-skill-distribution.mjs" --output="$prepared_root" >/dev/null
 
 files=(
   scripts/document-structure-verifier.mjs
@@ -190,6 +202,7 @@ if ((${#skill_alias_conflicts[@]})); then
   exit 1
 fi
 
+echo "Installing verify-docs files..."
 for item in "${files[@]}"; do
   item_root="$(item_source_root "$item")"
   if [[ -d "$item_root/$item" ]]; then
