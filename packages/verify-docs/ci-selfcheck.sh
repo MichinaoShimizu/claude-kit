@@ -8,6 +8,11 @@ dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "$dir/../.." && pwd)"
 rel_dir="${dir#"$repo_root"/}"
 
+test "$(readlink "$repo_root/.agents/skills")" = "../packages/verify-docs/.agents/skills"
+for skill in verify-docs dedupe-docs tighten-docs; do
+  test -f "$repo_root/.agents/skills/$skill/SKILL.md"
+done
+
 node "$dir/scripts/sync-shared-references.mjs"
 node "$dir/scripts/check-skill-local-links.mjs"
 node "$dir/scripts/document-structure-verifier.mjs" --root="$rel_dir" --config="$dir/selfcheck.config.json"

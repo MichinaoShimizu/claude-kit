@@ -50,6 +50,18 @@ test('moves Claude skills to the canonical directory and creates aliases', () =>
   rmSync(root, { recursive: true, force: true });
 });
 
+test('accepts a development skill entry that links to its package source', () => {
+  const root = repo({ 'packages/example/.agents/skills/review/SKILL.md': '# Review\n' });
+  mkdirSync(join(root, '.agents'), { recursive: true });
+  symlinkSync('../packages/example/.agents/skills', join(root, '.agents/skills'), 'dir');
+  mkdirSync(join(root, '.claude'), { recursive: true });
+  symlinkSync('../.agents/skills', join(root, '.claude/skills'), 'dir');
+  mkdirSync(join(root, '.kiro'), { recursive: true });
+  symlinkSync('../.agents/skills', join(root, '.kiro/skills'), 'dir');
+  assert.match(run(root), /同期済み/);
+  rmSync(root, { recursive: true, force: true });
+});
+
 test('refuses conflicting skill files', () => {
   const root = repo({
     '.agents/skills/review/SKILL.md': '# Canonical\n',
