@@ -59,7 +59,7 @@ README・AGENTS.md・CLAUDE.md・ディレクトリの索引・SKILL.md は、�
 | 作業 | 続けて読む文書 | この時点で読まない文書 |
 | --- | --- | --- |
 | 分割・移動・ポインタ化だけを行う | `.agents/skills/verify-docs/SKILL.md` と [文書構造の是正手順](remediation.md) | 導入手順、CIの詳細、意味的重複の判断規約 |
-| 言い換えを含む重複を統合する | `.agents/skills/dedupe-docs/SKILL.md` と [正本候補の選定規約](canonical-selection.md) | 導入手順、CIの詳細 |
+| 言い換えを含む重複を統合する | `.agents/skills/dedupe-docs/SKILL.md` と `docs/canonical-selection.md` | 導入手順、CIの詳細 |
 | パッケージを導入または通常利用する | `README.md` | この規約と保守用の判断規約 |
 
 最初の経路で、意味的に重なるか、どちらを正本にするかを判断する必要が生じた場合だけ、
