@@ -94,7 +94,8 @@ test('dedupe-docs autonomous canonicalization mode completes cross-document cons
   assert.match(dedupe, /autonomous-canonicalization\.md/);
   assert.match(autonomousCanonicalization, /文書間の内容統合、ポインタ化、新たな正本文書と必要な\nディレクトリの作成/);
   assert.match(autonomousCanonicalization, /統合済み不要文書の削除/);
-  assert.match(autonomousCanonicalization, /`docsDir` 配下に必要な\nディレクトリを作成できる/);
+  assert.match(autonomousCanonicalization, /リポジトリ内の適切な場所に必要なディレクトリを作成できる/);
+  assert.match(autonomousCanonicalization, /`excludePaths` に含まれる\n領域には作成しない/);
   assert.match(autonomousCanonicalization, /既存の分類と同じ話題・読者・粒度に合う親ディレクトリを優先/);
   assert.match(autonomousCanonicalization, /入口文書または親ディレクトリの索引から到達できる/);
   assert.match(autonomousCanonicalization, /既存の候補を選ばなかった理由/);
