@@ -37,6 +37,18 @@ curl -fsSL https://raw.githubusercontent.com/MichinaoShimizu/verify-docs/main/in
 [推奨フロー](docs/workflow.md)を参照し、対象文書と導入済みスキルに合う順序で実行する。
 同じ文書群で既定と自律モードを比べるときは、[文書保守モードの比較](docs/mode-comparison.md)を参照する。
 
+自律モードを常用する場合は、リポジトリ直下の `verify-docs.config.json` で選ぶ。
+
+```json
+{
+  "tighten": { "mode": "auto" },
+  "dedupe": { "mode": "auto" }
+}
+```
+
+設定がない場合、両スキルは `safe` で動く。`safe` と `auto` の意味は
+[文書構造検証設定](docs/config.md#文書構造検証設定)を参照する。
+
 CLIの詳細は[CLIリファレンス](docs/advanced-usage.md)を参照。
 
 各Skillの作業結果はMarkdown文書に反映し、作業記録は[保守報告](docs/work-records-and-report.md#保守報告)へ統合する。

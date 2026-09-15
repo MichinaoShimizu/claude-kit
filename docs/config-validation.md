@@ -7,4 +7,5 @@
 `maxDocBytes`・`minDuplicateChars` は正の整数、`checkDuplicates`・
 `checkNearDuplicates` は真偽値にする。ディレクトリ・ファイルの設定値は
 リポジトリ内の相対パスとし、絶対パスや `..` による親ディレクトリ参照は
-指定できない。不正なJSONや型は検査開始時にエラーとして報告する。
+指定できない。`tighten` と `dedupe` は `mode` だけを持つオブジェクトとし、
+`mode` は `safe` または `auto` にする。不正なJSONや型は検査開始時にエラーとして報告する。

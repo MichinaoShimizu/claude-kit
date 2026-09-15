@@ -35,15 +35,15 @@ description: >
 
 ## 実行モード
 
-既定と自律圧縮モードの境界・保護対象・記録方法は
+`verify-docs.config.json` の `tighten.mode` は `safe`（意味保持、既定）か `auto`（自律圧縮）。
+設定がなければ、明示依頼時だけ `auto` とする。
+境界・保護対象・記録方法は
 [自律圧縮モード](../../../docs/autonomous-compression.md)を参照する。
 
 ## 前提条件
 
-対象リポジトリに文書構造是正スキル一式
-（`scripts/document-structure-verifier.mjs` と`.agents/skills/verify-docs/`）が導入済みで
-あること。検査対象・[保守報告](../../../docs/work-records-and-report.md#保守報告)
-規約は流用する。
+対象リポジトリに文書構造是正スキル一式（`scripts/document-structure-verifier.mjs` と
+`.agents/skills/verify-docs/`）が導入済みであること。検査対象・[保守報告](../../../docs/work-records-and-report.md#保守報告)規約は流用する。
 
 ## 不変条件
 
@@ -68,11 +68,9 @@ description: >
 node scripts/document-structure-extractor.mjs --root=. README.md docs/guide.md
 ```
 
-対象が多い場合は、一時作業記録に列挙した対象文書のパスを複数指定する。段落の `bytes` はMarkdown
-記法を含む元ソース範囲のサイズである。抽出結果は候補の棚卸しに限り、冗長性や
-安全に削除できるかを判定しない。必ず原文と「不変条件」を確認して判断する。
-`headings` の `bytes` は見出し行から次の同階層以上の見出し直前までを含み、子見出しの
-内容も含む。`paragraphCount` も子見出し以下を含むため、親子の値を合算しない。
+対象が多い場合は、一時作業記録に列挙したパスを複数指定する。`bytes` はMarkdown記法を含む
+元ソース範囲のサイズであり、抽出結果は候補の棚卸しに限る。必ず原文と「不変条件」を確認する。
+`headings` の `bytes` と `paragraphCount` は子見出し以下を含むため、親子の値を合算しない。
 
 ### 2. 冗長表現削減
 
