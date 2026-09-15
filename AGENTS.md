@@ -32,4 +32,5 @@
 | ------------------------------------------------ | ------------------------------------------------ |
 | verify-docs の使い方                            | [README.md](README.md)                          |
 | ドキュメント構造の検査（参照切れ・サイズ超過・重複） | [docs/structure.md](docs/structure.md) |
+| 文書の分割・移動・正本化・ポインタ化            | [docs/progressive-disclosure.md](docs/progressive-disclosure.md) |
 | CI の中身                                        | [.github/workflows/ci.yml](.github/workflows/ci.yml) |
