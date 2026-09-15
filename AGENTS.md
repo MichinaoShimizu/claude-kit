@@ -14,8 +14,8 @@
 ## セッションの開始
 
 - Git リポジトリで新規タスクを開始する場合は、共有 checkout ではなく新規 worktree を使用する。
-- 作業を始める前に `git fetch origin main` を実行し、現在の HEAD と `origin/main` の差分を確認する。
-- タスク用 worktree は最新の `origin/main` を起点にする。
+- 新規タスク用 worktree は `bash scripts/start-worktree.sh <task-name>` で作成する。
+- 同コマンドが報告した `origin/main` の SHA と、作成した worktree の HEAD が一致することを確認してから作業する。
 - 他の worktree、共有 checkout、または他セッションが持つ未コミット変更を変更しない。
 - 共有 checkout の `main` に対する `reset`、`checkout`、`merge` は、利用者が明示的に依頼した場合だけ行う。
 - タスク専用 worktree は、変更の統合または不要化を確認した後、対象 worktree がクリーンであることを確認して削除する。進行中・レビュー待ち・未マージの変更がある worktree は削除しない。

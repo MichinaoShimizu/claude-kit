@@ -3,6 +3,20 @@
 本ファイルは[文書構造検証器](docs/structure.md#文書構造検証器)・スキル定義・
 [文書構造検証設定](docs/config.md#文書構造検証設定)を改修する側の作法を扱う。利用側の手順は [README.md](README.md) を参照する。
 
+## 開発セッションの開始
+
+新しい実装タスクは共有 checkout で始めず、次のコマンドで task 専用の
+worktree を作成する。
+
+```bash
+bash scripts/start-worktree.sh <task-name>
+```
+
+コマンドは `origin/main` を取得し、その取得後のコミットから
+`/private/tmp/<repository>-<task-name>` と `codex/<task-name>` を作成する。出力する
+`origin/main` と worktree の HEAD の SHA が一致していることを確認してから、その
+worktree で作業する。既定の配置先を変える場合は第2引数に未作成の絶対パスを渡す。
+
 - 改修後、自身に対して検査を通過させる（ドッグフーディング）。本リポジトリ
   （claude-kit）では [文書検証パッケージ自己検査](docs/operations.md#文書検証パッケージ自己検査)を実行すればよい。
   CI の自動探索方法は

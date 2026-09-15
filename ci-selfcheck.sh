@@ -19,6 +19,7 @@ node --test "$dir/scripts/benchmark-document-structure.test.mjs"
 node --test "$dir/scripts/select-canonical.test.mjs"
 node --test "$dir/scripts/skill-contracts.test.mjs"
 node --test "$dir/scripts/skill-evals.test.mjs"
+bash "$dir/scripts/start-worktree.test.sh"
 
 install_target="$(mktemp -d)"
 ignore_target="$(mktemp -d)"
