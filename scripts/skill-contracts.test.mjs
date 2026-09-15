@@ -87,6 +87,35 @@ test('dedupe-docs contract rejects a broken canonical pointer and incomplete mai
   }
 });
 
+test('dedupe-docs autonomous canonicalization mode completes cross-document consolidation with safeguards', () => {
+  const dedupe = readFileSync(skillPath('dedupe-docs'), 'utf8');
+  const autonomousCanonicalization = readFileSync(sharedReferencePath('autonomous-canonicalization.md'), 'utf8');
+  assert.match(dedupe, /自律正本化モード/);
+  assert.match(dedupe, /autonomous-canonicalization\.md/);
+  assert.match(autonomousCanonicalization, /文書間の内容統合、ポインタ化、新たな正本文書と必要な\nディレクトリの作成/);
+  assert.match(autonomousCanonicalization, /統合済み不要文書の削除/);
+  assert.match(autonomousCanonicalization, /リポジトリ内の適切な場所に必要なディレクトリを作成できる/);
+  assert.match(autonomousCanonicalization, /`excludePaths` に含まれる\n領域には作成しない/);
+  assert.match(autonomousCanonicalization, /既存の分類と同じ話題・読者・粒度に合う親ディレクトリを優先/);
+  assert.match(autonomousCanonicalization, /入口文書または親ディレクトリの索引から到達できる/);
+  assert.match(autonomousCanonicalization, /既存の候補を選ばなかった理由/);
+  assert.match(autonomousCanonicalization, /利用者の回答待ちで停止しない/);
+  assert.match(autonomousCanonicalization, /事実を捏造しない/);
+  assert.match(autonomousCanonicalization, /allow-duplicate.*マーカーを自分で追加せず/);
+  assert.match(autonomousCanonicalization, /実行モード: 自律正本化/);
+});
+
+test('mode comparison records measured compression separately from semantic fact coverage', () => {
+  const comparison = readFileSync(sharedReferencePath('mode-comparison.md'), 'utf8');
+  assert.match(comparison, /同じ入力スナップショット/);
+  assert.match(comparison, /UTF-8 バイト数/);
+  assert.match(comparison, /削減率は `\(開始時点の合計 - 最終の合計\) \/ 開始時点の合計 \* 100`/);
+  for (const status of ['保持', '移動', '変更', '欠落', '要確認']) assert.match(comparison, new RegExp(status));
+  assert.match(comparison, /意味の保持/);
+  assert.match(comparison, /保証しない/);
+  assert.match(comparison, /削減率が高くても自律モードが優れているとは結論づけない/);
+});
+
 test('tighten-docs contract reduces bytes while preserving required facts and an execution result', () => {
   const before = '# Deploy\n\nBefore deploying, you must use production mode. The timeout is 30 seconds. Do not change the retry order.\n';
   const after = '# Deploy\n\nUse production mode. Timeout: 30 seconds. Do not change the retry order.\n';
@@ -123,12 +152,26 @@ test('tighten-docs contract rejects lost facts and inaccurate compression record
   assert.notEqual(compressionRecord(before, unsafeAfter), '111B → 83B（25.2%減）');
 });
 
+test('tighten-docs autonomous compression mode completes risky compression while keeping hard safeguards', () => {
+  const tighten = readFileSync(skillPath('tighten-docs'), 'utf8');
+  const autonomousCompression = readFileSync(sharedReferencePath('autonomous-compression.md'), 'utf8');
+  assert.match(tighten, /自律圧縮モード/);
+  assert.match(tighten, /autonomous-compression\.md/);
+  assert.match(autonomousCompression, /利用者の回答待ちで停止せず/);
+  assert.match(autonomousCompression, /リンク・断片リンクを壊さず/);
+  assert.match(autonomousCompression, /事実を捏造しない/);
+  assert.match(autonomousCompression, /法的・安全上の注意、契約上の義務/);
+  assert.match(autonomousCompression, /実行モード: 自律圧縮/);
+});
+
 test('skill instructions keep deterministic contracts separate from semantic judgement', () => {
   const dedupe = readFileSync(skillPath('dedupe-docs'), 'utf8');
   const dedupeJudgement = readFileSync(sharedReferencePath('judgement-and-escalation.md'), 'utf8');
+  const autonomousCanonicalization = readFileSync(sharedReferencePath('autonomous-canonicalization.md'), 'utf8');
   const tighten = readFileSync(skillPath('tighten-docs'), 'utf8');
   const duplicateHandling = readFileSync(sharedReferencePath('duplicate-handling.md'), 'utf8');
   const workRecords = readFileSync(sharedReferencePath('work-records-and-report.md'), 'utf8');
+  const autonomousCompression = readFileSync(sharedReferencePath('autonomous-compression.md'), 'utf8');
   for (const skill of [dedupe, tighten]) {
     assert.match(skill, /node scripts\/document-structure-verifier\.mjs/);
     assert.match(skill, /### 最終検査結果/);
@@ -140,9 +183,10 @@ test('skill instructions keep deterministic contracts separate from semantic jud
   assert.match(dedupeJudgement, /作業を止めて利用者に質問する/);
   assert.match(dedupeJudgement, /自分で追加したりしない/);
   assert.match(dedupeJudgement, /保守報告へ統合しない/);
+  assert.match(autonomousCanonicalization, /文書構造: すべて通過/);
   assert.match(tighten, /数値・条件・手順の順序・免責文言は一字一句変更しない/);
-  assert.match(tighten, /作業を止めて利用者に質問する/);
-  assert.match(tighten, /保守報告へ統合しない/);
+  assert.match(autonomousCompression, /利用者に質問する/);
+  assert.match(autonomousCompression, /保守報告へ\n?統合しない/);
   assert.match(duplicateHandling, /利用者が当該の重複を意図して\n残すと明示的に回答した場合に限る/);
   assert.match(duplicateHandling, /自分だけの判断で重複を許容したり、マーカーを\n追加したりしない/);
   assert.match(workRecords, /現在の会話で利用者に質問する/);

@@ -1,0 +1,42 @@
+{
+  "entryPoints": [
+    "README.md",
+    "CLAUDE.md",
+    "AGENTS.md"
+  ],
+  "docsDir": "docs",
+  "skillsDir": ".agents/skills",
+  "pathRoots": [
+    "src/",
+    "docs/",
+    "scripts/",
+    ".agents/",
+    ".claude/",
+    ".kiro/",
+    ".github/"
+  ],
+  "agentConfigDirs": [
+    ".agents",
+    ".claude",
+    ".kiro"
+  ],
+  "excludePaths": [
+    "node_modules/",
+    ".git/",
+    "vendor/",
+    "dist/",
+    "build/",
+    ".verify-docs/"
+  ],
+  "maxDocBytes": 7000,
+  "minDuplicateChars": 60,
+  "checkDuplicates": true,
+  "checkNearDuplicates": false,
+  "sizeExceptionFile": "document-size-exceptions.json",
+  "tighten": {
+    "mode": "safe"
+  },
+  "dedupe": {
+    "mode": "safe"
+  }
+}

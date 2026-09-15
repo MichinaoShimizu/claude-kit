@@ -2,6 +2,8 @@
 name: dedupe-docs
 description: >
   言い換えによる意味的重複を探索・正本化し、移動とポインタ化のみで解消する。
+  明示して自律正本化モードを指定した場合は、文書間の内容統合、新たな正本の作成、
+  統合済み不要文書の削除も許容し、質問で停止せず検査と記録まで完走する。
   verify-docs が検知しない言い回しの異なる重複を、人・エージェントの判断で扱う。
   意味的重複の探索・正本化・解消を依頼された場合に使う。通常の文書作成、
   小規模な修正、一般的なレビューでは使わない。
@@ -27,6 +29,13 @@ description: >
 
 [文書構造検証器](../../../docs/verification-boundaries.md#検証器とプレイブックの責務)では検出できない言い換えによる重複を、人・エージェントの判断で扱う。
 
+## 実行モード
+
+`verify-docs.config.json` の `dedupe.mode` は、`safe` で既定の正本選定、`auto` で自律正本化を選ぶ。
+設定がなければ通常は `safe` とし、依頼文で自律正本化モードを明示したときだけ `auto` とする。
+境界・保護対象・記録方法は
+[自律正本化モード](../../../docs/autonomous-canonicalization.md)を参照する。
+
 ## 前提条件
 
 対象リポジトリに文書構造是正スキル一式（`scripts/document-structure-verifier.mjs` と
@@ -50,7 +59,7 @@ node scripts/document-structure-verifier.mjs
 ### 2. 意味的重複の探索
 
 対象は文書構造是正スキルの検査対象と同じである。詳細は
-[検査対象の集め方](../../../docs/config.md#検査対象の集め方)を参照する。
+[検査対象の集め方](../../../docs/scan-targets.md#検査対象の集め方)を参照する。
 文字列が一致しなくても、同じ主張・手順・判断基準を説明する段落が複数ないかを確認する。
 
 開始前に対象文書を一時作業記録へ列挙する。作り方は
@@ -82,8 +91,9 @@ node scripts/document-structure-extractor.mjs --root=. README.md docs/guide.md
 ### 3. 判定と対応
 
 [正本候補の選定規約](../../../docs/canonical-selection.md)と
-[判定と利用者への質問](../../../docs/judgement-and-escalation.md)に従う。選定規約の
-`auto-canonical`条件を満たす場合だけ、片方をポインタに置換できる。
+[判定と利用者への質問](../../../docs/judgement-and-escalation.md)に従う。既定では選定規約の
+`auto-canonical`条件を満たす場合だけ、片方をポインタに置換できる。自律正本化モードでは
+[自律正本化モード](../../../docs/autonomous-canonicalization.md)の統合・削除規則に従う。
 
 本手順の判定は[文書構造検証器](../../../docs/verification-boundaries.md#検証器とプレイブックの責務)と異なり再現性を持たない（同じ入力でも見落とし・
 過検知が起こりうる）。誤った統合を単独で確定させない。
@@ -103,8 +113,9 @@ node scripts/document-structure-verifier.mjs
 
 - 一時作業記録の全項目にチェックが入っている（未確認のまま残っている
   文書が無い）
-- 確信できた重複は是正済みであり、確信が持てなかった候補は利用者の回答に
-  従って対応済みである
+- 既定では、確信できた重複は是正済みであり、確信が持てなかった候補は利用者の回答に
+  従って対応済みである。自律正本化モードでは、統合・ポインタ化・削除または保護対象の
+  判断とリスクを記録している
 - 「4. 是正後再検査」の `node scripts/document-structure-verifier.mjs` が
   「文書構造: すべて通過」で終わっている
 - 自分の一時作業記録に `### 最終検査結果` を記載し、[保守報告](../../../docs/work-records-and-report.md#保守報告)へ統合している

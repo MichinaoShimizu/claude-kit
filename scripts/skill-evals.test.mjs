@@ -18,7 +18,7 @@ test('skill judgement evaluation cases are complete, reviewable, and outside CI 
     ids.add(entry.id);
     assert.ok(['dedupe-docs', 'tighten-docs'].includes(entry.skill));
     skills.add(entry.skill);
-    assert.ok(['consolidate', 'ask-human', 'tighten', 'leave-unchanged'].includes(entry.expectedDecision));
+    assert.ok(['consolidate', 'ask-human', 'tighten', 'autonomous-tighten', 'autonomous-canonicalize', 'leave-unchanged'].includes(entry.expectedDecision));
     assert.ok(Array.isArray(entry.documents) && entry.documents.length > 0);
     assert.ok(entry.documents.every((document) => typeof document.path === 'string' && typeof document.content === 'string'));
     assert.ok(Array.isArray(entry.mustPreserve) && entry.mustPreserve.length > 0);

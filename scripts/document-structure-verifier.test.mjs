@@ -11,7 +11,7 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { verifyDocumentStructure } from './document-structure-verifier.mjs';
+import { DEFAULTS, verifyDocumentStructure } from './document-structure-verifier.mjs';
 
 const SCRIPT = join(import.meta.dirname, 'document-structure-verifier.mjs');
 
@@ -49,6 +49,11 @@ test('clean repo passes', () => {
   assert.deepEqual(result.summary.violations, { count: 0, byKind: {} });
   assert.equal(result.summary.largestSections[0].path, 'README.md');
   rmSync(root, { recursive: true, force: true });
+});
+
+test('installer default configuration contains every verifier default', () => {
+  const configuration = JSON.parse(readFileSync(join(import.meta.dirname, '..', 'verify-docs.config.json'), 'utf8'));
+  assert.deepEqual(configuration, DEFAULTS);
 });
 
 test('detects broken link', () => {
@@ -302,6 +307,32 @@ test('reports invalid config values without a stack trace', () => {
   });
   assert.match(runError(malformed), /設定エラー: verify-docs.config.json を読み込めない/);
   rmSync(malformed, { recursive: true, force: true });
+});
+
+test('accepts safe and auto maintenance modes and rejects invalid mode settings', () => {
+  const root = makeRepo({
+    'README.md': '# Repo\n',
+    'verify-docs.config.json': JSON.stringify({
+      tighten: { mode: 'auto' },
+      dedupe: { mode: 'safe' },
+    }),
+  });
+  assert.deepEqual(run(root).violations, []);
+  rmSync(root, { recursive: true, force: true });
+
+  const invalidMode = makeRepo({
+    'README.md': '# Repo\n',
+    'verify-docs.config.json': JSON.stringify({ tighten: { mode: 'fast' } }),
+  });
+  assert.match(runError(invalidMode), /tighten\.mode は safe または auto/);
+  rmSync(invalidMode, { recursive: true, force: true });
+
+  const invalidNestedKey = makeRepo({
+    'README.md': '# Repo\n',
+    'verify-docs.config.json': JSON.stringify({ dedupe: { mode: 'auto', delete: true } }),
+  });
+  assert.match(runError(invalidNestedKey), /dedupe には mode だけを指定できます/);
+  rmSync(invalidNestedKey, { recursive: true, force: true });
 });
 
 test('validates document-size-exception fields and duplicate paths', () => {

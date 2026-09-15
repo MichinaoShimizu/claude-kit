@@ -147,6 +147,19 @@ ensure_work_record_ignore() {
   echo "Added ignore rule for verify-docs temporary work records"
 }
 
+ensure_default_config() {
+  local source_config="$source_root/verify-docs.config.json"
+  local target_config="$target_root/verify-docs.config.json"
+
+  if [[ -e "$target_config" || -L "$target_config" ]]; then
+    echo "Kept existing verify-docs configuration"
+    return
+  fi
+
+  cp "$source_config" "$target_config"
+  echo "Created verify-docs.config.json with default settings"
+}
+
 conflicts=()
 for item in "${files[@]}"; do
   item_root="$(item_source_root "$item")"
@@ -228,6 +241,7 @@ for item in "${files[@]}"; do
 done
 
 ensure_work_record_ignore
+ensure_default_config
 
 for agent_dir in .claude .kiro; do
   skills_dir="$target_root/$agent_dir/skills"

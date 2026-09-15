@@ -14,7 +14,9 @@
 | リポジトリ内パス | なし（導入先の利用者が作成する） |
 | 配布先パス | `verify-docs.config.json` |
 
-リポジトリ直下に配置する。存在しない場合は全項目が既定値で動作する。
+リポジトリ直下に配置する。インストーラーは、導入先にこのファイルがなければ全項目を
+既定値で埋めた整形済みJSONを作る。すでにある場合は上書きしない。手動導入などで
+存在しない場合も、全項目が既定値で動作する。
 設定項目名と意味は下表を正本とする。個別キーは他文書で列挙せず、キー追加時の
 表への追記漏れは `document-structure-verifier.test.mjs` が機械的に検査する。
 
@@ -30,7 +32,9 @@
   "minDuplicateChars": 60,
   "checkDuplicates": true,
   "checkNearDuplicates": false,
-  "sizeExceptionFile": "document-size-exceptions.json"
+  "sizeExceptionFile": "document-size-exceptions.json",
+  "tighten": { "mode": "safe" },
+  "dedupe": { "mode": "safe" }
 }
 ```
 
@@ -47,51 +51,14 @@
 | `checkDuplicates`     | 完全一致の重複検査の有効・無効。既定は有効                           |
 | `checkNearDuplicates` | 準一致の重複検査の有効・無効。既定は無効（下記「準一致重複」を参照） |
 | `sizeExceptionFile`   | 文書サイズ例外一覧の配置先                                           |
+| `tighten`.mode        | `tighten-docs` の実行モード。`safe` は意味保持、`auto` は自律圧縮。既定は `safe`。 |
+| `dedupe`.mode         | `dedupe-docs` の実行モード。`safe` は既定の正本選定、`auto` は自律正本化。既定は `safe`。 |
+
+`tighten` と `dedupe` は `mode` だけを持つオブジェクトであり、値は `safe` または
+`auto` に限る。設定があればスキルはその値を優先する。設定がない場合、通常呼び出しは
+`safe` とし、依頼文で自律モードを明示したときだけ `auto` として扱う。
 
 入力値の制約は[設定ファイルの入力検証](config-validation.md)を参照。
 
-### 検査対象の集め方
-
-`entryPoints`・`docsDir`・`skillsDir` に置かれた文書だけを見る方式（許可
-リスト）は採らない。そこに置き忘れた文書が検査から漏れたまま気づかれない
-事故を防ぐため（例: 新規`CONTRIBUTING.md`がどちらにも登録されず孤立・
-重複チェックの対象外になる）。
-
-そのため `excludePaths` に列挙したディレクトリ（既定は `node_modules/`・
-`.git/`・`vendor/`・`dist/`・`build/`）を除き、リポジトリ全体の `*.md` を
-検査対象とする（除外リスト方式）。`entryPoints`・`docsDir`・`skillsDir` は
-検査対象への出し入れではなく、「その文書に何を期待するか」（孤立チェック
-免除の起点か、`SKILL.md` の目次に載るべき補助文書か）を決めるためだけに
-使う。
-
-モノレポで各パッケージを個別に `--root=packages/<name>`（詳細は
-`scripts/document-structure-verifier.mjs` の `--root` オプションを
-参照）で検査する場合は、リポジトリ直下の検査からパッケージの
-ディレクトリを `excludePaths` で除外し二重検査を避ける。
-
-孤立チェックだけは、この「走査対象」よりさらに狭い範囲にしか適用されない。
-`agentConfigDirs` 配下（`skillsDir` 自身の SKILL.md 一式を除く）で
-`docsDir` にも属さない文書（エージェント定義など、スキル以外の設定ファイル）は、走査
-（リンク切れ・サイズ超過・重複の検査）には含まれたまま、孤立チェックのみ
-免除される。README・SKILL.md から参照されない運用が前提の設定ファイルまで
-「孤立」として毎回検出し続けるのを避けるための意図的な例外であり、実装漏れ
-ではない。保守報告を作る際は、孤立チェックの結果と照合する前提の項目からは
-この種の文書を除いて考える（詳細な判定ロジックは
-`scripts/document-structure-verifier.mjs` の実装コメントを正本とする）。
-
-`maxDocBytes` の設定方針: 初期段階から厳格にしない。まず上限なしで検査し、
-現存する文書の最大サイズで「問題ない」と判断できるものより1〜2割大きい
-値を初期値とする。過度に厳格だと正当な理由のある文書まで分割を強制する。
-
-`minDuplicateChars` は強調などの書式記号を除いた段落本文の文字数に適用する。
-設定方針: 既定値60は短い定型句レベルの一致を検出
-しないための下限。誤検知が多ければ上げ、見逃しが多ければ下げる。
-`checkNearDuplicates` を有効化した場合も同一の値が適用される。準一致重複の
-挙動詳細は [重複の扱い](duplicate-handling.md) を
-参照する。
-
-入口文書とスキルの共用方法は
-[agent-compatibility.md](agent-compatibility.md) を参照する。
-
-`excludePaths` の既定値に `.verify-docs/` を含めている理由（作業記録と
-保守報告の保管先であること）は[作業記録と保守報告「作業記録」](work-records-and-report.md#作業記録)を参照する。
+検査対象、各上限の設定方針、入口文書とスキルの共用方法は
+[検査対象と設定方針](scan-targets.md)を参照する。

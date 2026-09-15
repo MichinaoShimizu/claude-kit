@@ -63,7 +63,9 @@
  *       "minDuplicateChars": 60,
  *       "checkDuplicates": true,
  *       "checkNearDuplicates": false,
- *       "sizeExceptionFile": "document-size-exceptions.json"
+ *       "sizeExceptionFile": "document-size-exceptions.json",
+ *       "tighten": { "mode": "safe" },
+ *       "dedupe": { "mode": "safe" }
  *     }
  *
  * 文書サイズ例外一覧（既定 document-size-exceptions.json）:
@@ -103,7 +105,7 @@ import { extractProseBlocks, markdownText, parseMarkdown, sourcePosition } from 
 let ROOT;
 let configOption;
 
-const DEFAULTS = {
+export const DEFAULTS = {
   entryPoints: ['README.md', 'CLAUDE.md', 'AGENTS.md'],
   docsDir: 'docs',
   skillsDir: '.agents/skills',
@@ -115,6 +117,8 @@ const DEFAULTS = {
   checkDuplicates: true,
   checkNearDuplicates: false,
   sizeExceptionFile: 'document-size-exceptions.json',
+  tighten: { mode: 'safe' },
+  dedupe: { mode: 'safe' },
 };
 
 function readJson(path, label) {
@@ -137,6 +141,8 @@ const CONFIG_TYPES = {
   checkDuplicates: 'boolean',
   checkNearDuplicates: 'boolean',
   sizeExceptionFile: 'path',
+  tighten: 'mode',
+  dedupe: 'mode',
 };
 
 function validateRelativePath(value, label) {
@@ -160,7 +166,17 @@ function validateConfig(config) {
     const type = CONFIG_TYPES[key];
     const value = config[key];
     if (type === 'path') validateRelativePath(value, key);
-    else if (type === 'string[]') {
+    else if (type === 'mode') {
+      if (!value || typeof value !== 'object' || Array.isArray(value)) {
+        throw new Error(`${key} は mode を持つオブジェクトにしてください`);
+      }
+      if (Object.keys(value).some((nestedKey) => nestedKey !== 'mode')) {
+        throw new Error(`${key} には mode だけを指定できます`);
+      }
+      if (!['safe', 'auto'].includes(value.mode)) {
+        throw new Error(`${key}.mode は safe または auto にしてください`);
+      }
+    } else if (type === 'string[]') {
       if (!Array.isArray(value) || value.some((item) => typeof item !== 'string' || item.trim() === '')) {
         throw new Error(`${key} は空でない文字列の配列にしてください`);
       }
