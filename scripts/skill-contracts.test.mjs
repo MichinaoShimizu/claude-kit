@@ -92,6 +92,7 @@ test('dedupe-docs autonomous canonicalization mode completes cross-document cons
   const autonomousCanonicalization = readFileSync(sharedReferencePath('autonomous-canonicalization.md'), 'utf8');
   const canonicalSelection = readFileSync(sharedReferencePath('canonical-selection.md'), 'utf8');
   const progressiveDisclosure = readFileSync(sharedReferencePath('progressive-disclosure.md'), 'utf8');
+  const workflow = readFileSync(sharedReferencePath('workflow.md'), 'utf8');
   assert.match(dedupe, /自律正本化モード/);
   assert.match(dedupe, /autonomous-canonicalization\.md/);
   assert.match(autonomousCanonicalization, /文書間の内容統合、ポインタ化、新たな正本文書と必要な\nディレクトリの作成/);
@@ -114,6 +115,10 @@ test('dedupe-docs autonomous canonicalization mode completes cross-document cons
   assert.match(progressiveDisclosure, /このリポジトリでの実行経路/);
   assert.match(progressiveDisclosure, /文書の分割・移動・正本化・ポインタ化/);
   assert.match(progressiveDisclosure, /この時点で読まない文書/);
+  assert.match(workflow, /自律正本化を依頼する例/);
+  assert.match(workflow, /対象外の文書は変更しない/);
+  assert.match(workflow, /入口だけで次に読む正本を選べる/);
+  assert.match(workflow, /継続的に\n自律再編する方針が決まった場合だけ設定を使う/);
 });
 
 test('mode comparison records measured compression separately from semantic fact coverage', () => {
