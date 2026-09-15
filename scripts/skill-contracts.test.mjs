@@ -92,8 +92,12 @@ test('dedupe-docs autonomous canonicalization mode completes cross-document cons
   const autonomousCanonicalization = readFileSync(sharedReferencePath('autonomous-canonicalization.md'), 'utf8');
   assert.match(dedupe, /自律正本化モード/);
   assert.match(dedupe, /autonomous-canonicalization\.md/);
-  assert.match(autonomousCanonicalization, /文書間の内容統合、ポインタ化、新たな正本文書の作成/);
+  assert.match(autonomousCanonicalization, /文書間の内容統合、ポインタ化、新たな正本文書と必要な\nディレクトリの作成/);
   assert.match(autonomousCanonicalization, /統合済み不要文書の削除/);
+  assert.match(autonomousCanonicalization, /`docsDir` 配下に必要な\nディレクトリを作成できる/);
+  assert.match(autonomousCanonicalization, /既存の分類と同じ話題・読者・粒度に合う親ディレクトリを優先/);
+  assert.match(autonomousCanonicalization, /入口文書または親ディレクトリの索引から到達できる/);
+  assert.match(autonomousCanonicalization, /既存の候補を選ばなかった理由/);
   assert.match(autonomousCanonicalization, /利用者の回答待ちで停止しない/);
   assert.match(autonomousCanonicalization, /事実を捏造しない/);
   assert.match(autonomousCanonicalization, /allow-duplicate.*マーカーを自分で追加せず/);
