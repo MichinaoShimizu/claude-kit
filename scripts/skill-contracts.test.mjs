@@ -111,6 +111,9 @@ test('dedupe-docs autonomous canonicalization mode completes cross-document cons
   assert.match(progressiveDisclosure, /リンク先で得られる情報/);
   assert.match(progressiveDisclosure, /入口だけで、次に読む正本を選べる/);
   assert.match(progressiveDisclosure, /経路外の文書にしかない必須情報がない/);
+  assert.match(progressiveDisclosure, /このリポジトリでの実行経路/);
+  assert.match(progressiveDisclosure, /文書の分割・移動・正本化・ポインタ化/);
+  assert.match(progressiveDisclosure, /この時点で読まない文書/);
 });
 
 test('mode comparison records measured compression separately from semantic fact coverage', () => {
