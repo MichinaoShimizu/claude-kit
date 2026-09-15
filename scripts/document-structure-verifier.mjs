@@ -105,7 +105,7 @@ import { extractProseBlocks, markdownText, parseMarkdown, sourcePosition } from 
 let ROOT;
 let configOption;
 
-const DEFAULTS = {
+export const DEFAULTS = {
   entryPoints: ['README.md', 'CLAUDE.md', 'AGENTS.md'],
   docsDir: 'docs',
   skillsDir: '.agents/skills',

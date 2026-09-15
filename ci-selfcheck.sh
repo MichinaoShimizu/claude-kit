@@ -23,12 +23,13 @@ node --test "$dir/scripts/skill-evals.test.mjs"
 install_target="$(mktemp -d)"
 ignore_target="$(mktemp -d)"
 existing_skills_target="$(mktemp -d)"
+existing_config_target="$(mktemp -d)"
 conflicting_skill_target="$(mktemp -d)"
 distribution_root="$(mktemp -d)"
 distribution_archive="$distribution_root/verify-docs.tar"
 prepared_skills="$distribution_root/prepared"
 install_log="$distribution_root/install.log"
-trap 'rm -rf "$install_target" "$ignore_target" "$existing_skills_target" "$conflicting_skill_target" "$distribution_root"' EXIT
+trap 'rm -rf "$install_target" "$ignore_target" "$existing_skills_target" "$existing_config_target" "$conflicting_skill_target" "$distribution_root"' EXIT
 tar -cf "$distribution_archive" -C "$(dirname "$dir")" "$(basename "$dir")"
 tar -xf "$distribution_archive" -C "$distribution_root"
 distribution_dir="$distribution_root/$(basename "$dir")"
@@ -45,6 +46,7 @@ git -C "$install_target" init -q
 (cd "$install_target" && bash "$distribution_dir/install.sh" --source "$distribution_dir") >"$install_log"
 grep -Fxq 'Preparing standalone skills...' "$install_log"
 grep -Fxq 'Installing verify-docs files...' "$install_log"
+grep -Fxq 'Created verify-docs.config.json with default settings' "$install_log"
 grep -Fq "Installed verify-docs into $install_target" "$install_log"
 if grep -Fq 'Prepared standalone skill distribution at ' "$install_log"; then
   echo "installer must not expose its temporary distribution directory" >&2
@@ -63,6 +65,7 @@ test -f "$install_target/scripts/document-structure-extractor.mjs"
 test -f "$install_target/scripts/select-canonical.mjs"
 test -f "$install_target/scripts/vendor/commonmark.cjs"
 test -f "$install_target/scripts/vendor/commonmark-LICENSE.txt"
+cmp -s "$distribution_dir/verify-docs.config.json" "$install_target/verify-docs.config.json"
 test ! -e "$install_target/evals"
 node "$install_target/scripts/document-structure-verifier.mjs" --root="$install_target/scripts"
 node "$install_target/scripts/document-structure-extractor.mjs" \
@@ -96,6 +99,11 @@ printf '# Repository skill\n' > "$existing_skills_target/.kiro/skills/repository
 (cd "$existing_skills_target" && bash "$dir/install.sh" --source "$dir")
 test -f "$existing_skills_target/.kiro/skills/repository-skill/SKILL.md"
 test "$(readlink "$existing_skills_target/.kiro/skills/verify-docs")" = "../../.agents/skills/verify-docs"
+
+printf '{"tighten":{"mode":"auto"}}\n' > "$existing_config_target/verify-docs.config.json"
+(cd "$existing_config_target" && bash "$dir/install.sh" --source "$dir") > "$distribution_root/existing-config-install.log"
+grep -Fxq 'Kept existing verify-docs configuration' "$distribution_root/existing-config-install.log"
+test "$(cat "$existing_config_target/verify-docs.config.json")" = '{"tighten":{"mode":"auto"}}'
 
 mkdir -p "$conflicting_skill_target/.kiro/skills/verify-docs"
 printf '# User-owned skill\n' > "$conflicting_skill_target/.kiro/skills/verify-docs/SKILL.md"

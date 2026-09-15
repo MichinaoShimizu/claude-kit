@@ -11,7 +11,7 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { verifyDocumentStructure } from './document-structure-verifier.mjs';
+import { DEFAULTS, verifyDocumentStructure } from './document-structure-verifier.mjs';
 
 const SCRIPT = join(import.meta.dirname, 'document-structure-verifier.mjs');
 
@@ -49,6 +49,11 @@ test('clean repo passes', () => {
   assert.deepEqual(result.summary.violations, { count: 0, byKind: {} });
   assert.equal(result.summary.largestSections[0].path, 'README.md');
   rmSync(root, { recursive: true, force: true });
+});
+
+test('installer default configuration contains every verifier default', () => {
+  const configuration = JSON.parse(readFileSync(join(import.meta.dirname, '..', 'verify-docs.config.json'), 'utf8'));
+  assert.deepEqual(configuration, DEFAULTS);
 });
 
 test('detects broken link', () => {

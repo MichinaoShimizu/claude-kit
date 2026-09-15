@@ -48,6 +48,7 @@ curl -fsSL https://raw.githubusercontent.com/MichinaoShimizu/verify-docs/main/in
 
 設定がない場合、両スキルは `safe` で動く。`safe` と `auto` の意味は
 [文書構造検証設定](docs/config.md#文書構造検証設定)を参照する。
+インストーラーは、導入先に設定がなければ全既定値入りの整形済みJSONを作り、既存の設定は保持する。
 
 CLIの詳細は[CLIリファレンス](docs/advanced-usage.md)を参照。
 
