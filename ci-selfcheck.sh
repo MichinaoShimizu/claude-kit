@@ -43,6 +43,17 @@ while IFS= read -r -d '' link; do
     exit 1
   fi
 done < <(find "$distribution_dir" -type l -print0)
+
+old_node_bin="$distribution_root/node-22-22-bin"
+mkdir -p "$old_node_bin"
+printf '%s\n' '#!/usr/bin/env bash' 'printf "v22.22.9\\n"' > "$old_node_bin/node"
+chmod +x "$old_node_bin/node"
+if (cd "$install_target" && PATH="$old_node_bin:$PATH" bash "$distribution_dir/install.sh" --source "$distribution_dir") > "$distribution_root/old-node.log" 2>&1; then
+  echo "installer must reject Node.js versions below 22.23.2" >&2
+  exit 1
+fi
+grep -Fxq 'verify-docs requires Node.js 22.23.2 or later. Current version: v22.22.9' "$distribution_root/old-node.log"
+
 git -C "$install_target" init -q
 (cd "$install_target" && bash "$distribution_dir/install.sh" --source "$distribution_dir") >"$install_log"
 grep -Fxq 'Preparing standalone skills...' "$install_log"
