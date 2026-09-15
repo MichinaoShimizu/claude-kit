@@ -39,30 +39,8 @@ node scripts/document-structure-verifier.mjs --init-size-exceptions
 
 ## CIへの組み込み
 
-GitHub Actionsの構成例。本パッケージの
+[CIへの組み込み](ci-integration.md)を参照する。本パッケージの
 [文書構造検証ワークフロー](operations.md#文書構造検証ワークフロー)も利用できる。
-
-```yaml
-name: verify-docs
-on:
-  pull_request:
-    paths:
-      - '**/*.md'
-      - 'verify-docs.config.json'
-      - 'document-size-exceptions.json'
-      - 'scripts/**'
-
-jobs:
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
-      - run: node scripts/document-structure-verifier.mjs
-```
-
-`paths` は対象リポジトリのCI構成に合わせる。文書だけの変更でも実行する。
-push前にも検証する場合は、既存のlint・typecheck・testなどに
-`node scripts/document-structure-verifier.mjs`を追加する。
 
 ## 文書サイズ例外の管理
 
